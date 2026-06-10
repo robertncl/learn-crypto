@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ChainLab · Learn blockchain interactively</title>
-  <meta name="description" content="An interactive course on blockchain and cryptocurrency: hashing, blocks, mining, wallets and consensus — learn by experimenting.">
+  <meta name="description" content="An interactive course on blockchain and cryptocurrency: hashing, blocks, mining, wallets, consensus and Ethereum smart contracts — learn by experimenting.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%93%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/styles.css">
   <script type="module" src="js/app.js"></script>
@@ -16,8 +16,8 @@
     <a class="brand" href="#/home">⛓️ <strong>ChainLab</strong></a>
     <div class="header-tools">
       <p class="progress-wrap">
-        <span id="progress-label">0 / 6 modules</span>
-        <progress id="course-progress" max="6" value="0" aria-labelledby="progress-label"></progress>
+        <span id="progress-label">0 / 7 modules</span>
+        <progress id="course-progress" max="7" value="0" aria-labelledby="progress-label"></progress>
       </p>
       <button type="button" id="theme-toggle" class="btn ghost" aria-label="Switch color theme">🌗 Auto</button>
     </div>
@@ -34,6 +34,7 @@
           <li><a href="#/mining" data-route="mining"><span class="num">4</span> Mining &amp; proof of work <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/keys" data-route="keys"><span class="num">5</span> Keys, wallets &amp; signatures <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/consensus" data-route="consensus"><span class="num">6</span> Transactions &amp; consensus <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/ethereum" data-route="ethereum"><span class="num">7</span> Ethereum &amp; smart contracts <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/glossary" data-route="glossary">📖 Glossary</a></li>
         </ul>
       </nav>
@@ -51,8 +52,8 @@
         <div class="hero">
           <h1>Learn blockchain by <em>playing with one</em></h1>
           <p class="lede">
-            Six short modules take you from “what even is a blockchain?” to mining blocks,
-            signing transactions and choosing validators — all with live, hands-on demos
+            Seven short modules take you from “what even is a blockchain?” to mining blocks,
+            signing transactions and calling smart contracts — all with live, hands-on demos
             running right in your browser. No wallets, no real coins, nothing to install.
           </p>
           <p><a class="btn primary big" href="#/basics">Start learning →</a></p>
@@ -88,6 +89,11 @@
           <article class="module-card" data-module="consensus">
             <h3><a href="#/consensus">6 · Transactions &amp; consensus</a></h3>
             <p>Follow a transaction’s life and compare proof of work with proof of stake.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="ethereum">
+            <h3><a href="#/ethereum">7 · Ethereum &amp; smart contracts</a></h3>
+            <p>Call a token contract that enforces its own rules, then price real-world gas fees.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
         </div>
@@ -479,11 +485,171 @@
         <p>
           Once a network can agree on arbitrary data, it can agree on <em>code</em>. <strong>Smart contracts</strong>
           are programs stored on-chain that execute exactly as written — powering tokens, decentralized exchanges,
-          lending markets (DeFi) and NFTs. Different goals, same foundations you just learned.
+          lending markets (DeFi) and NFTs. Different goals, same foundations you just learned — and exactly where
+          <a href="#/ethereum">Module 7</a> goes next.
         </p>
 
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="consensus"></form>
+      </section>
+
+      <!-- ============================== MODULE 7 ============================== -->
+      <section id="ethereum" class="view" hidden>
+        <p class="kicker">Module 7</p>
+        <h1>Ethereum &amp; smart contracts</h1>
+        <p class="lede">
+          Bitcoin proved a network can agree on <em>money</em>. Ethereum asked: why stop there?
+          If thousands of nodes can agree on a ledger, they can agree on the result of
+          <strong>running a program</strong>.
+        </p>
+
+        <h2>One idea, two chains</h2>
+        <p>
+          Ethereum (launched 2015) keeps everything you’ve learned — blocks, hashes, keys, consensus — but turns
+          the ledger into a <strong>world computer</strong>: alongside balances, it stores <em>code</em> and that
+          code’s <em>data</em>. Every node runs the <strong>Ethereum Virtual Machine (EVM)</strong>, so a program
+          executes identically everywhere and the network agrees on its results the same way it agrees on payments.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col"></th><th scope="col">Bitcoin</th><th scope="col">Ethereum</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Main purpose</th><td>Digital money</td><td>Programmable platform (money included)</td></tr>
+              <tr><th scope="row">Native coin</th><td>BTC</td><td>ETH — also the fuel for running code</td></tr>
+              <tr><th scope="row">Consensus</th><td>Proof of work</td><td>Proof of stake (since “the Merge”, 2022)</td></tr>
+              <tr><th scope="row">New block every</th><td>~10 minutes</td><td>~12 seconds</td></tr>
+              <tr><th scope="row">What the ledger stores</th><td>Who owns which coins</td><td>Balances <em>plus</em> contract code and contract data</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Two kinds of accounts</h2>
+        <dl class="props">
+          <div><dt>Externally owned account</dt><dd>Controlled by a private key — the wallets you built in Module 5. It can hold ETH and send transactions.</dd></div>
+          <div><dt>Contract account</dt><dd>Controlled by <em>code</em>, not a key. It has its own address and balance, and reacts only when a transaction calls it.</dd></div>
+          <div><dt>Smart contract</dt><dd>The program inside a contract account. Once deployed it runs exactly as written — its author can’t reach in and bend the rules.</dd></div>
+          <div><dt>Token</dt><dd>Not a separate blockchain — just a contract keeping a balance table. ERC-20 (currencies) and ERC-721 (NFTs) are standard shapes for that table.</dd></div>
+        </dl>
+
+        <div class="demo-card">
+          <h2>Try it: call a smart contract</h2>
+          <p>
+            Below is a tiny token contract. Its one rule lives in the <code>require(...)</code> line:
+            you can’t send tokens you don’t have. Pick a caller and try to break it.
+          </p>
+          <pre class="contract-code" aria-label="Token contract source code">contract LabToken {
+  mapping(address =&gt; uint) balances;
+
+  function transfer(address to, uint amount) {
+    require(balances[msg.sender] &gt;= amount, "insufficient balance");
+    balances[msg.sender] -= amount;
+    balances[to] += amount;
+    emit Transfer(msg.sender, to, amount);
+  }
+}</pre>
+          <div class="stat-grid" role="status" aria-live="polite">
+            <p><span class="stat-label">🦊 Alice</span><span id="eth-bal-alice">–</span></p>
+            <p><span class="stat-label">🐢 Bob</span><span id="eth-bal-bob">–</span></p>
+            <p><span class="stat-label">🦉 Carol</span><span id="eth-bal-carol">–</span></p>
+          </div>
+          <div class="duo">
+            <p>
+              <label for="eth-caller">Call as (msg.sender)</label>
+              <select id="eth-caller">
+                <option value="alice">🦊 Alice</option>
+                <option value="bob">🐢 Bob</option>
+                <option value="carol">🦉 Carol</option>
+              </select>
+            </p>
+            <p>
+              <label for="eth-recipient">Send to</label>
+              <select id="eth-recipient">
+                <option value="alice">🦊 Alice</option>
+                <option value="bob" selected>🐢 Bob</option>
+                <option value="carol">🦉 Carol</option>
+              </select>
+            </p>
+            <p>
+              <label for="eth-amount">Amount (LAB)</label>
+              <input type="number" id="eth-amount" value="30" min="1" step="1">
+            </p>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="eth-call">📞 Call transfer()</button>
+            <button type="button" class="btn ghost" id="eth-reset">Reset</button>
+          </p>
+          <p class="hash-label">Transaction log:</p>
+          <ul class="mini-ledger event-log" id="eth-log" role="log" aria-live="polite">
+            <li class="log-empty">no transactions yet</li>
+          </ul>
+          <p class="demo-note">
+            Try sending more than the caller owns: the call <strong>reverts</strong> and no balance moves.
+            Nobody can override that — not the caller, not the contract’s author. Every node runs this same
+            code and must reach the same result. “Code is law” is meant literally.
+          </p>
+        </div>
+
+        <h2>Gas: paying the world computer</h2>
+        <p>
+          Running code on thousands of machines isn’t free. Every EVM operation has a price measured in
+          <strong>gas</strong>; you pay <em>gas used × gas price</em>, in ETH. Gas does two jobs: it pays
+          validators for computation and storage, and it makes spam and infinite loops impossible — a program
+          that runs out of fuel simply stops and its transaction reverts.
+        </p>
+        <ul>
+          <li><strong>Gas used</strong> — depends on the work: a plain ETH transfer is exactly 21,000 gas; calling complex contracts costs more.</li>
+          <li><strong>Gas price</strong> — quoted in <strong>gwei</strong> (a billionth of an ETH) and set by supply and demand for block space. Busy network → higher price.</li>
+          <li><strong>Layer 2 rollups</strong> — networks that batch thousands of transactions off-chain and post a compressed proof to Ethereum, cutting fees 10–100×.</li>
+        </ul>
+
+        <div class="demo-card">
+          <h2>Try it: estimate a gas fee</h2>
+          <p>Pick a transaction type, then drag the gas price to see how a quiet network differs from a congested one.</p>
+          <div class="duo">
+            <p>
+              <label for="gas-op">Transaction type</label>
+              <select id="gas-op">
+                <option value="21000">Send ETH (21,000 gas)</option>
+                <option value="65000">Send an ERC-20 token (~65,000 gas)</option>
+                <option value="150000">Mint an NFT (~150,000 gas)</option>
+                <option value="200000">Swap on a DEX (~200,000 gas)</option>
+              </select>
+            </p>
+            <p>
+              <label for="gas-price">Gas price: <output id="gas-price-out"></output></label>
+              <input type="range" id="gas-price" min="1" max="200" value="25">
+            </p>
+            <p>
+              <label for="gas-eth-usd">ETH price (USD)</label>
+              <input type="number" id="gas-eth-usd" value="3000" min="1" step="50">
+            </p>
+          </div>
+          <div class="stat-grid" role="status" aria-live="polite">
+            <p><span class="stat-label">Gas used</span><span id="gas-units-out">–</span></p>
+            <p><span class="stat-label">Fee in ETH</span><span id="gas-eth-out">–</span></p>
+            <p><span class="stat-label">Fee in USD</span><span id="gas-usd-out">–</span></p>
+          </div>
+          <p class="stat" id="gas-math"></p>
+          <p class="demo-note">
+            1 gwei = 0.000000001 ETH. Quiet days sit around a few gwei; famous NFT launches have pushed
+            the network past 200. Same transaction, wildly different bill — which is exactly the problem
+            layer-2 rollups were built to solve.
+          </p>
+        </div>
+
+        <h2>What people build with this</h2>
+        <p>
+          Once contracts can hold money and enforce rules, finance becomes software:
+          <strong>tokens</strong> (currencies and loyalty points as contracts), <strong>DeFi</strong>
+          (exchanges and lending markets with no company in the middle), <strong>NFTs</strong> (contracts
+          tracking ownership of unique items), and <strong>DAOs</strong> (organizations whose treasury and
+          voting rules are code). Every one of them is just a program — like <code>LabToken</code>, only bigger.
+        </p>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="ethereum"></form>
       </section>
 
       <!-- ============================== GLOSSARY ============================== -->
@@ -510,8 +676,11 @@
           <details name="glossary"><summary>Double-spend</summary><p>Trying to spend the same coin twice. Consensus guarantees at most one of the conflicting transactions is ever confirmed.</p></details>
           <details name="glossary"><summary>51% attack</summary><p>Controlling a majority of mining power (PoW) or stake (PoS), enough to censor or reorder recent transactions. Prohibitively expensive on large networks.</p></details>
           <details name="glossary"><summary>Smart contract</summary><p>A program stored on-chain that runs exactly as written when triggered by a transaction — the engine behind tokens, DeFi and NFTs.</p></details>
+          <details name="glossary"><summary>Ethereum / EVM</summary><p>The largest smart-contract blockchain. Every node runs the Ethereum Virtual Machine (EVM), so contracts execute identically everywhere; ETH is its native coin and pays for gas.</p></details>
           <details name="glossary"><summary>Gas / fees</summary><p>The price paid to have the network process your transaction or run your contract; it compensates miners/validators and prevents spam.</p></details>
+          <details name="glossary"><summary>Gwei</summary><p>A billionth of an ETH — the unit gas prices are quoted in. Your fee is gas used × gas price in gwei.</p></details>
           <details name="glossary"><summary>Token vs. coin</summary><p>A <em>coin</em> is a blockchain’s native currency (BTC, ETH). A <em>token</em> is an asset created by a smart contract on top of an existing chain.</p></details>
+          <details name="glossary"><summary>Layer 2 / rollup</summary><p>A network that executes transactions cheaply off the main chain, then posts compressed proof of them on-chain — inheriting its security at a fraction of the fee.</p></details>
           <details name="glossary"><summary>DeFi &amp; NFT</summary><p>Decentralized finance: lending, trading and earning interest via smart contracts. NFTs: unique on-chain tokens representing ownership of a specific item.</p></details>
         </div>
       </section>

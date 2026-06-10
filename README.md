@@ -1,6 +1,6 @@
 # ⛓️ ChainLab — learn blockchain interactively
 
-An interactive, single-page course on blockchain and cryptocurrency. Six short
+An interactive, single-page course on blockchain and cryptocurrency. Seven short
 modules with live, hands-on demos running entirely in your browser — no build
 step, no dependencies, no real coins.
 
@@ -26,6 +26,7 @@ python3 -m http.server 8000
 | 4 · Mining & proof of work | Real in-browser miner with adjustable difficulty and hashrate stats |
 | 5 · Keys, wallets & signatures | Generate an ECDSA key pair, sign a message, tamper, verify |
 | 6 · Transactions & consensus | Stake-weighted validator selection simulator |
+| 7 · Ethereum & smart contracts | Call a token contract that enforces its own rules + live gas-fee estimator |
 
 Each module ends with a quiz (70% to pass); progress is saved in
 `localStorage`. There's also a glossary of ~20 key terms.

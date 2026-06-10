@@ -19,7 +19,7 @@ const nextFrame = () => new Promise((r) => requestAnimationFrame(r));
 
 /* ============================== Router ============================== */
 
-const ROUTES = ['home', 'basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus', 'glossary'];
+const ROUTES = ['home', 'basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus', 'ethereum', 'glossary'];
 
 function currentRoute() {
   const id = location.hash.replace(/^#\/?/, '');
@@ -73,7 +73,7 @@ function initTheme() {
 /* ============================== Progress ============================== */
 
 const PROGRESS_KEY = 'chainlab-progress';
-const QUIZ_IDS = ['basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus'];
+const QUIZ_IDS = ['basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus', 'ethereum'];
 
 function loadProgress() {
   try {
@@ -291,6 +291,38 @@ const QUIZZES = {
       ],
       answer: 0,
       why: 'With majority hashpower (PoW) or stake (PoS) an attacker can censor or reorder recent blocks — which is why bigger networks are safer.',
+    },
+  ],
+  ethereum: [
+    {
+      q: 'The big idea Ethereum added to Bitcoin’s design is…',
+      options: [
+        'a ledger that can also store and run programs, not just track currency',
+        'removing the need for consensus',
+        'making transactions completely free',
+      ],
+      answer: 0,
+      why: 'Ethereum keeps blocks, hashes and consensus, but every node also runs the EVM — so the network agrees on the results of code, not just payments.',
+    },
+    {
+      q: 'You call transfer() trying to send more tokens than you own. What happens?',
+      options: [
+        'Your balance goes negative until you top it up',
+        'The contract’s owner decides whether to allow it',
+        'The require() check fails and the whole transaction reverts — nothing moves',
+      ],
+      answer: 2,
+      why: 'Code is the only authority: every node runs the same check and rejects the call, exactly as the LabToken demo showed.',
+    },
+    {
+      q: 'Why does every Ethereum transaction cost gas?',
+      options: [
+        'Gas converts ETH into Bitcoin',
+        'It pays validators for computation and storage, and stops spam and infinite loops',
+        'Only NFT transactions actually need gas',
+      ],
+      answer: 1,
+      why: 'Each EVM operation has a gas cost and you pay gas used × gas price. A program with no fuel limit could loop forever on every node in the network.',
     },
   ],
 };
@@ -790,6 +822,93 @@ function initStakeDemo() {
   render();
 }
 
+/* ============================== Module 7: smart-contract token demo ============================== */
+
+function initContractDemo() {
+  const INITIAL = { alice: 100, bob: 50, carol: 0 };
+  const NAMES = { alice: 'Alice', bob: 'Bob', carol: 'Carol' };
+  let balances = { ...INITIAL };
+
+  const caller = $('#eth-caller');
+  const recipient = $('#eth-recipient');
+  const amountInput = $('#eth-amount');
+  const log = $('#eth-log');
+
+  function renderBalances() {
+    for (const id of Object.keys(balances)) {
+      $(`#eth-bal-${id}`).textContent = `${balances[id]} LAB`;
+    }
+  }
+
+  function addLog(text, ok) {
+    $('.log-empty', log)?.remove();
+    const li = document.createElement('li');
+    li.className = ok ? 'log-ok' : 'log-bad';
+    li.textContent = text;
+    log.prepend(li);
+  }
+
+  $('#eth-call').addEventListener('click', () => {
+    const from = caller.value;
+    const to = recipient.value;
+    const amount = Math.floor(Number(amountInput.value));
+    const call = `transfer(${NAMES[from]} → ${NAMES[to]}, ${Number.isFinite(amount) ? amount : '?'} LAB)`;
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      addLog(`❌ ${call} reverted: amount must be a positive number`, false);
+      return;
+    }
+    if (balances[from] < amount) {
+      addLog(`❌ ${call} reverted: insufficient balance (${NAMES[from]} has ${balances[from]} LAB)`, false);
+      return;
+    }
+    balances[from] -= amount;
+    balances[to] += amount;
+    renderBalances();
+    addLog(`✅ Transfer(${NAMES[from]} → ${NAMES[to]}, ${amount} LAB)`, true);
+  });
+
+  $('#eth-reset').addEventListener('click', () => {
+    balances = { ...INITIAL };
+    renderBalances();
+    const empty = document.createElement('li');
+    empty.className = 'log-empty';
+    empty.textContent = 'no transactions yet';
+    log.replaceChildren(empty);
+  });
+
+  renderBalances();
+}
+
+/* ============================== Module 7: gas fee estimator ============================== */
+
+function initGasDemo() {
+  const op = $('#gas-op');
+  const price = $('#gas-price');
+  const ethUsd = $('#gas-eth-usd');
+
+  const update = () => {
+    const units = Number(op.value);
+    const gwei = Number(price.value);
+    const usdPerEth = Number(ethUsd.value) || 0;
+    const totalGwei = units * gwei;
+    const eth = totalGwei / 1e9;
+
+    $('#gas-price-out').textContent = `${gwei} gwei`;
+    $('#gas-units-out').textContent = units.toLocaleString();
+    $('#gas-eth-out').textContent = `${eth.toFixed(6)} ETH`;
+    $('#gas-usd-out').textContent = `$${(eth * usdPerEth).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+    $('#gas-math').textContent =
+      `${units.toLocaleString()} gas × ${gwei} gwei = ${totalGwei.toLocaleString()} gwei = ${eth.toFixed(6)} ETH`;
+  };
+
+  [op, price, ethUsd].forEach((el) => el.addEventListener('input', update));
+  update();
+}
+
 /* ============================== Boot ============================== */
 
 initRouter();
@@ -798,6 +917,8 @@ initQuizzes();
 updateProgressUI();
 initNetworkDemo();
 initStakeDemo();
+initContractDemo();
+initGasDemo();
 
 if (SUBTLE_OK) {
   initHashPlayground();

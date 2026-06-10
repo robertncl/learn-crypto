@@ -504,7 +504,7 @@
     font-size: 0.92rem;
   }
 
-  input[type="text"], textarea {
+  input[type="text"], input[type="number"], select, textarea {
     display: block;
     inline-size: 100%;
     font: inherit;
@@ -780,6 +780,28 @@
   .win-text {
     font-size: 0.82rem;
     color: var(--color-text-muted);
+  }
+
+  /* ---------- Ethereum demos (module 7) ---------- */
+  .contract-code {
+    margin-block: 1em;
+    padding: 0.8em 1em;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.55;
+    overflow-x: auto;
+  }
+
+  .event-log {
+    max-block-size: 11em;
+    overflow-y: auto;
+
+    .log-ok { color: var(--color-ok); }
+    .log-bad { color: var(--color-bad); }
+    .log-empty { color: var(--color-text-muted); }
   }
 
   /* ---------- Quiz ---------- */
