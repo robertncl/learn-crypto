@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChainLab · Learn blockchain interactively</title>
+  <meta name="description" content="An interactive course on blockchain and cryptocurrency: hashing, blocks, mining, wallets and consensus — learn by experimenting.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%93%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="brand" href="#/home">⛓️ <strong>ChainLab</strong></a>
+    <div class="header-tools">
+      <p class="progress-wrap">
+        <span id="progress-label">0 / 6 modules</span>
+        <progress id="course-progress" max="6" value="0" aria-labelledby="progress-label"></progress>
+      </p>
+      <button type="button" id="theme-toggle" class="btn ghost" aria-label="Switch color theme">🌗 Auto</button>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <aside class="sidebar">
+      <nav id="site-nav" aria-label="Course modules">
+        <ul>
+          <li><a href="#/home" data-route="home">🏠 Home</a></li>
+          <li><a href="#/basics" data-route="basics"><span class="num">1</span> Blockchain basics <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/hashing" data-route="hashing"><span class="num">2</span> Hashing <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/blocks" data-route="blocks"><span class="num">3</span> Blocks &amp; the chain <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/mining" data-route="mining"><span class="num">4</span> Mining &amp; proof of work <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/keys" data-route="keys"><span class="num">5</span> Keys, wallets &amp; signatures <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/consensus" data-route="consensus"><span class="num">6</span> Transactions &amp; consensus <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/glossary" data-route="glossary">📖 Glossary</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main id="main">
+      <p id="crypto-warning" class="banner warn" hidden>
+        ⚠️ The interactive demos need the Web Crypto API, which requires a secure context.
+        Serve this folder over <code>localhost</code> (for example <code>python3 -m http.server</code>) and reload.
+      </p>
+      <noscript><p class="banner warn">This course is interactive and needs JavaScript enabled.</p></noscript>
+
+      <!-- ============================== HOME ============================== -->
+      <section id="home" class="view">
+        <div class="hero">
+          <h1>Learn blockchain by <em>playing with one</em></h1>
+          <p class="lede">
+            Six short modules take you from “what even is a blockchain?” to mining blocks,
+            signing transactions and choosing validators — all with live, hands-on demos
+            running right in your browser. No wallets, no real coins, nothing to install.
+          </p>
+          <p><a class="btn primary big" href="#/basics">Start learning →</a></p>
+        </div>
+
+        <h2>Course modules</h2>
+        <div class="card-grid">
+          <article class="module-card" data-module="basics">
+            <h3><a href="#/basics">1 · Blockchain basics</a></h3>
+            <p>Why blockchains exist, the shared-ledger idea, and what “decentralized” really means.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="hashing">
+            <h3><a href="#/hashing">2 · Hashing</a></h3>
+            <p>Meet SHA-256, the fingerprint machine behind everything. Hash your own text live.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="blocks">
+            <h3><a href="#/blocks">3 · Blocks &amp; the chain</a></h3>
+            <p>Build intuition by tampering with a real (tiny) blockchain and watching it break.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="mining">
+            <h3><a href="#/mining">4 · Mining &amp; proof of work</a></h3>
+            <p>Run a real miner in your browser and feel how difficulty turns into security.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="keys">
+            <h3><a href="#/keys">5 · Keys, wallets &amp; signatures</a></h3>
+            <p>Generate a key pair, sign a message, then tamper with it and watch verification fail.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="consensus">
+            <h3><a href="#/consensus">6 · Transactions &amp; consensus</a></h3>
+            <p>Follow a transaction’s life and compare proof of work with proof of stake.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+        </div>
+
+        <h2>How it works</h2>
+        <ul class="feature-list">
+          <li>🧪 <strong>Real cryptography</strong> — demos use your browser’s built-in SHA-256 and ECDSA, the same primitives Bitcoin-style chains rely on.</li>
+          <li>✅ <strong>Quizzes</strong> — each module ends with a short check; score 70% or more to mark it complete.</li>
+          <li>💾 <strong>Progress saved locally</strong> — your progress lives in your browser only.</li>
+        </ul>
+      </section>
+
+      <!-- ============================== MODULE 1 ============================== -->
+      <section id="basics" class="view" hidden>
+        <p class="kicker">Module 1</p>
+        <h1>Blockchain basics</h1>
+        <p class="lede">
+          A blockchain is a <strong>shared record book that no single person controls</strong>.
+          Before diving into the cryptography, let’s understand the problem it solves.
+        </p>
+
+        <h2>The problem: trusting a record keeper</h2>
+        <p>
+          Banks, land registries and payment networks all work the same way: <em>one trusted party keeps the
+          official record</em>. That works — until the record keeper makes a mistake, gets hacked, censors you,
+          or simply isn’t trusted by everyone involved.
+        </p>
+        <p>
+          A blockchain flips the model: <strong>everyone keeps a full copy of the ledger</strong>, new entries are
+          only added when the network agrees on them, and old entries are mathematically protected from editing.
+        </p>
+
+        <h2>Four properties to remember</h2>
+        <dl class="props">
+          <div><dt>Distributed</dt><dd>Thousands of computers (<em>nodes</em>) each hold the complete ledger.</dd></div>
+          <div><dt>Append-only</dt><dd>You can add new records, but never edit or delete old ones.</dd></div>
+          <div><dt>Tamper-evident</dt><dd>If anyone alters history, every other copy immediately exposes the change.</dd></div>
+          <div><dt>Consensus-driven</dt><dd>Rules — not a boss — decide which new entries are accepted.</dd></div>
+        </dl>
+
+        <div class="demo-card">
+          <h2>Try it: the network rejects a cheat</h2>
+          <p>Three nodes hold identical copies of a tiny ledger. Tamper with one and see what the majority does.</p>
+          <div class="network" id="network-demo">
+            <article class="node-card" id="node-a">
+              <h3>Node A</h3>
+              <ul class="mini-ledger">
+                <li>Alice → Bob: 5</li>
+                <li>Bob → Carol: 2</li>
+                <li>Carol → Dan: 1</li>
+              </ul>
+            </article>
+            <article class="node-card" id="node-b">
+              <h3>Node B</h3>
+              <ul class="mini-ledger">
+                <li>Alice → Bob: 5</li>
+                <li>Bob → Carol: 2</li>
+                <li>
+                  <span class="entry-orig">Carol → Dan: 1</span>
+                  <span class="entry-fake" hidden>Carol → Mallory: 99</span>
+                </li>
+              </ul>
+              <p class="reject-chip" hidden>✗ Rejected by majority</p>
+            </article>
+            <article class="node-card" id="node-c">
+              <h3>Node C</h3>
+              <ul class="mini-ledger">
+                <li>Alice → Bob: 5</li>
+                <li>Bob → Carol: 2</li>
+                <li>Carol → Dan: 1</li>
+              </ul>
+            </article>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="tamper-btn">Tamper with Node B</button>
+          </p>
+          <p class="demo-note">
+            Node B can scribble whatever it wants in <em>its own copy</em> — but A and C still agree on the truth,
+            so the network ignores B. To rewrite history you’d have to out-vote the entire honest network.
+          </p>
+        </div>
+
+        <h2>Where does cryptocurrency fit in?</h2>
+        <p>
+          A <strong>cryptocurrency</strong> is simply what the ledger tracks: entries like “Alice pays Bob 5 coins”.
+          Because the ledger can’t be forged or rewritten, those entries behave like money — scarce, transferable,
+          and not dependent on any bank. Bitcoin (2009) was the first system to make this work; thousands of
+          others followed.
+        </p>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="basics"></form>
+      </section>
+
+      <!-- ============================== MODULE 2 ============================== -->
+      <section id="hashing" class="view" hidden>
+        <p class="kicker">Module 2</p>
+        <h1>Hashing — the fingerprint machine</h1>
+        <p class="lede">
+          Every security promise a blockchain makes traces back to one tool: the
+          <strong>cryptographic hash function</strong>. Master this and the rest of the course clicks into place.
+        </p>
+
+        <h2>What a hash function does</h2>
+        <p>
+          A hash function takes <em>any</em> input — a letter, a novel, a 4&nbsp;GB movie — and produces a
+          <strong>fixed-size fingerprint</strong>. Bitcoin and this course use <strong>SHA-256</strong>, which always
+          outputs 256 bits (written as 64 hex characters).
+        </p>
+        <ul>
+          <li><strong>Deterministic</strong> — same input, same hash. Always.</li>
+          <li><strong>One-way</strong> — there is no way to compute the input from the hash. Guessing is the only option.</li>
+          <li><strong>Avalanche effect</strong> — change one character and the entire hash changes beyond recognition.</li>
+          <li><strong>Collision-resistant</strong> — finding two inputs with the same hash is astronomically hard.</li>
+        </ul>
+
+        <div class="demo-card">
+          <h2>Try it: live SHA-256 playground</h2>
+          <p><label for="hash-input">Type anything — the fingerprint updates with every keystroke:</label></p>
+          <textarea id="hash-input" rows="3" spellcheck="false">Hello, blockchain!</textarea>
+          <p class="hash-label">SHA-256:</p>
+          <output class="hash-box" id="hash-output" for="hash-input"></output>
+          <p class="demo-note">Paste an entire essay — the output stays exactly 64 hex characters.</p>
+        </div>
+
+        <div class="demo-card">
+          <h2>Try it: the avalanche effect</h2>
+          <p>Compare two inputs. Matching hash characters are dim; differences glow.</p>
+          <div class="duo">
+            <p>
+              <label for="ava-a">Input A</label>
+              <input type="text" id="ava-a" value="hello" spellcheck="false">
+            </p>
+            <p>
+              <label for="ava-b">Input B</label>
+              <input type="text" id="ava-b" value="hello!" spellcheck="false">
+            </p>
+          </div>
+          <output class="hash-box" id="ava-out-a" for="ava-a"></output>
+          <output class="hash-box" id="ava-out-b" for="ava-b"></output>
+          <p class="stat" id="ava-stats"></p>
+          <p class="demo-note">
+            A one-character tweak flips roughly half of all 256 bits. That’s why a hash works as a tamper seal:
+            even the tiniest edit is glaringly obvious.
+          </p>
+        </div>
+
+        <h2>Why blockchains care</h2>
+        <p>
+          Blockchains use hashes as <strong>tamper-evident seals</strong>. Hash a block’s contents and you get its
+          fingerprint; change anything inside the block and the fingerprint no longer matches. In the next module
+          you’ll see how chaining these fingerprints together protects an entire history.
+        </p>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="hashing"></form>
+      </section>
+
+      <!-- ============================== MODULE 3 ============================== -->
+      <section id="blocks" class="view" hidden>
+        <p class="kicker">Module 3</p>
+        <h1>Blocks &amp; the chain</h1>
+        <p class="lede">
+          A blockchain is literally a chain of blocks — and the links are hashes.
+          Time to break one on purpose.
+        </p>
+
+        <h2>Anatomy of a block</h2>
+        <dl class="props">
+          <div><dt>Data</dt><dd>The payload — typically a batch of transactions.</dd></div>
+          <div><dt>Previous hash</dt><dd>The fingerprint of the block before this one. This is the chain link.</dd></div>
+          <div><dt>Nonce</dt><dd>A number miners adjust until the block’s hash meets the difficulty rule (more in Module 4).</dd></div>
+          <div><dt>Hash</dt><dd>The fingerprint of everything above. Here, a block is valid when its hash starts with <code>00</code>.</dd></div>
+        </dl>
+        <p>
+          Because each block embeds the <em>previous</em> block’s hash, the blocks form a chain:
+          changing any old block changes its hash, which breaks the next block’s “previous hash”,
+          which breaks the one after that — a domino effect all the way to the tip.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: break the chain, then repair it</h2>
+          <ol class="steps">
+            <li>Edit the data in <strong>Block&nbsp;#1</strong> (change a name or an amount).</li>
+            <li>Watch it and every later block turn invalid — the dominoes fall.</li>
+            <li>Press <strong>Mine</strong> on each broken block, left to right, to repair the chain.</li>
+          </ol>
+          <div class="chain" id="chain-demo" aria-label="Interactive blockchain"></div>
+          <p class="demo-note">
+            On a real network you’d have to redo this repair work faster than thousands of honest miners
+            extending the chain — and that’s exactly why old blocks are effectively permanent.
+          </p>
+        </div>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="blocks"></form>
+      </section>
+
+      <!-- ============================== MODULE 4 ============================== -->
+      <section id="mining" class="view" hidden>
+        <p class="kicker">Module 4</p>
+        <h1>Mining &amp; proof of work</h1>
+        <p class="lede">
+          Mining sounds mysterious, but you just did it in Module 3. It’s a guessing game —
+          played at planetary scale.
+        </p>
+
+        <h2>The lottery puzzle</h2>
+        <p>
+          To add a block, a miner must find a <strong>nonce</strong> that makes the block’s hash start with a
+          required number of zeros. Hashes are unpredictable, so there’s no shortcut: miners simply try
+          nonce&nbsp;0, 1, 2, 3… billions of times per second. Finding a winning nonce is hard;
+          <em>checking</em> it takes anyone a single hash. That asymmetry is the magic.
+        </p>
+        <ul>
+          <li><strong>Difficulty</strong> — each extra required zero multiplies the expected work by 16 (in hex). Networks auto-tune difficulty to keep block times steady.</li>
+          <li><strong>Reward</strong> — the winning miner earns new coins plus fees. This is how new cryptocurrency enters circulation.</li>
+          <li><strong>Security</strong> — rewriting history means redoing all that work <em>and</em> outpacing every honest miner. The energy cost is the lock on the vault.</li>
+        </ul>
+
+        <div class="demo-card">
+          <h2>Try it: mine a block yourself</h2>
+          <div class="duo">
+            <p>
+              <label for="mine-data">Block data</label>
+              <input type="text" id="mine-data" value="Alice → Bob: 5 BTC" spellcheck="false">
+            </p>
+            <p>
+              <label for="mine-difficulty">Difficulty: <span id="mine-diff-label"></span></label>
+              <input type="range" id="mine-difficulty" min="1" max="4" value="3">
+            </p>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="mine-start">⛏️ Start mining</button>
+            <button type="button" class="btn" id="mine-stop" disabled>Stop</button>
+          </p>
+          <div class="stat-grid" role="status" aria-live="polite">
+            <p><span class="stat-label">Status</span><span id="mine-status">idle</span></p>
+            <p><span class="stat-label">Attempts (nonce)</span><span id="mine-attempts">0</span></p>
+            <p><span class="stat-label">Elapsed</span><span id="mine-time">0.0 s</span></p>
+            <p><span class="stat-label">Speed</span><span id="mine-rate">–</span></p>
+          </div>
+          <p class="hash-label">Latest hash:</p>
+          <output class="hash-box" id="mine-hash">–</output>
+          <p class="demo-note">
+            Bump the difficulty from 1 to 4 and feel the wait grow ~16× each step. Bitcoin’s real difficulty
+            currently demands hashes with <em>around 19 leading hex zeros</em> — which is why miners fill warehouses
+            with specialized hardware.
+          </p>
+        </div>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="mining"></form>
+      </section>
+
+      <!-- ============================== MODULE 5 ============================== -->
+      <section id="keys" class="view" hidden>
+        <p class="kicker">Module 5</p>
+        <h1>Keys, wallets &amp; signatures</h1>
+        <p class="lede">
+          If hashes protect the <em>history</em>, digital signatures protect the <em>ownership</em>.
+          Your “account” on a blockchain is nothing more than a key pair.
+        </p>
+
+        <h2>The key pair</h2>
+        <ul>
+          <li><strong>Private key</strong> — a giant random number only you know. It <em>is</em> your identity. Whoever holds it controls the funds — there is no “forgot password” link.</li>
+          <li><strong>Public key</strong> — derived from the private key and safe to share. Your <strong>address</strong> is (roughly) a hash of it.</li>
+          <li><strong>Signature</strong> — a proof, computed with your private key, that <em>you</em> approved a specific message. Anyone can verify it with your public key; nobody can forge it without your private key.</li>
+        </ul>
+        <p>
+          A <strong>wallet</strong> doesn’t hold coins — coins only exist as ledger entries. A wallet holds your
+          <em>keys</em> and signs transactions on your behalf.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: sign and verify a transaction</h2>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="keys-generate">🔑 Generate wallet</button>
+          </p>
+          <div id="keys-wallet" hidden>
+            <p class="hash-label">Your address:</p>
+            <output class="hash-box" id="keys-address"></output>
+            <p class="hash-label">Public key (shareable):</p>
+            <output class="hash-box small" id="keys-pubkey"></output>
+          </div>
+          <p>
+            <label for="keys-message">Transaction message</label>
+            <textarea id="keys-message" rows="2" spellcheck="false">I, Alice, pay Bob 5 coins.</textarea>
+          </p>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="keys-sign" disabled>✍️ Sign message</button>
+            <button type="button" class="btn" id="keys-verify" disabled>🔍 Verify signature</button>
+          </p>
+          <div id="keys-sig-wrap" hidden>
+            <p class="hash-label">Signature:</p>
+            <output class="hash-box small" id="keys-signature"></output>
+          </div>
+          <p class="verdict" id="keys-verdict" role="status" aria-live="polite" hidden></p>
+          <p class="demo-note">
+            <strong>The lesson:</strong> sign the message, verify it (✅), then change even one character of the
+            message and verify again (❌). A signature locks a key to an <em>exact</em> message — this is how the
+            network knows a transaction is genuine and unmodified.
+          </p>
+        </div>
+
+        <h2>Custody in one sentence</h2>
+        <p>
+          “<strong>Not your keys, not your coins</strong>” — if an exchange holds your private keys, you hold an IOU,
+          not cryptocurrency. Hardware wallets and seed phrases exist purely to keep private keys safe and recoverable.
+        </p>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="keys"></form>
+      </section>
+
+      <!-- ============================== MODULE 6 ============================== -->
+      <section id="consensus" class="view" hidden>
+        <p class="kicker">Module 6</p>
+        <h1>Transactions &amp; consensus</h1>
+        <p class="lede">
+          You now know every ingredient. Let’s follow a transaction end to end, then look at the two big
+          ways networks agree on the next block.
+        </p>
+
+        <h2>Life of a transaction</h2>
+        <ol class="steps">
+          <li><strong>Create</strong> — your wallet drafts “Alice pays Bob 5”, referencing coins you own.</li>
+          <li><strong>Sign</strong> — your private key signs it (Module 5).</li>
+          <li><strong>Broadcast</strong> — it spreads node-to-node into the <em>mempool</em>, the waiting room of unconfirmed transactions.</li>
+          <li><strong>Confirm</strong> — a miner/validator packs it into a block (Modules 3–4). Each later block buries it deeper; ~6 confirmations is considered settled on Bitcoin.</li>
+        </ol>
+        <p>
+          Consensus rules also solve the <strong>double-spend problem</strong>: if you broadcast two transactions
+          spending the same coin, the network will only ever confirm one — the other is rejected as invalid.
+        </p>
+
+        <h2>Proof of work vs. proof of stake</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col"></th><th scope="col">Proof of Work (Bitcoin)</th><th scope="col">Proof of Stake (Ethereum)</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Who adds blocks</th><td>Whoever wins the hashing race</td><td>A validator chosen ~randomly, weighted by staked coins</td></tr>
+              <tr><th scope="row">Cost of cheating</th><td>Out-compute the whole network (hardware + energy)</td><td>Your stake gets destroyed (“slashed”)</td></tr>
+              <tr><th scope="row">Energy use</th><td>Very high — that’s the security budget</td><td>~99.9% lower</td></tr>
+              <tr><th scope="row">The 51% attack</th><td>Control a majority of hashpower</td><td>Control a majority of staked coins</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="demo-card">
+          <h2>Try it: pick validators by stake</h2>
+          <p>In proof of stake, your odds of being chosen to propose the next block are proportional to your stake. Adjust the stakes and run the selection.</p>
+          <div class="validators" id="stake-demo">
+            <div class="validator" id="val-v1">
+              <p><label for="stake-v1">🦊 Ava — stake: <output id="stake-out-v1"></output></label></p>
+              <input type="range" id="stake-v1" min="1" max="100" value="60">
+              <p class="win-bar"><span class="win-fill" id="win-fill-v1"></span></p>
+              <p class="win-text" id="win-text-v1">no rounds yet</p>
+            </div>
+            <div class="validator" id="val-v2">
+              <p><label for="stake-v2">🐢 Ben — stake: <output id="stake-out-v2"></output></label></p>
+              <input type="range" id="stake-v2" min="1" max="100" value="30">
+              <p class="win-bar"><span class="win-fill" id="win-fill-v2"></span></p>
+              <p class="win-text" id="win-text-v2">no rounds yet</p>
+            </div>
+            <div class="validator" id="val-v3">
+              <p><label for="stake-v3">🦉 Cara — stake: <output id="stake-out-v3"></output></label></p>
+              <input type="range" id="stake-v3" min="1" max="100" value="10">
+              <p class="win-bar"><span class="win-fill" id="win-fill-v3"></span></p>
+              <p class="win-text" id="win-text-v3">no rounds yet</p>
+            </div>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="stake-pick">🎲 Select next validator</button>
+            <button type="button" class="btn" id="stake-run">Run 100 rounds</button>
+            <button type="button" class="btn ghost" id="stake-reset">Reset</button>
+          </p>
+          <p class="stat" id="stake-summary" role="status" aria-live="polite"></p>
+          <p class="demo-note">
+            Run enough rounds and each validator’s share of wins converges on their share of stake.
+            More stake → more blocks → more rewards — but also more to lose if they cheat.
+          </p>
+        </div>
+
+        <h2>Beyond currency</h2>
+        <p>
+          Once a network can agree on arbitrary data, it can agree on <em>code</em>. <strong>Smart contracts</strong>
+          are programs stored on-chain that execute exactly as written — powering tokens, decentralized exchanges,
+          lending markets (DeFi) and NFTs. Different goals, same foundations you just learned.
+        </p>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="consensus"></form>
+      </section>
+
+      <!-- ============================== GLOSSARY ============================== -->
+      <section id="glossary" class="view" hidden>
+        <p class="kicker">Reference</p>
+        <h1>Glossary</h1>
+        <p class="lede">Quick definitions for the terms used across the course. One opens at a time.</p>
+
+        <div class="glossary">
+          <details name="glossary"><summary>Blockchain</summary><p>A shared, append-only ledger replicated across many computers, where blocks of records are linked by hashes so history can’t be quietly rewritten.</p></details>
+          <details name="glossary"><summary>Block</summary><p>A batch of transactions plus metadata: the previous block’s hash, a nonce, and its own hash. The first block of a chain is the <em>genesis block</em>.</p></details>
+          <details name="glossary"><summary>Hash</summary><p>A fixed-size fingerprint of any data, produced by a one-way function such as SHA-256. Any change to the input produces a completely different hash.</p></details>
+          <details name="glossary"><summary>Node</summary><p>A computer that stores the ledger, validates new blocks and relays transactions. Anyone can run one.</p></details>
+          <details name="glossary"><summary>Nonce</summary><p>“Number used once” — the value miners vary to search for a hash that satisfies the difficulty target.</p></details>
+          <details name="glossary"><summary>Mining</summary><p>Racing to find a valid nonce for the next block. The winner earns newly issued coins plus transaction fees.</p></details>
+          <details name="glossary"><summary>Proof of Work (PoW)</summary><p>Consensus by computation: blocks are expensive to produce but cheap to verify, so rewriting history costs more than honest participation.</p></details>
+          <details name="glossary"><summary>Proof of Stake (PoS)</summary><p>Consensus by collateral: validators lock up coins for the right to propose blocks, and lose them (“slashing”) if they cheat.</p></details>
+          <details name="glossary"><summary>Private key</summary><p>A secret number that controls an address’s funds. Whoever knows it owns the coins; lose it and the coins are gone forever.</p></details>
+          <details name="glossary"><summary>Public key / address</summary><p>The shareable half of a key pair. An address — what you give people to get paid — is essentially a hash of the public key.</p></details>
+          <details name="glossary"><summary>Digital signature</summary><p>Proof, verifiable by anyone, that the holder of a private key approved one exact message. The basis of transaction authorization.</p></details>
+          <details name="glossary"><summary>Wallet</summary><p>Software or hardware that stores keys and signs transactions. It holds no coins — coins exist only as ledger entries.</p></details>
+          <details name="glossary"><summary>Mempool</summary><p>Each node’s waiting room of valid but not-yet-confirmed transactions, from which miners/validators assemble blocks.</p></details>
+          <details name="glossary"><summary>Confirmation</summary><p>Each block added after the one containing your transaction. More confirmations = deeper burial = harder to reverse.</p></details>
+          <details name="glossary"><summary>Double-spend</summary><p>Trying to spend the same coin twice. Consensus guarantees at most one of the conflicting transactions is ever confirmed.</p></details>
+          <details name="glossary"><summary>51% attack</summary><p>Controlling a majority of mining power (PoW) or stake (PoS), enough to censor or reorder recent transactions. Prohibitively expensive on large networks.</p></details>
+          <details name="glossary"><summary>Smart contract</summary><p>A program stored on-chain that runs exactly as written when triggered by a transaction — the engine behind tokens, DeFi and NFTs.</p></details>
+          <details name="glossary"><summary>Gas / fees</summary><p>The price paid to have the network process your transaction or run your contract; it compensates miners/validators and prevents spam.</p></details>
+          <details name="glossary"><summary>Token vs. coin</summary><p>A <em>coin</em> is a blockchain’s native currency (BTC, ETH). A <em>token</em> is an asset created by a smart contract on top of an existing chain.</p></details>
+          <details name="glossary"><summary>DeFi &amp; NFT</summary><p>Decentralized finance: lending, trading and earning interest via smart contracts. NFTs: unique on-chain tokens representing ownership of a specific item.</p></details>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <p>⛓️ ChainLab — built for learning. Simulations only: no wallets, no real coins, not financial advice.</p>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="quiz-dialog" closedby="any">
+    <h2 id="quiz-dialog-title">Result</h2>
+    <p id="quiz-dialog-text"></p>
+    <form method="dialog">
+      <button class="btn primary" value="ok">Keep going</button>
+    </form>
+  </dialog>
+</body>
+</html>
