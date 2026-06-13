@@ -352,6 +352,16 @@ const QUIZZES = {
       answer: 0,
       why: 'That’s how Bitcoin Cash split from Bitcoin (2017) and Ethereum Classic from Ethereum (2016). A backwards-compatible tightening is a soft fork.',
     },
+    {
+      q: 'A block is nearly full and several transactions are still waiting. Which does the miner include first?',
+      options: [
+        'the ones that have waited longest in the mempool',
+        'the ones paying the highest fee per byte (best fee rate)',
+        'the ones sending the largest total amount',
+      ],
+      answer: 1,
+      why: 'Block space is scarce, so miners maximize fees per byte — not total fee or amount. The block-builder demo showed how a big-but-bulky transaction can lose its slot to a small, high-rate one.',
+    },
   ],
   ethereum: [
     {
@@ -1024,6 +1034,280 @@ function initStakeDemo() {
   render();
 }
 
+/* ============================== Module 6: fee-market block builder ============================== */
+
+function initFeeMarketDemo() {
+  const BLOCK_LIMIT = 1000; // vBytes
+  /* fee in sats, size in vBytes. #9aa pays the biggest *total* fee but a mediocre rate — the trap. */
+  const TXS = [
+    { id: 'tx-c52', fee: 12000, size: 150 },
+    { id: 'tx-9aa', fee: 21000, size: 350 },
+    { id: 'tx-7e1', fee: 9000, size: 180 },
+    { id: 'tx-6d0', fee: 6600, size: 220 },
+    { id: 'tx-3b9', fee: 5000, size: 250 },
+    { id: 'tx-a04', fee: 4000, size: 400 },
+    { id: 'tx-1f8', fee: 3000, size: 300 },
+  ];
+
+  const pool = $('#fm-pool');
+  const block = $('#fm-block');
+  const capFill = $('#fm-cap-fill');
+  const verdict = $('#fm-verdict');
+
+  let placement = new Map(TXS.map((t) => [t.id, 'pool'])); // id -> 'pool' | 'block'
+
+  const txById = (id) => TXS.find((t) => t.id === id);
+  const rate = (t) => t.fee / t.size;
+  const byRate = (a, b) => rate(b) - rate(a);
+  const inBlock = () => TXS.filter((t) => placement.get(t.id) === 'block');
+  const usedSpace = () => inBlock().reduce((s, t) => s + t.size, 0);
+  const totalFees = () => inBlock().reduce((s, t) => s + t.fee, 0);
+
+  /* The strategy real miners use: greedily take the best fee-rate txs that still fit.
+     For this dataset that also happens to be the true fee-maximizing block. */
+  function bestFees() {
+    let space = BLOCK_LIMIT;
+    let fees = 0;
+    for (const t of [...TXS].sort(byRate)) {
+      if (t.size <= space) { space -= t.size; fees += t.fee; }
+    }
+    return fees;
+  }
+
+  function makeChip(t) {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tx-chip';
+    btn.dataset.id = t.id;
+    btn.setAttribute('aria-label',
+      `${t.id}: fee ${t.fee.toLocaleString()} sats, size ${t.size} vBytes, ${rate(t).toFixed(0)} sats per vByte. `
+      + (placement.get(t.id) === 'block' ? 'In your block — activate to remove.' : 'In the mempool — activate to add.'));
+
+    const id = document.createElement('span');
+    id.className = 'tx-id';
+    id.textContent = t.id;
+
+    const meta = document.createElement('span');
+    meta.className = 'tx-meta';
+    meta.textContent = `${t.fee.toLocaleString()} sat · ${t.size} vB`;
+
+    const r = document.createElement('span');
+    r.className = 'tx-rate';
+    r.append(`${rate(t).toFixed(0)}`, Object.assign(document.createElement('small'), { textContent: 'sat/vB' }));
+
+    btn.append(id, meta, r);
+    btn.addEventListener('click', () => {
+      if (btn._dragged) { btn._dragged = false; return; } // swallow the click synthesized after a drag
+      toggle(t.id);
+    });
+    btn.addEventListener('pointerdown', (e) => startDrag(e, t, btn));
+
+    li.append(btn);
+    return li;
+  }
+
+  function flashTooBig(id) {
+    const chip = pool.querySelector(`[data-id="${id}"]`);
+    if (!chip) return;
+    chip.classList.remove('too-big');
+    void chip.offsetWidth; // restart the shake animation
+    chip.classList.add('too-big');
+  }
+
+  function addToBlock(id) {
+    if (placement.get(id) !== 'pool') return false;
+    const t = txById(id);
+    if (usedSpace() + t.size > BLOCK_LIMIT) {
+      flashTooBig(id);
+      verdict.textContent = `⛔ ${id} (${t.size} vB) doesn’t fit — only ${(BLOCK_LIMIT - usedSpace()).toLocaleString()} vB left in the block.`;
+      return false;
+    }
+    placement.set(id, 'block');
+    return true;
+  }
+
+  function removeFromBlock(id) {
+    if (placement.get(id) !== 'block') return false;
+    placement.set(id, 'pool');
+    return true;
+  }
+
+  function toggle(id) {
+    const moved = placement.get(id) === 'block' ? removeFromBlock(id) : addToBlock(id);
+    if (moved) { render(); showStanding(); }
+  }
+
+  function showStanding() {
+    const mine = totalFees();
+    if (mine === 0) { verdict.textContent = ''; return; }
+    const best = bestFees();
+    verdict.textContent = mine >= best
+      ? `🏆 ${mine.toLocaleString()} sat — that’s the fee-maximizing block. No selection of these transactions pays more.`
+      : `${mine.toLocaleString()} sat collected. A miner optimizing fee rate earns ${best.toLocaleString()} sat — swap a bulky transaction for a higher-rate one.`;
+  }
+
+  function render() {
+    const poolTxs = TXS.filter((t) => placement.get(t.id) === 'pool').sort(byRate);
+    const blockTxs = inBlock().sort(byRate);
+    pool.replaceChildren(...poolTxs.map(makeChip));
+    block.replaceChildren(...blockTxs.map(makeChip));
+
+    const used = usedSpace();
+    capFill.style.inlineSize = `${(used / BLOCK_LIMIT) * 100}%`;
+    capFill.classList.toggle('full', used >= BLOCK_LIMIT);
+
+    $('#fm-pool-sub').textContent = `${poolTxs.length} waiting`;
+    $('#fm-space').textContent = `${used.toLocaleString()} / ${BLOCK_LIMIT.toLocaleString()} vB`;
+    $('#fm-count').textContent = String(blockTxs.length);
+    $('#fm-fees').textContent = `${totalFees().toLocaleString()} sat`;
+  }
+
+  /* Pointer-based drag — one path for mouse, pen and touch, because native HTML5
+     drag-and-drop never fires on touchscreens. A press that doesn't move past a
+     small threshold falls through to the click handler, which toggles the tx. */
+  let dragActive = false;
+
+  function listUnder(x, y) {
+    const el = document.elementFromPoint(x, y);
+    return el ? el.closest('#fm-pool, #fm-block') : null;
+  }
+
+  function moveGhost(ghost, x, y) {
+    ghost.style.transform = `translate(${x - Number(ghost.dataset.offX)}px, ${y - Number(ghost.dataset.offY)}px)`;
+  }
+
+  function makeGhost(btn, x, y) {
+    const rect = btn.getBoundingClientRect();
+    const ghost = btn.cloneNode(true);
+    ghost.classList.add('tx-ghost');
+    ghost.classList.remove('dragging');
+    ghost.removeAttribute('aria-label');
+    ghost.style.inlineSize = `${rect.width}px`;
+    ghost.dataset.offX = String(x - rect.left);
+    ghost.dataset.offY = String(y - rect.top);
+    moveGhost(ghost, x, y);
+    document.body.append(ghost);
+    return ghost;
+  }
+
+  function startDrag(e, t, btn) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return; // primary button only
+    if (dragActive) return;                                  // ignore a second finger mid-drag
+
+    const originListId = placement.get(t.id) === 'block' ? 'fm-block' : 'fm-pool';
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let started = false;
+    let ghost = null;
+    let overList = null;
+    btn._dragged = false;
+
+    const setOver = (list) => {
+      if (list === overList) return;
+      overList?.classList.remove('drop-target');
+      if (list && list.id !== originListId) list.classList.add('drop-target'); // invite a drop on the other list only
+      overList = list;
+    };
+
+    const onMove = (ev) => {
+      if (!started) {
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 6) return;
+        started = true;
+        dragActive = true;
+        btn._dragged = true;
+        ghost = makeGhost(btn, ev.clientX, ev.clientY); // clone before fading the original
+        btn.classList.add('dragging');
+      }
+      ev.preventDefault();
+      moveGhost(ghost, ev.clientX, ev.clientY);
+      setOver(listUnder(ev.clientX, ev.clientY));
+    };
+
+    const onUp = (ev) => {
+      const dropList = started ? listUnder(ev.clientX, ev.clientY) : null;
+      cleanup();
+      if (!started) return; // a tap — let the click handler toggle
+      if (dropList) {
+        const moved = dropList.id === 'fm-block' ? addToBlock(t.id) : removeFromBlock(t.id);
+        if (moved) { render(); showStanding(); }
+      }
+    };
+
+    const cleanup = () => {
+      dragActive = false;
+      setOver(null);
+      ghost?.remove();
+      btn.classList.remove('dragging');
+      try { btn.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+      btn.removeEventListener('pointermove', onMove);
+      btn.removeEventListener('pointerup', onUp);
+      btn.removeEventListener('pointercancel', cleanup);
+    };
+
+    try { btn.setPointerCapture(e.pointerId); } catch { /* capture unsupported — drag still works */ }
+    btn.addEventListener('pointermove', onMove);
+    btn.addEventListener('pointerup', onUp);
+    btn.addEventListener('pointercancel', cleanup);
+  }
+
+  $('#fm-mine').addEventListener('click', () => {
+    placement = new Map(TXS.map((t) => [t.id, 'pool']));
+    let space = BLOCK_LIMIT;
+    for (const t of [...TXS].sort(byRate)) {
+      if (t.size <= space) { placement.set(t.id, 'block'); space -= t.size; }
+    }
+    render();
+    verdict.textContent = `🤖 The miner took the highest fee-rate transactions that fit: ${totalFees().toLocaleString()} sat in ${usedSpace().toLocaleString()} vB. That’s the strategy real miners use.`;
+  });
+
+  $('#fm-clear').addEventListener('click', () => {
+    placement = new Map(TXS.map((t) => [t.id, 'pool']));
+    verdict.textContent = '';
+    render();
+  });
+
+  render();
+}
+
+/* ============================== Copy-to-clipboard buttons ============================== */
+
+function initCopyButtons() {
+  if (!navigator.clipboard) return;
+
+  $$('.hash-box.copyable').forEach((box) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'copy-wrap';
+    box.replaceWith(wrap); // box keeps its id, so demo code that updates it still works
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.title = 'Copy to clipboard';
+    btn.setAttribute('aria-label', 'Copy to clipboard');
+    btn.textContent = '⧉';
+    wrap.append(box, btn);
+
+    let resetId = 0;
+    btn.addEventListener('click', async () => {
+      const text = box.textContent.trim();
+      if (!text || text === '–') return;
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = '✓';
+        btn.classList.add('copied');
+        clearTimeout(resetId);
+        resetId = setTimeout(() => {
+          btn.textContent = '⧉';
+          btn.classList.remove('copied');
+        }, 1200);
+      } catch {
+        /* clipboard unavailable (e.g. insecure context) — silently ignore */
+      }
+    });
+  });
+}
+
 /* ============================== Module 7: smart-contract token demo ============================== */
 
 function initContractDemo() {
@@ -1254,6 +1538,8 @@ initStakeDemo();
 initContractDemo();
 initGasDemo();
 initNftDemo();
+initFeeMarketDemo();
+initCopyButtons();
 
 if (SUBTLE_OK) {
   initHashPlayground();

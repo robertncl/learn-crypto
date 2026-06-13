@@ -35,7 +35,7 @@ The demos use the Web Crypto API (SHA-256, ECDSA), which needs a secure context
 | 3 · Blocks & the chain | Editable 4-block blockchain — break it, then re-mine to repair |
 | 4 · Mining & proof of work | Real in-browser miner with adjustable difficulty + halving/supply-curve explorer |
 | 5 · Keys, wallets & signatures | Generate an ECDSA key pair, sign a message, tamper, verify |
-| 6 · Transactions & consensus | Stake-weighted validator selection simulator |
+| 6 · Transactions & consensus | Drag-and-drop fee-market block builder + stake-weighted validator selection simulator |
 | 7 · Ethereum & smart contracts | Call a token contract that enforces its own rules + live gas-fee estimator |
 | 8 · NFTs & digital ownership | Mint unique ERC-721 tokens and trade them in a live ownership registry |
 
@@ -54,5 +54,7 @@ Each module ends with a quiz (70% to pass); progress is saved in
 Plain HTML/CSS/JS — no framework. [Bun](https://bun.sh) provides the dev server
 and bundler (it natively treats `index.html` as the entrypoint, so there's no
 config). The app uses the browser's native SHA-256 and ECDSA (Web Crypto),
-`<dialog>`, exclusive `<details>` accordions, `light-dark()` color theming, and
-hash-based routing with View Transitions.
+`<dialog>`, exclusive `<details>` accordions, `light-dark()` color theming,
+hash-based routing with View Transitions, drag-and-drop, the Clipboard API, and
+CSS scroll-driven progress/reveal animations (progressively enhanced, so they're
+skipped where unsupported or when the user prefers reduced motion).

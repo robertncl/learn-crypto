@@ -988,6 +988,245 @@
     }
   }
 
+  /* ---------- Scroll progress bar (decorative, progressive enhancement) ---------- */
+  .read-progress {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -2px;
+    block-size: 2px;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      @keyframes read-grow {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+      .read-progress {
+        animation: read-grow auto linear;
+        animation-timeline: scroll(root);
+      }
+    }
+  }
+
+  /* ---------- Scroll-reveal entrance (decorative, progressive enhancement) ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports ((animation-timeline: view()) and (animation-range: entry)) {
+      @keyframes rise-in {
+        from { opacity: 0; transform: translateY(2rem); }
+      }
+      .demo-card,
+      .module-card {
+        animation: rise-in auto linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 55%;
+      }
+    }
+  }
+
+  /* ---------- Copy-to-clipboard buttons ---------- */
+  .copy-wrap {
+    position: relative;
+  }
+
+  .copy-wrap .hash-box {
+    padding-inline-end: 2.7rem;
+  }
+
+  .copy-btn {
+    position: absolute;
+    inset-block-start: 0.35rem;
+    inset-inline-end: 0.35rem;
+    font: inherit;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0.3em 0.5em;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+      color: var(--color-accent);
+    }
+
+    &.copied {
+      opacity: 1;
+      color: var(--color-ok);
+      border-color: var(--color-ok);
+    }
+  }
+
+  .copy-wrap:hover .copy-btn {
+    opacity: 1;
+  }
+
+  /* ---------- Fee-market block builder (module 6) ---------- */
+  .feemarket {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 0.9rem;
+    margin-block: 1em;
+  }
+
+  .fee-col-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    margin-block: 0 0.2em;
+  }
+
+  .fee-col-sub {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .tx-pool {
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0.3rem 0 0;
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    min-block-size: 5rem;
+    border-radius: var(--radius-sm);
+    border: 2px dashed var(--color-border);
+    background: var(--color-bg);
+    transition: border-color 0.15s, background 0.15s;
+
+    &.is-block {
+      border-style: solid;
+    }
+
+    &.drop-target {
+      border-color: var(--color-accent);
+      background: color-mix(in oklab, var(--color-accent), transparent 90%);
+    }
+
+    &:empty::after {
+      content: "tap or drag a transaction here";
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+      padding: 0.7rem;
+      text-align: center;
+    }
+  }
+
+  .tx-chip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 0.6rem;
+    align-items: center;
+    inline-size: 100%;
+    text-align: start;
+    font: inherit;
+    padding: 0.45rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: inherit;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+
+    &:hover {
+      border-color: var(--color-accent);
+    }
+    &:active {
+      cursor: grabbing;
+      transform: translateY(1px);
+    }
+    &.dragging {
+      opacity: 0.45;
+    }
+    &.too-big {
+      animation: chip-shake 0.3s;
+      border-color: var(--color-bad);
+    }
+
+    .tx-id {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .tx-meta {
+      grid-column: 1;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+    .tx-rate {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      text-align: end;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--color-accent-2);
+
+      small {
+        display: block;
+        font-size: 0.6rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--color-text-muted);
+      }
+    }
+  }
+
+  /* The clone that follows the pointer while dragging. pointer-events:none is
+     essential so elementFromPoint() sees the list underneath, not the ghost. */
+  .tx-ghost {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    margin: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0.95;
+    scale: 1.03;
+    cursor: grabbing;
+    box-shadow: 0 10px 24px -8px rgb(0 0 0 / 45%);
+  }
+
+  @keyframes chip-shake {
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  .cap-bar {
+    block-size: 0.6rem;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+    overflow: hidden;
+    margin-block: 0.4rem 0;
+  }
+
+  .cap-fill {
+    display: block;
+    block-size: 100%;
+    inline-size: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+    transition: inline-size 0.25s, background 0.25s;
+
+    &.full {
+      background: var(--color-ok);
+    }
+  }
+
   /* ---------- Quiz ---------- */
   .quiz {
     display: grid;

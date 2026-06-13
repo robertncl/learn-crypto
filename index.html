@@ -21,6 +21,7 @@
       </p>
       <button type="button" id="theme-toggle" class="btn ghost" aria-label="Switch color theme">🌗 Auto</button>
     </div>
+    <div class="read-progress" id="read-progress" aria-hidden="true"></div>
   </header>
 
   <div class="app-body">
@@ -300,7 +301,7 @@
           <p><label for="hash-input">Type anything — the fingerprint updates with every keystroke:</label></p>
           <textarea id="hash-input" rows="3" spellcheck="false">Hello, blockchain!</textarea>
           <p class="hash-label">SHA-256:</p>
-          <output class="hash-box" id="hash-output" for="hash-input"></output>
+          <output class="hash-box copyable" id="hash-output" for="hash-input"></output>
           <p class="demo-note">Paste an entire essay — the output stays exactly 64 hex characters.</p>
         </div>
 
@@ -565,7 +566,7 @@
             <p><span class="stat-label">Speed</span><span id="mine-rate">–</span></p>
           </div>
           <p class="hash-label">Latest hash:</p>
-          <output class="hash-box" id="mine-hash">–</output>
+          <output class="hash-box copyable" id="mine-hash">–</output>
           <p class="demo-note">
             Bump the difficulty from 1 to 4 and feel the wait grow ~16× each step. Bitcoin’s real difficulty
             currently demands hashes with <em>around 19 leading hex zeros</em> — which is why miners fill warehouses
@@ -690,9 +691,9 @@
           </p>
           <div id="keys-wallet" hidden>
             <p class="hash-label">Your address:</p>
-            <output class="hash-box" id="keys-address"></output>
+            <output class="hash-box copyable" id="keys-address"></output>
             <p class="hash-label">Public key (shareable):</p>
-            <output class="hash-box small" id="keys-pubkey"></output>
+            <output class="hash-box small copyable" id="keys-pubkey"></output>
           </div>
           <p>
             <label for="keys-message">Transaction message</label>
@@ -704,7 +705,7 @@
           </p>
           <div id="keys-sig-wrap" hidden>
             <p class="hash-label">Signature:</p>
-            <output class="hash-box small" id="keys-signature"></output>
+            <output class="hash-box small copyable" id="keys-signature"></output>
           </div>
           <p class="verdict" id="keys-verdict" role="status" aria-live="polite" hidden></p>
           <p class="demo-note">
@@ -813,6 +814,42 @@
           Consensus rules also solve the <strong>double-spend problem</strong>: if you broadcast two transactions
           spending the same coin, the network will only ever confirm one — the other is rejected as invalid.
         </p>
+
+        <div class="demo-card">
+          <h2>Try it: build a block from the mempool</h2>
+          <p>
+            A block has limited space, so a miner can’t include every waiting transaction — it picks the ones that
+            pay the most <em>per byte</em>. Tap a transaction (or drag it) to move it between the mempool and your
+            block. Fill the 1,000-vByte block to earn as many fees as you can.
+          </p>
+          <div class="feemarket" id="feemarket-demo">
+            <div class="fee-col">
+              <h3 class="fee-col-title">📥 Mempool <span class="fee-col-sub" id="fm-pool-sub"></span></h3>
+              <ul class="tx-pool" id="fm-pool" aria-label="Pending transactions waiting in the mempool"></ul>
+            </div>
+            <div class="fee-col">
+              <h3 class="fee-col-title">🧱 Your block <span class="fee-col-sub">max 1,000 vB</span></h3>
+              <p class="cap-bar"><span class="cap-fill" id="fm-cap-fill"></span></p>
+              <ul class="tx-pool is-block" id="fm-block" aria-label="Transactions you added to the block"></ul>
+            </div>
+          </div>
+          <div class="stat-grid" role="status" aria-live="polite">
+            <p><span class="stat-label">Block space used</span><span id="fm-space">0 / 1,000 vB</span></p>
+            <p><span class="stat-label">Transactions</span><span id="fm-count">0</span></p>
+            <p><span class="stat-label">Fees collected</span><span id="fm-fees">0 sat</span></p>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="fm-mine">🤖 Let the miner fill it</button>
+            <button type="button" class="btn ghost" id="fm-clear">Clear block</button>
+          </p>
+          <p class="stat" id="fm-verdict" role="status" aria-live="polite"></p>
+          <p class="demo-note">
+            Notice the trap: the transaction paying the biggest <em>total</em> fee isn’t always worth it — what
+            counts is the <strong>fee rate</strong> (sats per vByte), because you’re bidding for scarce space. This
+            is exactly the auction your wallet runs when it suggests a fee, and the congestion that spikes
+            Ethereum’s gas price in <a href="#/ethereum">Module 7</a>.
+          </p>
+        </div>
 
         <h2>Proof of work vs. proof of stake</h2>
         <div class="table-wrap">
