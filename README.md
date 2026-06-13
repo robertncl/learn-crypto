@@ -6,15 +6,25 @@ step, no dependencies, no real coins.
 
 ## Run it
 
-The demos use the Web Crypto API, which needs a secure context, so serve the
-folder over localhost:
+The project builds and serves with [Bun](https://bun.sh):
 
 ```sh
-python3 -m http.server 8000
-# then open http://localhost:8000
+bun run dev      # dev server with hot reload  → http://localhost:3000
+bun run build    # bundle + minify into dist/
+bun run preview  # build, then serve dist/     → http://localhost:8000
 ```
 
-(Any static file server works — `npx serve`, `php -S localhost:8000`, etc.)
+`bun run dev` treats `index.html` as the bundler entrypoint, bundling its
+referenced CSS/JS on the fly and hot-reloading on save. `bun run build` emits a
+minified, content-hashed bundle to `dist/`; `bun run preview` serves that build
+with the small Bun server in `serve.js`.
+
+The demos use the Web Crypto API (SHA-256, ECDSA), which needs a secure context
+— `localhost` qualifies, so all three commands work out of the box.
+
+> No build is strictly required: the source is plain HTML/CSS/JS, so any static
+> file server (`python3 -m http.server 8000`, `npx serve`, …) can serve
+> `index.html` directly. Bun just adds bundling, minification and hot reload.
 
 ## What's inside
 
@@ -41,6 +51,8 @@ Each module ends with a quiz (70% to pass); progress is saved in
 
 ## Tech
 
-Plain HTML/CSS/JS — no framework, no build. Uses the browser's native
-SHA-256 and ECDSA (Web Crypto), `<dialog>`, exclusive `<details>` accordions,
-`light-dark()` color theming, and hash-based routing with View Transitions.
+Plain HTML/CSS/JS — no framework. [Bun](https://bun.sh) provides the dev server
+and bundler (it natively treats `index.html` as the entrypoint, so there's no
+config). The app uses the browser's native SHA-256 and ECDSA (Web Crypto),
+`<dialog>`, exclusive `<details>` accordions, `light-dark()` color theming, and
+hash-based routing with View Transitions.
