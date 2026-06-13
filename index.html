@@ -101,6 +101,7 @@
         <h2>How it works</h2>
         <ul class="feature-list">
           <li>🧪 <strong>Real cryptography</strong> — demos use your browser’s built-in SHA-256 and ECDSA, the same primitives Bitcoin-style chains rely on.</li>
+          <li>🔬 <strong>Deep dives</strong> — optional expandable sections in every module go from intuition to real protocol detail: Merkle proofs, halvings, hard forks, EIP-1559 and more.</li>
           <li>✅ <strong>Quizzes</strong> — each module ends with a short check; score 70% or more to mark it complete.</li>
           <li>💾 <strong>Progress saved locally</strong> — your progress lives in your browser only.</li>
         </ul>
@@ -184,6 +185,84 @@
           others followed.
         </p>
 
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>Forty years of failed digital cash — then Bitcoin</summary>
+          <p>
+            Digital money is an old dream with one stubborn bug: a digital coin is just data, and data can be
+            copied. Every attempt before Bitcoin patched the copying problem the same way — put one trusted
+            company in charge — which simply recreated a bank.
+          </p>
+          <ul>
+            <li><strong>1982</strong> — Lamport, Shostak &amp; Pease formalize the <em>Byzantine generals problem</em>: how can independent parties agree when some of them may lie? Every blockchain is an answer to this question.</li>
+            <li><strong>1989</strong> — David Chaum’s DigiCash issues cryptographic e-cash — run by a company, which went bankrupt in 1998. Centralization was the single point of failure.</li>
+            <li><strong>1997</strong> — Adam Back’s <em>hashcash</em> makes email senders burn CPU time to deter spam: proof of work is born (you’ll meet it in Module 4).</li>
+            <li><strong>1998</strong> — Wei Dai’s <em>b-money</em> and Nick Szabo’s <em>bit gold</em> sketch decentralized money, but neither has a working consensus mechanism.</li>
+            <li><strong>October 2008</strong> — the pseudonymous <em>Satoshi Nakamoto</em> publishes a nine-page whitepaper wiring all of these pieces together.</li>
+            <li><strong>3 January 2009</strong> — the Bitcoin genesis block is mined, with a newspaper headline embedded in it forever: <em>“Chancellor on brink of second bailout for banks.”</em></li>
+          </ul>
+          <p>
+            Notice what Bitcoin <em>didn’t</em> invent: hashes, signatures and proof of work all existed. The
+            breakthrough — now called <strong>Nakamoto consensus</strong> — was wiring them together so that
+            thousands of strangers converge on one history with nobody in charge.
+          </p>
+        </details>
+
+        <details class="deep-dive">
+          <summary>Do you actually need a blockchain?</summary>
+          <p>
+            Decentralization is bought, not free. Every node stores and re-verifies <em>everything</em>, so a
+            base-layer blockchain is a spectacularly slow database: Bitcoin processes ~7 transactions per second
+            and Ethereum ~15–30, while one ordinary database server handles tens of thousands.
+          </p>
+          <p>A useful test — a blockchain earns that cost only when <em>all three</em> hold:</p>
+          <ol class="steps">
+            <li><strong>Several parties</strong> need to write to the same records…</li>
+            <li>…and they <strong>don’t fully trust each other</strong> (or any single operator)…</li>
+            <li>…and <strong>no acceptable middleman</strong> exists — too expensive, censoring, or itself untrusted.</li>
+          </ol>
+          <p>
+            If a trusted operator exists, a regular database is simpler, faster and cheaper. Most “enterprise
+            blockchain” projects of the 2010s quietly became databases for exactly this reason.
+          </p>
+        </details>
+
+        <details class="deep-dive">
+          <summary>The blockchain trilemma</summary>
+          <p>Three properties everyone wants — and a base layer realistically maximizes two:</p>
+          <dl class="props">
+            <div><dt>Decentralized</dt><dd>Anyone can run a node and verify the rules — no gatekeepers.</dd></div>
+            <div><dt>Secure</dt><dd>Rewriting history or censoring users is economically irrational.</dd></div>
+            <div><dt>Scalable</dt><dd>High throughput, low fees, fast confirmation.</dd></div>
+          </dl>
+          <p>
+            The trade-offs are mechanical, not accidental: bigger or faster blocks mean fewer people can afford
+            to run a node (less decentralized); a small hand-picked validator set is fast but reintroduces trust.
+            Bitcoin and Ethereum deliberately sacrifice base-layer speed, then push scale to <em>layer 2</em>
+            networks that inherit their security — Module 7 shows how.
+          </p>
+        </details>
+
+        <details class="deep-dive">
+          <summary>Public, permissioned, private</summary>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col"></th><th scope="col">Public</th><th scope="col">Permissioned / consortium</th><th scope="col">Private</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Who validates</th><td>Anyone (Bitcoin, Ethereum)</td><td>Approved organizations</td><td>One organization</td></tr>
+                <tr><th scope="row">Trust model</th><td>Math + economic incentives</td><td>Legal contracts between members</td><td>The operator</td></tr>
+                <tr><th scope="row">Typical use</th><td>Money, open finance</td><td>Supply chains, interbank settlement</td><td>Internal audit logs</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            The further right you go, the more the system resembles a shared database with extra steps. This
+            course focuses on public chains, because that’s where the novel engineering lives.
+          </p>
+        </details>
+
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="basics"></form>
       </section>
@@ -248,6 +327,94 @@
           you’ll see how chaining these fingerprints together protects an entire history.
         </p>
 
+        <h2>Scaling up: Merkle trees</h2>
+        <p>
+          A real block holds thousands of transactions, but it doesn’t store one giant hash of everything.
+          Instead it hashes transactions <strong>in pairs</strong>, then hashes those hashes in pairs, and so on,
+          up to a single fingerprint-of-fingerprints: the <strong>Merkle root</strong>. The root goes in the block
+          header, so the header commits to every transaction beneath it — and, as you’re about to see, proving one
+          transaction is in the block takes only a handful of hashes.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: tamper with a Merkle tree</h2>
+          <p>Four transactions are hashed into a tree. Edit any one and watch the change ripple up — but only along <em>its own path</em> to the root.</p>
+          <div class="merkle" id="merkle-demo" aria-label="Interactive Merkle tree">
+            <div class="merkle-row root-row">
+              <p class="merkle-node" id="mk-root"><span class="merkle-tag">Merkle root</span><span class="merkle-hash"></span></p>
+            </div>
+            <div class="merkle-row parents">
+              <p class="merkle-node" id="mk-h01"><span class="merkle-tag">H(AB)</span><span class="merkle-hash"></span></p>
+              <p class="merkle-node" id="mk-h23"><span class="merkle-tag">H(CD)</span><span class="merkle-hash"></span></p>
+            </div>
+            <div class="merkle-row">
+              <p class="merkle-node" id="mk-h0"><span class="merkle-tag">H(A)</span><span class="merkle-hash"></span></p>
+              <p class="merkle-node" id="mk-h1"><span class="merkle-tag">H(B)</span><span class="merkle-hash"></span></p>
+              <p class="merkle-node" id="mk-h2"><span class="merkle-tag">H(C)</span><span class="merkle-hash"></span></p>
+              <p class="merkle-node" id="mk-h3"><span class="merkle-tag">H(D)</span><span class="merkle-hash"></span></p>
+            </div>
+            <div class="merkle-row merkle-inputs">
+              <p><label for="mk-tx0">Tx A</label><input type="text" id="mk-tx0" value="Alice → Bob: 5 BTC" spellcheck="false"></p>
+              <p><label for="mk-tx1">Tx B</label><input type="text" id="mk-tx1" value="Bob → Carol: 2 BTC" spellcheck="false"></p>
+              <p><label for="mk-tx2">Tx C</label><input type="text" id="mk-tx2" value="Carol → Dan: 1 BTC" spellcheck="false"></p>
+              <p><label for="mk-tx3">Tx D</label><input type="text" id="mk-tx3" value="Dan → Erin: 4 BTC" spellcheck="false"></p>
+            </div>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn ghost" id="mk-reset">Reset transactions</button>
+          </p>
+          <p class="demo-note">
+            Edit Tx C: H(C), H(CD) and the root change — H(A), H(B) and H(AB) don’t. That path is the point.
+            To prove Tx C is in the block you hand someone just H(D) and H(AB): two hashes instead of four
+            transactions. With a million transactions it’s only ~20 hashes — this <strong>Merkle proof</strong> is
+            how a phone wallet verifies a payment without downloading the whole chain (Bitcoin’s whitepaper calls
+            it SPV, simplified payment verification).
+          </p>
+        </div>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>How big is 2²⁵⁶, really?</summary>
+          <p>
+            SHA-256 has 2²⁵⁶ possible outputs — about 1.2 × 10⁷⁷, within a few zeros of the number of atoms in
+            the observable universe (~10⁸⁰). Intuition fails at this scale, so try arithmetic instead: give a
+            billion computers a billion guesses per second each. That’s 10¹⁸ guesses per second, or ~3 × 10²⁵
+            per year — meaning covering even half the output space would take around 10⁵¹ years, roughly 10⁴¹
+            times the age of the universe.
+          </p>
+          <p>
+            This is why “brute-force it with a bigger computer” isn’t a threat. The bound is physical, not merely
+            technological: just <em>counting</em> through 2²⁵⁶ states has a minimum thermodynamic energy cost
+            (Landauer’s principle) far beyond the Sun’s total output. When hash functions do fall, they fall to
+            <em>math</em> — a clever shortcut — not to muscle. See the next deep dive.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>SHA-256’s family tree — and why old hashes get retired</summary>
+          <p>
+            SHA-256 (published 2001, part of the SHA-2 family) pushes input through 64 rounds of public,
+            keyless bit-mixing; its security rests entirely on nobody finding structure in that mixing. Its
+            predecessors did fall: MD5 collisions now take seconds, and SHA-1 fell in 2017 when researchers
+            published two different PDFs with the same hash. Both falls were algorithmic breakthroughs, not
+            bigger computers — which is why the industry retires hash functions at the first crack.
+          </p>
+          <p>Variations you’ll meet in the wild:</p>
+          <ul>
+            <li><strong>Bitcoin</strong> applies SHA-256 <em>twice</em> (“SHA-256d”) when hashing blocks.</li>
+            <li><strong>Ethereum</strong> uses <strong>Keccak-256</strong> from the SHA-3 family — different internals, same fingerprint contract.</li>
+            <li><strong>Addresses</strong> often layer hashes: Bitcoin runs RIPEMD-160 on top of SHA-256 (Module 5).</li>
+          </ul>
+        </details>
+        <details class="deep-dive">
+          <summary>Hashes beyond blockchains</summary>
+          <ul>
+            <li><strong>Git</strong> — every commit ID is a hash of the code plus its history; change anything and the ID changes. A repository is itself a small Merkle structure.</li>
+            <li><strong>Passwords</strong> — sites store hash(password), never the password. There they use deliberately <em>slow</em> hashes (bcrypt, Argon2) to blunt guessing — the exact opposite of mining’s speed race.</li>
+            <li><strong>Downloads &amp; packages</strong> — published checksums let you verify a file wasn’t corrupted or tampered with in transit.</li>
+            <li><strong>Deduplication &amp; BitTorrent</strong> — identify content by what it <em>is</em> rather than where it lives (“content addressing”).</li>
+          </ul>
+        </details>
+
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="hashing"></form>
       </section>
@@ -287,6 +454,61 @@
             extending the chain — and that’s exactly why old blocks are effectively permanent.
           </p>
         </div>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>Inside a real Bitcoin block header</summary>
+          <p>Our toy blocks hash <code>index | prev hash | data | nonce</code>. A real Bitcoin block header is exactly 80 bytes:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Field</th><th scope="col">Size</th><th scope="col">What it’s for</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Version</th><td>4 B</td><td>Signals which protocol rules the miner follows</td></tr>
+                <tr><th scope="row">Previous block hash</th><td>32 B</td><td>The chain link you just broke in the demo</td></tr>
+                <tr><th scope="row">Merkle root</th><td>32 B</td><td>One hash committing to every transaction in the block (Module 2)</td></tr>
+                <tr><th scope="row">Timestamp</th><td>4 B</td><td>Approximate creation time, kept honest by consensus tolerances</td></tr>
+                <tr><th scope="row">Bits</th><td>4 B</td><td>Compact encoding of the difficulty target the hash must beat</td></tr>
+                <tr><th scope="row">Nonce</th><td>4 B</td><td>The miner’s guess counter</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Transactions live in the block <em>body</em>; only this 80-byte header is hashed during mining, which is
+            why mining speed doesn’t depend on how full a block is. And because a 4-byte nonce allows only ~4.3
+            billion guesses — an ASIC exhausts that in well under a second — miners also tweak the timestamp and an
+            <em>extraNonce</em> inside the first transaction, which changes the Merkle root and opens up a fresh 4.3
+            billion.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Ties, orphans and the longest-chain rule</summary>
+          <p>
+            Every so often two miners find valid blocks within seconds of each other. Both are valid; nodes near
+            miner A hear A’s block first, nodes near B hear B’s. The tie isn’t debated — it’s raced: whichever
+            branch receives the <em>next</em> block becomes the longer chain, and every node hops onto it. The
+            losing block is <strong>orphaned</strong> (“stale”): its mining reward evaporates and its transactions
+            return to the mempool to be confirmed again.
+          </p>
+          <p>
+            Two practical consequences. First, “longest” really means <em>most accumulated work</em> — a million
+            easy blocks don’t outrank ten hard ones. Second, this is exactly why recipients wait for
+            <strong>confirmations</strong>: a transaction one block deep can still land on the losing side of a
+            tie, but each further block makes reversal exponentially less likely — hence the ~6-confirmation custom
+            for large Bitcoin payments.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>How heavy is the chain?</summary>
+          <p>
+            A Bitcoin block carries roughly 2,000–4,000 transactions every ~10 minutes, and the full chain since
+            2009 runs to hundreds of gigabytes — Ethereum’s state is heavier still. The ecosystem copes in three
+            tiers: <strong>full nodes</strong> verify everything (the gold standard); <strong>pruned nodes</strong>
+            verify everything but discard old block bodies, keeping headers and current balances; and
+            <strong>light clients</strong> download just the 80-byte headers and check individual transactions with
+            Merkle proofs (Module 2). The design fights hard to keep at least light verification cheap — if
+            ordinary people can’t verify the chain, decentralization is a slogan.
+          </p>
+        </details>
 
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="blocks"></form>
@@ -344,6 +566,92 @@
             with specialized hardware.
           </p>
         </div>
+
+        <h2>Built-in scarcity: the halving</h2>
+        <p>
+          Mining doubles as Bitcoin’s <strong>mint</strong>: the block reward is the only way new coins are ever
+          created. And the mint runs on a countdown — every 210,000 blocks (roughly four years) the reward
+          <strong>halves</strong>: 50 BTC at launch, 25 from 2012, 12.5 from 2016, and so on. The halvings turn
+          issuance into a geometric series whose sum stops just short of <strong>21 million BTC</strong>, with the
+          last fraction of a coin mined around the year 2140.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: walk the supply curve</h2>
+          <p>
+            <label for="halving-era">Halving era: <output id="halving-era-out"></output></label>
+            <input type="range" id="halving-era" min="0" max="33" value="4">
+          </p>
+          <div class="stat-grid" role="status" aria-live="polite">
+            <p><span class="stat-label">Years (approx.)</span><span id="halving-years">–</span></p>
+            <p><span class="stat-label">Reward per block</span><span id="halving-reward">–</span></p>
+            <p><span class="stat-label">Minted by era’s end</span><span id="halving-minted">–</span></p>
+            <p><span class="stat-label">Share of 21 M cap</span><span id="halving-pct">–</span></p>
+          </div>
+          <p class="win-bar supply-bar"><span class="win-fill" id="supply-fill"></span></p>
+          <p class="stat" id="halving-note" role="status" aria-live="polite"></p>
+          <p class="demo-note">
+            Drag right and watch the bar crawl toward — but never quite reach — 21 million. The schedule is ordinary
+            code that every node enforces, and it <em>is</em> the entire monetary policy: no committee, no surprise
+            issuance. Whether a fixed supply is good economics is hotly debated; that the supply is <em>credible</em>
+            is the novel engineering.
+          </p>
+        </div>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>The difficulty thermostat</summary>
+          <p>
+            If mining is a lottery, what stops blocks arriving faster as more miners join? Every 2,016 blocks
+            (about two weeks) Bitcoin measures how long they actually took. Faster than the 10-minute target →
+            difficulty rises proportionally; slower → it falls (clamped to a 4× change per adjustment). The result
+            is a thermostat: hashpower can grow a millionfold — and it has — yet blocks keep their ~10-minute
+            heartbeat, and coins are issued no faster. Extra hashpower buys miners a bigger <em>share</em> of the
+            same rewards, while the network simply gets more expensive to attack.
+          </p>
+          <p>
+            The thermostat works in reverse too. When China banned mining in mid-2021, roughly half the world’s
+            hashpower vanished within weeks; blocks crawled, and the next adjustment dropped difficulty ~28% — the
+            largest cut ever — restoring the rhythm. (Proof-of-stake chains skip all this: Ethereum proposes a
+            block every fixed 12-second slot, no race involved.)
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>From laptop CPUs to warehouse ASICs — and pools</summary>
+          <p>
+            Mining hardware escalated in four waves: <strong>CPUs</strong> (2009, Satoshi and a handful of
+            hobbyists), <strong>GPUs</strong> (2010, ~100× faster at parallel hashing), <strong>FPGAs</strong>
+            (2011, briefly), then <strong>ASICs</strong> (2013 on) — chips that can do nothing except SHA-256, but
+            do it millions of times faster per watt than a CPU, and are obsolete within a couple of years. Solo
+            mining became a lottery ticket with terrible odds, so miners formed <strong>pools</strong>: thousands
+            combine hashpower and split each reward in proportion to work contributed, trading jackpot odds for a
+            steady trickle.
+          </p>
+          <p>
+            Pools create a real centralization tension: the pool operator chooses which transactions go in the
+            blocks, and a handful of large pools often add up to more than half the network. The counterweight is
+            that pool <em>members</em> can switch pools in minutes — operators who misbehave bleed hashpower —
+            but it’s a live debate, not a solved problem.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>The energy question, honestly</summary>
+          <p>
+            Proof-of-work security <em>is</em> energy — that’s the design, not a side effect. Estimates put
+            Bitcoin around 100–150 TWh per year, roughly half a percent of world electricity, comparable to a
+            mid-size country. Defenders point out that miners chase the cheapest power and so soak up stranded
+            hydro, flared gas and off-peak surplus; critics answer that the footprint scales with the coin’s
+            price, not its usefulness, and that ASIC churn adds e-waste.
+          </p>
+          <p>
+            One engineering fact both sides accept: proof of stake delivers comparable security guarantees from
+            economic collateral instead of electricity — Ethereum’s 2022 switch (“the Merge”) cut its energy use
+            by ~99.95%. Bitcoin keeps proof of work deliberately: its community regards a security budget rooted
+            in physics, outside the system itself, as worth the cost. That disagreement — physical cost versus
+            financial collateral — is the real content of the energy debate, and Module 6 compares the two models
+            head-on.
+          </p>
+        </details>
 
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="mining"></form>
@@ -405,6 +713,75 @@
           “<strong>Not your keys, not your coins</strong>” — if an exchange holds your private keys, you hold an IOU,
           not cryptocurrency. Hardware wallets and seed phrases exist purely to keep private keys safe and recoverable.
         </p>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>The math: elliptic curves in plain words</summary>
+          <p>
+            Your private key is just a 256-bit number, <em>k</em>. Your public key is the result of starting from
+            a fixed point <em>G</em> on a special curve and “hopping” along it <em>k</em> times — written
+            <em>k × G</em>. Computing the hops forward is fast (a few hundred operations, using
+            doubling tricks); going backward — recovering <em>k</em> from the public key, the “discrete logarithm
+            problem” — has no known shortcut. The only attack is brute force through a 2²⁵⁶ keyspace, and Module 2’s
+            deep dive showed how that ends.
+          </p>
+          <p>
+            Bitcoin and Ethereum both use the curve <strong>secp256k1</strong>. The demo above uses
+            <strong>P-256</strong>, a sibling curve, because that’s the one your browser’s Web Crypto API ships —
+            same construction, different constants. One honest caveat: a large-scale quantum computer running
+            Shor’s algorithm would break both. Post-quantum signature schemes already exist and chains can migrate
+            to them; it’s a watched-but-distant problem, and coins marketed today as “quantum-proof” are mostly
+            marketing.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Seed phrases &amp; HD wallets: one secret, endless keys</summary>
+          <p>
+            Nobody should hand-copy a 256-bit number, so wallets encode their master randomness as
+            <strong>12 or 24 words</strong> drawn from a fixed 2,048-word list (the BIP-39 standard) — words are
+            far harder to mistranscribe than hex. From that seed, a <strong>hierarchical deterministic</strong>
+            (HD, BIP-32) wallet derives an unlimited tree of key pairs along well-known paths, fresh address per
+            payment included. Restore the phrase on a brand-new device and every key — every coin — reappears.
+          </p>
+          <p>
+            That’s the magic and the danger in one sentence: <em>the phrase is the wallet</em>. Anyone who reads
+            it owns everything derived from it, instantly and irrevocably. Hence the rules: write it on paper or
+            steel, never in a photo, cloud note or password manager synced online; and treat anyone asking for it
+            — “support staff” above all — as an attacker by definition. Many wallets add an optional passphrase
+            (“25th word”) so the paper backup alone isn’t sufficient.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>From public key to address</summary>
+          <p>
+            An address is not the public key — it’s a <em>hash</em> of it, shortened and wrapped in a
+            typo-resistant encoding. Bitcoin runs the public key through SHA-256 then RIPEMD-160 and encodes the
+            result (legacy <code>1…</code> and <code>3…</code> formats, modern <code>bc1…</code> bech32); Ethereum
+            takes the last 20 bytes of the Keccak-256 hash, giving the familiar <code>0x…</code>. The encodings
+            carry checksums, so a mistyped address is rejected by your wallet instead of sending coins into the
+            void — one of the few mercies in this system. Why hash at all? It’s shorter, and it keeps the public
+            key itself off-chain until the first time you spend.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>How coins actually get stolen</summary>
+          <p>
+            Essentially never by breaking the cryptography — the math holds. Real losses come from the seams
+            around it:
+          </p>
+          <ul>
+            <li><strong>Phishing</strong> — fake wallet sites, fake airdrops, “support” DMs asking for your seed phrase.</li>
+            <li><strong>Malware</strong> — clipboard swappers that silently replace the address you just copied with the thief’s.</li>
+            <li><strong>SIM swaps</strong> — hijacking your phone number to defeat SMS-based logins at exchanges.</li>
+            <li><strong>Malicious approvals</strong> — signing a contract interaction that grants unlimited spending of a token (Module 7).</li>
+            <li><strong>Custodial failure</strong> — exchanges collapsing with customer funds (Mt. Gox 2014, FTX 2022): the “not your keys” lesson, at scale.</li>
+          </ul>
+          <p>
+            The defenses are unglamorous: a hardware wallet for savings, verifying addresses character-by-character
+            (or via a second channel), keeping the seed offline, and assuming any request for it is a scam — because
+            it is.
+          </p>
+        </details>
 
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="keys"></form>
@@ -488,6 +865,70 @@
           lending markets (DeFi) and NFTs. Different goals, same foundations you just learned — and exactly where
           <a href="#/ethereum">Module 7</a> goes next.
         </p>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>Two ways to track money: UTXO vs accounts</summary>
+          <p>
+            Bitcoin has no balances anywhere in its data. It tracks <strong>UTXOs</strong> — unspent transaction
+            outputs — which behave like bills in a cash drawer: a transaction consumes whole bills and mints new
+            ones, including <em>change back to yourself</em>. Pay 3 BTC from a 5-BTC output and the transaction
+            creates two outputs: 3 to the merchant, ~2 back to you (minus the fee). Your wallet’s “balance” is just
+            it adding up every bill you can still spend.
+          </p>
+          <p>
+            Ethereum instead keeps an <strong>account model</strong>: real balances, debited and credited, plus a
+            per-account counter (the <em>nonce</em> — same word as mining’s nonce, different job) that orders your
+            transactions and blocks replays. The trade-offs: UTXOs parallelize well and make coin-tracing slightly
+            harder; accounts are far simpler for smart contracts, which need persistent state — you wouldn’t want
+            to rebuild a token’s balance table out of bills on every call.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Soft forks, hard forks and chain splits</summary>
+          <p>
+            Who decides the rules of a system with no boss? Rule changes come in two flavors. A
+            <strong>soft fork</strong> <em>tightens</em> the rules: blocks valid under the new rules are still
+            valid under the old, so un-upgraded nodes keep following along (Bitcoin’s SegWit 2017 and Taproot 2021
+            shipped this way). A <strong>hard fork</strong> changes rules incompatibly: old nodes reject the new
+            blocks, and if part of the community keeps mining the old rules, the network <em>splits into two
+            chains</em>, each carrying the full shared history — which is why holders of pre-fork coins end up with
+            coins on both.
+          </p>
+          <p>
+            The famous splits were governance disputes settled by exit: <strong>Bitcoin Cash</strong> left Bitcoin
+            in 2017 over block sizes, and <strong>Ethereum Classic</strong> is the chain that refused the 2016 DAO
+            bailout fork (the full story is a Module 7 deep dive). Forks are blockchain politics: when consensus
+            about the rules fails, the ledger itself divides.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>How final is “final”?</summary>
+          <p>
+            Proof-of-work finality is only ever <strong>probabilistic</strong>: every confirmation buries your
+            transaction deeper and makes reversal exponentially costlier, but the probability never hits zero.
+            On giant networks that’s academic; on small ones it isn’t — Ethereum Classic and Bitcoin Gold both
+            suffered real 51% double-spend attacks (2018–2020) because enough hashpower to overwhelm them could be
+            <em>rented by the hour</em>. Security budgets matter.
+          </p>
+          <p>
+            Ethereum’s proof of stake adds explicit <strong>checkpoints</strong>: validators vote on recent
+            history, and once two-thirds of all staked ETH attests, the checkpoint is <strong>finalized</strong>
+            (~13 minutes). Reverting a finalized block isn’t “very expensive” — the protocol guarantees it would
+            destroy at least one-third of all staked ETH, tens of billions of dollars burned. The attack cost
+            shifts from out-computing the network to incinerating your own capital.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Beyond PoW and PoS</summary>
+          <p>Consensus is a design space, and every point in it is a different answer to Module 1’s trilemma:</p>
+          <ul>
+            <li><strong>Delegated PoS</strong> — coin holders elect a small validator set (EOS, Tron). Fast and cheap; visibly more centralized.</li>
+            <li><strong>BFT committees</strong> — a bounded validator set votes on every block (Tendermint/Cosmos). Instant, clean finality; the validator list is the trust assumption.</li>
+            <li><strong>Proof of authority</strong> — named, legally identifiable validators. Fine for testnets and consortium chains; not trustless at all.</li>
+            <li><strong>Hybrids</strong> — e.g. Solana pairs PoS with “proof of history”, a cryptographic clock that lets validators order events without waiting on each other, buying huge throughput at the cost of heavyweight hardware requirements.</li>
+          </ul>
+        </details>
 
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="consensus"></form>
@@ -648,6 +1089,95 @@
           voting rules are code). Every one of them is just a program — like <code>LabToken</code>, only bigger.
         </p>
 
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>The modern fee market: EIP-1559</summary>
+          <p>
+            Since August 2021 the “gas price” you saw in the estimator is really two parts:
+            <em>fee = gas used × (base fee + tip)</em>. The <strong>base fee</strong> is set by the protocol
+            itself, block by block: if a block runs more than half full, the base fee rises 12.5% for the next
+            one; less than half full, it falls 12.5%. Congestion pricing with no auction — wallets can finally
+            <em>quote</em> a fee instead of guessing a bid.
+          </p>
+          <p>
+            The twist: the base fee is <strong>burned</strong> — destroyed, paid to no one. Only the small
+            optional <strong>tip</strong> goes to the validator. Burning kills the incentive for validators to
+            congest the network to drive fees up, and it offsets new ETH issuance; in busy periods Ethereum has
+            been net-deflationary. When you read a gas tracker, mentally split the number: a big burned base fee
+            plus a sliver of tip.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>When “code is law” goes wrong: The DAO</summary>
+          <p>
+            In 2016 a crowdfunded, code-governed venture fund called <strong>The DAO</strong> raised about $150M
+            in ETH — then an attacker found a <strong>reentrancy</strong> bug: its withdraw function sent ETH
+            <em>before</em> updating the caller’s balance, and the recipient’s code could call back into withdraw
+            again, and again, draining ~3.6M ETH through a perfectly legal sequence of calls. The contract did
+            exactly what it was written to do; it just wasn’t written to do what its authors meant.
+          </p>
+          <p>
+            The community faced the philosophy head-on: accept the theft (“code is law”) or hard-fork history to
+            unwind it. The majority forked — that chain is the Ethereum you know — while the minority kept the
+            untouched ledger as <strong>Ethereum Classic</strong>. The episode built the modern safety culture:
+            audits, bug bounties, formal verification, and patterns like
+            <em>checks-effects-interactions</em> — notice <code>LabToken</code> above checks
+            <code>require(...)</code> and updates balances <em>before</em> any interaction. Immutability cuts both
+            ways: unstoppable rules, unstoppable bugs.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Oracles: how contracts learn about the world</summary>
+          <p>
+            The EVM is deterministic and sealed: a contract cannot fetch a URL, because thousands of nodes would
+            get different answers at different times and consensus would shatter. Any off-chain fact — a price,
+            a match result, the weather — must be <em>written in</em> by a transaction. The service doing the
+            writing is an <strong>oracle</strong>, and it quietly reintroduces trust: your trustless contract is
+            exactly as honest as its data feed. This is the <strong>oracle problem</strong>.
+          </p>
+          <p>
+            The standard mitigation is decentralizing the messenger — networks like Chainlink aggregate many
+            independent operators and data sources, with staked collateral to slash liars. It works well enough
+            to carry billions, but oracle manipulation (often pumping a thin market with a flash loan so a lending
+            contract mis-prices collateral) remains one of the largest categories of DeFi exploit. When you
+            evaluate any DeFi protocol, the first question is: <em>where does its price come from?</em>
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Stablecoins: the dollar, tokenized</summary>
+          <p>
+            The most-used tokens aren’t volatile coins — they’re <strong>stablecoins</strong>, engineered to track
+            the dollar. Three designs, three trust models:
+          </p>
+          <ul>
+            <li><strong>Fiat-backed</strong> (USDC, USDT) — a company holds dollars and T-bills, and mints one token per dollar. Simple and dominant, but custodial: you’re trusting the issuer’s reserves, and the issuer can freeze addresses.</li>
+            <li><strong>Overcollateralized crypto</strong> (DAI) — lock ~$150+ of ETH in a contract to mint $100 of stablecoin; automatic liquidations keep the system solvent. Trustless-ish, capital-inefficient.</li>
+            <li><strong>Algorithmic</strong> — peg maintained by mint-and-burn incentives with no full collateral. Terra/UST collapsed this way in May 2022, erasing ~$40B in days. Treat the category as a cautionary tale.</li>
+          </ul>
+          <p>
+            Stablecoins are arguably crypto’s most adopted product: most on-chain trading is denominated in them,
+            and they move serious remittance volume. They’re also where blockchains and bank regulators meet.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Rollups, properly: optimistic vs ZK</summary>
+          <p>
+            Both kinds of layer 2 execute transactions off-chain and post compressed data back to Ethereum; they
+            differ in how Ethereum knows the results are honest. <strong>Optimistic rollups</strong> (Arbitrum,
+            Optimism, Base) assume batches are valid and give challengers ~7 days to submit a <em>fraud proof</em>
+            showing a bad state transition — secure, but native withdrawals wait out the window.
+            <strong>ZK rollups</strong> (zkSync, Starknet, Scroll) submit a <em>validity proof</em> — a succinct
+            cryptographic certificate that the batch was executed correctly — which an L1 contract verifies in
+            milliseconds before accepting; no challenge window, at the cost of much heavier math to generate.
+          </p>
+          <p>
+            Either way the rollup inherits Ethereum’s security rather than bootstrapping its own — that’s the
+            trilemma answer promised in Module 1. The economics improved sharply in March 2024 when EIP-4844 gave
+            rollups “blobs”: cheap, short-lived data space on L1 that dropped typical L2 fees to cents. The
+            roadmap bet is that users live on L2s while Ethereum’s base layer becomes the settlement court.
+          </p>
+        </details>
+
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="ethereum"></form>
       </section>
@@ -662,26 +1192,41 @@
           <details name="glossary"><summary>Blockchain</summary><p>A shared, append-only ledger replicated across many computers, where blocks of records are linked by hashes so history can’t be quietly rewritten.</p></details>
           <details name="glossary"><summary>Block</summary><p>A batch of transactions plus metadata: the previous block’s hash, a nonce, and its own hash. The first block of a chain is the <em>genesis block</em>.</p></details>
           <details name="glossary"><summary>Hash</summary><p>A fixed-size fingerprint of any data, produced by a one-way function such as SHA-256. Any change to the input produces a completely different hash.</p></details>
+          <details name="glossary"><summary>Merkle tree / root</summary><p>A tree of hashes: transactions are hashed in pairs, then the pairs are hashed in pairs, up to a single <em>Merkle root</em> stored in the block header. Changing any transaction changes the root, and inclusion of one transaction can be proven with only ~log₂(n) hashes.</p></details>
           <details name="glossary"><summary>Node</summary><p>A computer that stores the ledger, validates new blocks and relays transactions. Anyone can run one.</p></details>
           <details name="glossary"><summary>Nonce</summary><p>“Number used once” — the value miners vary to search for a hash that satisfies the difficulty target.</p></details>
           <details name="glossary"><summary>Mining</summary><p>Racing to find a valid nonce for the next block. The winner earns newly issued coins plus transaction fees.</p></details>
+          <details name="glossary"><summary>Mining pool</summary><p>Miners who combine hashpower and split each block reward in proportion to work contributed — trading lottery-style jackpots for a steady trickle.</p></details>
+          <details name="glossary"><summary>Difficulty adjustment</summary><p>The automatic re-tuning of the proof-of-work target (every 2,016 blocks on Bitcoin) so blocks keep arriving roughly every 10 minutes no matter how much hashpower joins or leaves.</p></details>
+          <details name="glossary"><summary>Halving</summary><p>Bitcoin’s block reward cuts in half every 210,000 blocks (~4 years): 50 → 25 → 12.5 → … BTC. It’s why total supply approaches, but never exceeds, 21 million coins.</p></details>
           <details name="glossary"><summary>Proof of Work (PoW)</summary><p>Consensus by computation: blocks are expensive to produce but cheap to verify, so rewriting history costs more than honest participation.</p></details>
           <details name="glossary"><summary>Proof of Stake (PoS)</summary><p>Consensus by collateral: validators lock up coins for the right to propose blocks, and lose them (“slashing”) if they cheat.</p></details>
           <details name="glossary"><summary>Private key</summary><p>A secret number that controls an address’s funds. Whoever knows it owns the coins; lose it and the coins are gone forever.</p></details>
+          <details name="glossary"><summary>Seed phrase</summary><p>12 or 24 dictionary words (BIP-39) encoding a wallet’s master secret. An HD wallet re-derives every key from it, so anyone holding the words holds all the coins.</p></details>
           <details name="glossary"><summary>Public key / address</summary><p>The shareable half of a key pair. An address — what you give people to get paid — is essentially a hash of the public key.</p></details>
           <details name="glossary"><summary>Digital signature</summary><p>Proof, verifiable by anyone, that the holder of a private key approved one exact message. The basis of transaction authorization.</p></details>
           <details name="glossary"><summary>Wallet</summary><p>Software or hardware that stores keys and signs transactions. It holds no coins — coins exist only as ledger entries.</p></details>
+          <details name="glossary"><summary>Cold / hot wallet</summary><p>Cold = keys kept on a device that never touches the internet (hardware wallet, steel plate); hot = keys on an online device. Convenience goes up, safety goes down.</p></details>
           <details name="glossary"><summary>Mempool</summary><p>Each node’s waiting room of valid but not-yet-confirmed transactions, from which miners/validators assemble blocks.</p></details>
           <details name="glossary"><summary>Confirmation</summary><p>Each block added after the one containing your transaction. More confirmations = deeper burial = harder to reverse.</p></details>
+          <details name="glossary"><summary>Finality</summary><p>The point after which a transaction can’t be reversed. Probabilistic under PoW (deeper = safer, never absolute); explicit under Ethereum PoS, where reverting a finalized block requires destroying at least ⅓ of all staked ETH.</p></details>
           <details name="glossary"><summary>Double-spend</summary><p>Trying to spend the same coin twice. Consensus guarantees at most one of the conflicting transactions is ever confirmed.</p></details>
+          <details name="glossary"><summary>UTXO</summary><p>Unspent transaction output — Bitcoin’s version of a coin, behaving like a bill: transactions consume whole UTXOs and create new ones, including “change” back to the sender. Ethereum uses account balances instead.</p></details>
           <details name="glossary"><summary>51% attack</summary><p>Controlling a majority of mining power (PoW) or stake (PoS), enough to censor or reorder recent transactions. Prohibitively expensive on large networks.</p></details>
+          <details name="glossary"><summary>Fork (soft / hard)</summary><p>A change to the protocol rules. Soft forks tighten rules and stay backward-compatible; hard forks don’t — if part of the network refuses to upgrade, the chain splits in two (Bitcoin / Bitcoin Cash, Ethereum / Ethereum Classic).</p></details>
+          <details name="glossary"><summary>Blockchain trilemma</summary><p>The rule of thumb that decentralization, security and scalability trade off against each other — base layers usually maximize the first two and reach for scale via layer 2.</p></details>
           <details name="glossary"><summary>Smart contract</summary><p>A program stored on-chain that runs exactly as written when triggered by a transaction — the engine behind tokens, DeFi and NFTs.</p></details>
+          <details name="glossary"><summary>Oracle</summary><p>A service that feeds off-chain facts (like prices) to smart contracts, which cannot fetch external data themselves. A trustless contract is only as honest as its oracle — the “oracle problem”.</p></details>
           <details name="glossary"><summary>Ethereum / EVM</summary><p>The largest smart-contract blockchain. Every node runs the Ethereum Virtual Machine (EVM), so contracts execute identically everywhere; ETH is its native coin and pays for gas.</p></details>
           <details name="glossary"><summary>Gas / fees</summary><p>The price paid to have the network process your transaction or run your contract; it compensates miners/validators and prevents spam.</p></details>
           <details name="glossary"><summary>Gwei</summary><p>A billionth of an ETH — the unit gas prices are quoted in. Your fee is gas used × gas price in gwei.</p></details>
+          <details name="glossary"><summary>Base fee &amp; tip (EIP-1559)</summary><p>Ethereum’s fee model since 2021: a protocol-set base fee that is <em>burned</em> (rising 12.5% when blocks run over half full, falling when they don’t) plus an optional tip that pays the validator.</p></details>
+          <details name="glossary"><summary>Satoshi / wei</summary><p>The smallest units of the major coins: 1 BTC = 100,000,000 satoshis; 1 ETH = 10¹⁸ wei. On-chain amounts are integers of these units — the decimals are just display.</p></details>
           <details name="glossary"><summary>Token vs. coin</summary><p>A <em>coin</em> is a blockchain’s native currency (BTC, ETH). A <em>token</em> is an asset created by a smart contract on top of an existing chain.</p></details>
+          <details name="glossary"><summary>Stablecoin</summary><p>A token engineered to track a currency like the US dollar — via custodial reserves (USDC, USDT), overcollateralized crypto (DAI), or — riskily, see Terra 2022 — pure algorithms.</p></details>
           <details name="glossary"><summary>Layer 2 / rollup</summary><p>A network that executes transactions cheaply off the main chain, then posts compressed proof of them on-chain — inheriting its security at a fraction of the fee.</p></details>
           <details name="glossary"><summary>DeFi &amp; NFT</summary><p>Decentralized finance: lending, trading and earning interest via smart contracts. NFTs: unique on-chain tokens representing ownership of a specific item.</p></details>
+          <details name="glossary"><summary>DAO</summary><p>Decentralized autonomous organization — members coordinate through tokens and on-chain votes, and the treasury is controlled by a smart contract instead of officers. (“The DAO”, 2016, was the first and most infamous one.)</p></details>
         </div>
       </section>
 

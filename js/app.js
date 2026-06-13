@@ -140,6 +140,16 @@ const QUIZZES = {
       answer: 0,
       why: 'Decentralization is about control, not storage location or privacy.',
     },
+    {
+      q: 'A company fully trusted by all of its users wants a faster internal payments system. The honest engineering answer is…',
+      options: [
+        'use a blockchain — it is always more secure',
+        'use a regular database — paying for decentralized consensus buys nothing when a trusted operator already exists',
+        'use a private blockchain, which removes all trade-offs',
+      ],
+      answer: 1,
+      why: 'Blockchains trade speed and cost for removing the trusted middleman. If everyone already trusts one party, a database is simpler, faster and cheaper.',
+    },
   ],
   hashing: [
     {
@@ -172,6 +182,16 @@ const QUIZZES = {
       answer: 2,
       why: 'One-wayness is a core property. Blockchains depend on hashes being irreversible.',
     },
+    {
+      q: 'A block holds 1,000,000 transactions in a Merkle tree. Proving that one specific transaction is included requires…',
+      options: [
+        'downloading all 1,000,000 transactions',
+        'about 20 hashes — the path from that transaction up to the Merkle root',
+        'the miner’s private key',
+      ],
+      answer: 1,
+      why: 'Each tree level halves the field: log₂(1,000,000) ≈ 20 sibling hashes connect a leaf to the root. That’s the Merkle proof light wallets rely on.',
+    },
   ],
   blocks: [
     {
@@ -200,6 +220,16 @@ const QUIZZES = {
       answer: 2,
       why: 'Every chain starts from a hard-coded genesis block; Bitcoin’s was created in January 2009.',
     },
+    {
+      q: 'Two miners find valid blocks at the same moment. What happens?',
+      options: [
+        'the network halts until a human decides',
+        'a brief fork: nodes follow whichever branch grows longer, and the losing block is orphaned',
+        'both blocks are kept side by side forever',
+      ],
+      answer: 1,
+      why: 'Ties happen regularly. The branch with the most accumulated work wins; the orphaned block’s transactions return to the mempool — one reason recipients wait for confirmations.',
+    },
   ],
   mining: [
     {
@@ -227,6 +257,16 @@ const QUIZZES = {
       ],
       answer: 1,
       why: 'Rewriting a buried block means re-mining it and every block after it, faster than everyone else combined.',
+    },
+    {
+      q: 'Bitcoin’s block reward halves every 210,000 blocks (~4 years). The long-run effect is…',
+      options: [
+        'total supply approaches a hard cap of 21 million BTC',
+        'mining gradually becomes free',
+        'the difficulty automatically doubles',
+      ],
+      answer: 0,
+      why: '50 → 25 → 12.5 → … the geometric series sums to just under 21 million. Around 2140 the subsidy hits zero and miners earn transaction fees only.',
     },
   ],
   keys: [
@@ -260,6 +300,16 @@ const QUIZZES = {
       answer: 2,
       why: 'No central party can override the cryptography. Key custody is the user’s whole responsibility.',
     },
+    {
+      q: 'A 12- or 24-word seed phrase is…',
+      options: [
+        'a password that your wallet provider can reset',
+        'a human-readable backup of the master secret that can regenerate every key in the wallet',
+        'a compressed list of your past transactions',
+      ],
+      answer: 1,
+      why: 'BIP-39 encodes the wallet’s master randomness as common words. Anyone holding the words holds all the keys — which is why they belong on paper, never in a screenshot or cloud note.',
+    },
   ],
   consensus: [
     {
@@ -292,6 +342,16 @@ const QUIZZES = {
       answer: 0,
       why: 'With majority hashpower (PoW) or stake (PoS) an attacker can censor or reorder recent blocks — which is why bigger networks are safer.',
     },
+    {
+      q: 'A hard fork is best described as…',
+      options: [
+        'an incompatible rule change — if part of the network refuses to upgrade, the chain splits into two',
+        'any attack on a blockchain',
+        'a backwards-compatible tightening of the rules',
+      ],
+      answer: 0,
+      why: 'That’s how Bitcoin Cash split from Bitcoin (2017) and Ethereum Classic from Ethereum (2016). A backwards-compatible tightening is a soft fork.',
+    },
   ],
   ethereum: [
     {
@@ -323,6 +383,16 @@ const QUIZZES = {
       ],
       answer: 1,
       why: 'Each EVM operation has a gas cost and you pay gas used × gas price. A program with no fuel limit could loop forever on every node in the network.',
+    },
+    {
+      q: 'Under EIP-1559, the base-fee portion of every Ethereum transaction fee is…',
+      options: [
+        'paid to the validator who proposes the block',
+        'refunded to you after the transaction confirms',
+        'burned — destroyed forever; only the optional tip goes to the validator',
+      ],
+      answer: 2,
+      why: 'Burning the base fee makes fees predictable and removes any incentive for validators to congest the network; inclusion is rewarded by tips alone.',
     },
   ],
 };
@@ -477,6 +547,52 @@ function initAvalanche() {
 
   inputA.addEventListener('input', update);
   inputB.addEventListener('input', update);
+  update();
+}
+
+/* ============================== Module 2: Merkle tree demo ============================== */
+
+function initMerkleDemo() {
+  const DEFAULT_TXS = [
+    'Alice → Bob: 5 BTC',
+    'Bob → Carol: 2 BTC',
+    'Carol → Dan: 1 BTC',
+    'Dan → Erin: 4 BTC',
+  ];
+  const inputs = [0, 1, 2, 3].map((i) => $(`#mk-tx${i}`));
+  const nodeEls = ['mk-h0', 'mk-h1', 'mk-h2', 'mk-h3', 'mk-h01', 'mk-h23', 'mk-root']
+    .map((id) => $(`#${id}`));
+
+  let baseline = null;
+  let token = 0;
+
+  async function computeTree() {
+    const leaves = await Promise.all(inputs.map((inp) => sha256Hex(inp.value)));
+    const left = await sha256Hex(leaves[0] + leaves[1]);
+    const right = await sha256Hex(leaves[2] + leaves[3]);
+    const root = await sha256Hex(left + right);
+    return [...leaves, left, right, root];
+  }
+
+  async function update() {
+    const current = ++token;
+    const hashes = await computeTree();
+    if (current !== token) return;
+    baseline ??= hashes;
+
+    hashes.forEach((hash, i) => {
+      const el = nodeEls[i];
+      $('.merkle-hash', el).textContent = `${hash.slice(0, 10)}…`;
+      el.title = hash;
+      el.classList.toggle('changed', hash !== baseline[i]);
+    });
+  }
+
+  inputs.forEach((inp) => inp.addEventListener('input', update));
+  $('#mk-reset').addEventListener('click', () => {
+    inputs.forEach((inp, i) => { inp.value = DEFAULT_TXS[i]; });
+    update();
+  });
   update();
 }
 
@@ -694,6 +810,50 @@ function initMiningSim() {
     statusOut.textContent = '⏹️ stopped';
     setRunning(false);
   });
+}
+
+/* ============================== Module 4: halving & supply explorer ============================== */
+
+function initHalvingDemo() {
+  const eraInput = $('#halving-era');
+  const BLOCKS_PER_ERA = 210_000;
+  const SATS_PER_BTC = 100_000_000;
+  const CAP_SATS = 21_000_000 * SATS_PER_BTC;
+
+  /* Integer satoshi math, like the protocol: floor() is why the cap is just under 21 M. */
+  const rewardSats = (era) => Math.floor((50 * SATS_PER_BTC) / 2 ** era);
+
+  const update = () => {
+    const era = Number(eraInput.value);
+    let mintedSats = 0;
+    for (let i = 0; i <= era; i++) mintedSats += BLOCKS_PER_ERA * rewardSats(i);
+
+    const reward = rewardSats(era);
+    const pct = (mintedSats / CAP_SATS) * 100;
+    /* Real halvings landed 2012, 2016, 2020, 2024… era n starts ≈ 2008 + 4n (genesis era starts 2009). */
+    const yearFrom = era === 0 ? 2009 : 2008 + era * 4;
+
+    $('#halving-era-out').textContent = era === 0 ? 'era 0 (genesis — no halvings yet)' : `era ${era} (after halving #${era})`;
+    $('#halving-years').textContent = `${yearFrom}–${2008 + (era + 1) * 4}`;
+    $('#halving-reward').textContent = reward === 0
+      ? '0 — fees only'
+      : reward < SATS_PER_BTC / 100
+        ? `${reward.toLocaleString()} sat${reward > 1 ? 's' : ''}`
+        : `${(reward / SATS_PER_BTC).toLocaleString(undefined, { maximumFractionDigits: 8 })} BTC`;
+    $('#halving-minted').textContent = `${(mintedSats / SATS_PER_BTC).toLocaleString(undefined, { maximumFractionDigits: 4 })} BTC`;
+    $('#halving-pct').textContent = `${pct.toFixed(pct > 99.99 ? 7 : pct > 99.9 ? 4 : 1)}%`;
+    $('#supply-fill').style.inlineSize = `${pct}%`;
+
+    $('#halving-note').textContent =
+      era === 0 ? 'Every block mints 50 BTC: half of all bitcoin that will ever exist is created in this first era.'
+      : era === 4 ? 'The April 2024 halving — the era we are in now: 3.125 BTC per block.'
+      : reward === 1 ? 'The last era with a subsidy: each block mints exactly 1 satoshi.'
+      : reward === 0 ? 'The subsidy rounds to zero around 2140. From here on, security must be paid for entirely by transaction fees.'
+      : '';
+  };
+
+  eraInput.addEventListener('input', update);
+  update();
 }
 
 /* ============================== Module 5: keys & signatures ============================== */
@@ -916,6 +1076,7 @@ initTheme();
 initQuizzes();
 updateProgressUI();
 initNetworkDemo();
+initHalvingDemo();
 initStakeDemo();
 initContractDemo();
 initGasDemo();
@@ -923,6 +1084,7 @@ initGasDemo();
 if (SUBTLE_OK) {
   initHashPlayground();
   initAvalanche();
+  initMerkleDemo();
   initChainDemo();
   initMiningSim();
   initKeysDemo();
