@@ -1,0 +1,13 @@
+{
+  "name": "chainlab",
+  "version": "1.0.0",
+  "description": "ChainLab — an interactive blockchain & cryptocurrency course",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun ./index.html",
+    "build": "bun build ./index.html --outdir dist --minify --sourcemap=linked",
+    "serve": "bun serve.js",
+    "preview": "bun run build && bun run serve"
+  }
+}
