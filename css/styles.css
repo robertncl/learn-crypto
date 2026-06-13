@@ -934,6 +934,60 @@
     .log-empty { color: var(--color-text-muted); }
   }
 
+  /* ---------- NFT gallery (module 8) ---------- */
+  .nft-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: 0.7rem;
+    margin-block: 1em;
+  }
+
+  .nft-card {
+    padding: 0.7rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--color-border);
+    background: var(--color-bg);
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    > p { margin: 0; }
+
+    &.mine {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent), transparent 80%);
+    }
+
+    .nft-art {
+      font-size: 2.6rem;
+      line-height: 1.1;
+    }
+
+    .nft-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .nft-id {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--color-accent-2);
+    }
+
+    .nft-owner {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin-block-start: 0.2em;
+    }
+
+    .nft-uri {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--color-text-muted);
+      overflow-wrap: anywhere;
+      margin-block-start: 0.15em;
+    }
+  }
+
   /* ---------- Quiz ---------- */
   .quiz {
     display: grid;

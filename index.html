@@ -16,8 +16,8 @@
     <a class="brand" href="#/home">⛓️ <strong>ChainLab</strong></a>
     <div class="header-tools">
       <p class="progress-wrap">
-        <span id="progress-label">0 / 7 modules</span>
-        <progress id="course-progress" max="7" value="0" aria-labelledby="progress-label"></progress>
+        <span id="progress-label">0 / 8 modules</span>
+        <progress id="course-progress" max="8" value="0" aria-labelledby="progress-label"></progress>
       </p>
       <button type="button" id="theme-toggle" class="btn ghost" aria-label="Switch color theme">🌗 Auto</button>
     </div>
@@ -35,6 +35,7 @@
           <li><a href="#/keys" data-route="keys"><span class="num">5</span> Keys, wallets &amp; signatures <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/consensus" data-route="consensus"><span class="num">6</span> Transactions &amp; consensus <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/ethereum" data-route="ethereum"><span class="num">7</span> Ethereum &amp; smart contracts <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/nft" data-route="nft"><span class="num">8</span> NFTs &amp; digital ownership <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/glossary" data-route="glossary">📖 Glossary</a></li>
         </ul>
       </nav>
@@ -52,9 +53,9 @@
         <div class="hero">
           <h1>Learn blockchain by <em>playing with one</em></h1>
           <p class="lede">
-            Seven short modules take you from “what even is a blockchain?” to mining blocks,
-            signing transactions and calling smart contracts — all with live, hands-on demos
-            running right in your browser. No wallets, no real coins, nothing to install.
+            Eight short modules take you from “what even is a blockchain?” to mining blocks,
+            signing transactions, calling smart contracts and minting NFTs — all with live,
+            hands-on demos running right in your browser. No wallets, no real coins, nothing to install.
           </p>
           <p><a class="btn primary big" href="#/basics">Start learning →</a></p>
         </div>
@@ -94,6 +95,11 @@
           <article class="module-card" data-module="ethereum">
             <h3><a href="#/ethereum">7 · Ethereum &amp; smart contracts</a></h3>
             <p>Call a token contract that enforces its own rules, then price real-world gas fees.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="nft">
+            <h3><a href="#/nft">8 · NFTs &amp; digital ownership</a></h3>
+            <p>Mint unique tokens and move them around — then see what an NFT actually stores on-chain.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
         </div>
@@ -1182,6 +1188,174 @@
         <form class="quiz" data-quiz="ethereum"></form>
       </section>
 
+      <!-- ============================== MODULE 8 ============================== -->
+      <section id="nft" class="view" hidden>
+        <p class="kicker">Module 8</p>
+        <h1>NFTs &amp; digital ownership</h1>
+        <p class="lede">
+          Module 7’s token kept a table of <em>balances</em>. Change that table to track
+          <strong>unique items</strong> instead of amounts and you get an NFT — a deed, not a dollar.
+        </p>
+
+        <h2>Fungible vs. non-fungible</h2>
+        <p>
+          Most money is <strong>fungible</strong>: any one dollar — or BTC, or LAB token from Module 7 — is
+          interchangeable with any other. You care about the <em>amount</em>, not <em>which</em> one. A
+          <strong>non-fungible token</strong> flips that: every token is a distinct, indivisible item with its
+          own ID and its own owner. You never hold “0.5 of token #7” — you either own #7 or you don’t.
+        </p>
+        <dl class="props">
+          <div><dt>Unique ID</dt><dd>Each token has a number that exists exactly once inside its contract.</dd></div>
+          <div><dt>Indivisible</dt><dd>You transfer the <em>whole</em> token — there’s no “amount” field to split.</dd></div>
+          <div><dt>One owner</dt><dd>The contract maps each token ID to a single address, enforced in code.</dd></div>
+          <div><dt>Same machinery</dt><dd>It’s just a smart contract (ERC-721) — blocks, keys, gas and consensus, all from earlier modules.</dd></div>
+        </dl>
+
+        <h2>What you actually own</h2>
+        <p>
+          Here’s the part that surprises people: the <em>artwork</em> usually isn’t on the blockchain. Storing
+          megabytes on-chain would cost a fortune in gas (Module 7), so an NFT typically stores only a tiny
+          record — <code>ownerOf[tokenId]</code> plus a <strong>tokenURI</strong>, a link to a metadata file that
+          points to the image. The chain proves <em>who owns token #7</em>; the picture it refers to lives
+          somewhere else — often IPFS, sometimes an ordinary web server that can go down.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: mint and trade unique tokens</h2>
+          <p>
+            A tiny ERC-721 collection. Each card is one unique token with exactly one owner. Try to send a token
+            you don’t own (it <strong>reverts</strong>), then mint a fresh one and watch a brand-new ID appear.
+          </p>
+          <pre class="contract-code" aria-label="NFT contract source code">contract CritterNFT {
+  mapping(uint =&gt; address) public ownerOf;     // each token → one owner
+  mapping(uint =&gt; string)  public tokenURI;    // each token → a link to its art
+
+  function transferFrom(address from, address to, uint id) {
+    require(ownerOf[id] == msg.sender, "not the owner");
+    ownerOf[id] = to;
+    emit Transfer(from, to, id);
+  }
+}</pre>
+          <div class="nft-gallery" id="nft-gallery" aria-label="NFT collection"></div>
+          <div class="duo">
+            <p>
+              <label for="nft-caller">Call as (msg.sender)</label>
+              <select id="nft-caller">
+                <option value="alice">🦊 Alice</option>
+                <option value="bob">🐢 Bob</option>
+                <option value="carol">🦉 Carol</option>
+              </select>
+            </p>
+            <p>
+              <label for="nft-token">Token</label>
+              <select id="nft-token"></select>
+            </p>
+            <p>
+              <label for="nft-recipient">Transfer to</label>
+              <select id="nft-recipient">
+                <option value="alice">🦊 Alice</option>
+                <option value="bob" selected>🐢 Bob</option>
+                <option value="carol">🦉 Carol</option>
+              </select>
+            </p>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="nft-transfer">📤 Call transferFrom()</button>
+            <button type="button" class="btn" id="nft-mint">🪙 Mint a new token</button>
+            <button type="button" class="btn ghost" id="nft-reset">Reset</button>
+          </p>
+          <p class="hash-label">Transaction log:</p>
+          <ul class="mini-ledger event-log" id="nft-log" role="log" aria-live="polite">
+            <li class="log-empty">no transactions yet</li>
+          </ul>
+          <p class="demo-note">
+            Pick a caller who <em>isn’t</em> the owner and the transfer reverts — only the owner’s key can move a
+            token, just like the LAB token in Module 7. Notice each mint creates a new <code>#id</code> that can
+            never be duplicated, and that every card shows a <code>tokenURI</code> link — proof that the chain
+            stores a pointer to the art, not the art itself.
+          </p>
+        </div>
+
+        <h2>Beyond profile-picture art</h2>
+        <p>
+          Unique on-chain ownership turns out to be a general-purpose tool. The same ERC-721 record can represent
+          far more than collectible pictures:
+        </p>
+        <ul>
+          <li><strong>Tickets &amp; access</strong> — event tickets and memberships that can’t be counterfeited and resell with built-in rules.</li>
+          <li><strong>Names &amp; identity</strong> — human-readable addresses like <code>alice.eth</code> (ENS) are NFTs you own and can transfer.</li>
+          <li><strong>In-game and virtual items</strong> — items a player owns independently of any one game’s servers.</li>
+          <li><strong>Real-world assets &amp; certificates</strong> — deeds, diplomas and provenance records, where a tamper-evident owner history is the whole point.</li>
+        </ul>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>Where the picture actually lives: on-chain, IPFS &amp; link rot</summary>
+          <p>
+            An NFT’s <code>tokenURI</code> can point three very different places, with very different durability.
+            A plain <strong>HTTPS URL</strong> is cheap but fragile: if the company stops paying for the server,
+            the image 404s and your token points at nothing — the buyer still “owns” the token, but the art is
+            gone. <strong>IPFS</strong> links use <em>content addressing</em> (the link is a hash of the file, the
+            same idea as Module 2), so the data can’t be silently swapped — but someone still has to keep a copy
+            online (“pinning”) or it falls out of the network. Fully <strong>on-chain</strong> NFTs store the
+            artwork itself in contract storage, usually as a compact SVG, so it lives exactly as long as the
+            blockchain does — at the cost of much higher gas.
+          </p>
+          <p>
+            The practical lesson: before valuing an NFT, ask the same question you’d ask of a DeFi protocol’s
+            oracle (Module 7) — <em>where does the thing it points to actually live, and who keeps it alive?</em>
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Royalties were never really enforced by the chain</summary>
+          <p>
+            A headline promise of NFTs was automatic resale <strong>royalties</strong> — “the artist earns 5% on
+            every future sale, forever.” The uncomfortable truth: the ERC-721 standard has no such thing. A
+            transfer is just <code>ownerOf[id] = to</code>; the contract has no idea money changed hands, so it
+            can’t take a cut. Royalties were paid <em>voluntarily by marketplaces</em>, and when competition heated
+            up in 2022–2023, several made them optional and the income largely evaporated.
+          </p>
+          <p>
+            The standard EIP-2981 only lets a contract <em>advertise</em> a royalty figure; honoring it is still up
+            to whoever processes the sale. It’s a clean example of a recurring theme in this course: a blockchain
+            enforces what’s <em>in the contract’s code</em>, and not one thing more.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>The 2021 boom, the crash, and what stuck</summary>
+          <p>
+            NFTs went from niche to mania in 2021: collections like CryptoPunks and Bored Apes traded for hundreds
+            of thousands of dollars, a single Beeple collage sold for $69M at Christie’s, and gas fees spiked as
+            people raced to mint (the same congestion you metered in Module 7). By 2022–2023 speculative prices
+            collapsed — most pictures-for-profit collections fell ~90%+ and many went to near-zero.
+          </p>
+          <p>
+            What survived the speculation is the boring, useful core: a standard, neutral way to represent
+            ownership of one specific thing on a public ledger. Ticketing, blockchain domain names, in-game
+            assets and tokenized real-world items keep using ERC-721 long after the profile-picture frenzy cooled —
+            the technology outlasting the bubble around it.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Standards: ERC-721 vs ERC-1155</summary>
+          <p>
+            <strong>ERC-721</strong> is the original one-token-one-owner standard you just used. <strong>ERC-1155</strong>
+            (the “multi-token” standard) is a more flexible cousin: a single contract can manage many token
+            <em>types</em> at once, each either non-fungible (a unique sword) or fungible in quantity (500 identical
+            health potions). It was designed for games and large collections, where minting a separate contract per
+            item would be wasteful, and it can transfer a whole batch of different tokens in one transaction.
+          </p>
+          <p>
+            The throughline back to Module 7: all of these — ERC-20 currencies, ERC-721 NFTs, ERC-1155 multi-tokens
+            — are just agreed-upon <em>shapes</em> for a contract’s storage and functions. “Standards” are how
+            wallets and marketplaces know how to talk to a contract they’ve never seen before.
+          </p>
+        </details>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="nft"></form>
+      </section>
+
       <!-- ============================== GLOSSARY ============================== -->
       <section id="glossary" class="view" hidden>
         <p class="kicker">Reference</p>
@@ -1226,6 +1400,10 @@
           <details name="glossary"><summary>Stablecoin</summary><p>A token engineered to track a currency like the US dollar — via custodial reserves (USDC, USDT), overcollateralized crypto (DAI), or — riskily, see Terra 2022 — pure algorithms.</p></details>
           <details name="glossary"><summary>Layer 2 / rollup</summary><p>A network that executes transactions cheaply off the main chain, then posts compressed proof of them on-chain — inheriting its security at a fraction of the fee.</p></details>
           <details name="glossary"><summary>DeFi &amp; NFT</summary><p>Decentralized finance: lending, trading and earning interest via smart contracts. NFTs: unique on-chain tokens representing ownership of a specific item.</p></details>
+          <details name="glossary"><summary>Fungible vs. non-fungible</summary><p>Fungible tokens are interchangeable — any one unit equals any other (BTC, ETH, dollars). Non-fungible tokens (NFTs) are each unique and indivisible, identified by a token ID; you own a specific item, not an amount.</p></details>
+          <details name="glossary"><summary>Mint</summary><p>Creating a new token on-chain. Minting an NFT writes a fresh, never-before-used token ID into the contract and assigns it an owner.</p></details>
+          <details name="glossary"><summary>Token URI / metadata</summary><p>The link an NFT stores pointing to its metadata (name, traits and image). The artwork itself usually lives off-chain — on IPFS or a web server — so the chain records ownership, not the picture.</p></details>
+          <details name="glossary"><summary>ERC-20 / ERC-721 / ERC-1155</summary><p>Standard “shapes” for Ethereum token contracts: ERC-20 for fungible currencies, ERC-721 for one-of-a-kind NFTs, and ERC-1155 for a mix of fungible and non-fungible tokens in a single contract.</p></details>
           <details name="glossary"><summary>DAO</summary><p>Decentralized autonomous organization — members coordinate through tokens and on-chain votes, and the treasury is controlled by a smart contract instead of officers. (“The DAO”, 2016, was the first and most infamous one.)</p></details>
         </div>
       </section>

@@ -19,7 +19,7 @@ const nextFrame = () => new Promise((r) => requestAnimationFrame(r));
 
 /* ============================== Router ============================== */
 
-const ROUTES = ['home', 'basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus', 'ethereum', 'glossary'];
+const ROUTES = ['home', 'basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus', 'ethereum', 'nft', 'glossary'];
 
 function currentRoute() {
   const id = location.hash.replace(/^#\/?/, '');
@@ -73,7 +73,7 @@ function initTheme() {
 /* ============================== Progress ============================== */
 
 const PROGRESS_KEY = 'chainlab-progress';
-const QUIZ_IDS = ['basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus', 'ethereum'];
+const QUIZ_IDS = ['basics', 'hashing', 'blocks', 'mining', 'keys', 'consensus', 'ethereum', 'nft'];
 
 function loadProgress() {
   try {
@@ -393,6 +393,48 @@ const QUIZZES = {
       ],
       answer: 2,
       why: 'Burning the base fee makes fees predictable and removes any incentive for validators to congest the network; inclusion is rewarded by tips alone.',
+    },
+  ],
+  nft: [
+    {
+      q: 'What makes a token “non-fungible”?',
+      options: [
+        'It can never be transferred to anyone else',
+        'Each token is a unique, indivisible item with its own ID — not an interchangeable amount',
+        'It is worth more than a fungible token',
+      ],
+      answer: 1,
+      why: 'Fungible tokens (like ETH or the LAB token) are interchangeable amounts; an NFT is one specific item — you own token #7, not “0.5 of it”.',
+    },
+    {
+      q: 'You buy an NFT of a picture. What is actually stored on the blockchain?',
+      options: [
+        'The full image file, pixel for pixel',
+        'Usually just an ownership record (tokenId → owner) and a tokenURI link to the metadata; the image typically lives off-chain',
+        'Nothing — NFTs exist only on the marketplace’s servers',
+      ],
+      answer: 1,
+      why: 'On-chain storage is expensive, so most NFTs store a tiny record plus a link. If that link rots, the token remains but the art can vanish — which is why where the file lives matters.',
+    },
+    {
+      q: 'In the demo, Bob tries to call transferFrom() on a token that Alice owns. What happens?',
+      options: [
+        'It succeeds — anyone can move any token',
+        'The require(ownerOf[id] == msg.sender) check fails and the transaction reverts',
+        'Ownership is split 50/50 between Alice and Bob',
+      ],
+      answer: 1,
+      why: 'Just like the ERC-20 token in Module 7, the contract enforces its own rule: only the current owner’s key can move a token.',
+    },
+    {
+      q: 'The much-hyped “automatic royalty on every resale” turned out to be…',
+      options: [
+        'guaranteed forever by the ERC-721 standard itself',
+        'not enforced by the chain — it relied on marketplaces voluntarily paying, and many later made it optional',
+        'illegal in most countries',
+      ],
+      answer: 1,
+      why: 'A transfer is just ownerOf[id] = to; the contract never sees the payment. EIP-2981 only advertises a royalty — honoring it is up to whoever processes the sale.',
     },
   ],
 };
@@ -1069,6 +1111,137 @@ function initGasDemo() {
   update();
 }
 
+/* ============================== Module 8: NFT (ERC-721) demo ============================== */
+
+function initNftDemo() {
+  const ACCOUNTS = { alice: '🦊 Alice', bob: '🐢 Bob', carol: '🦉 Carol' };
+  /* Pool the demo draws from when minting fresh tokens. */
+  const CRITTERS = [
+    { art: '🐉', name: 'Draco' }, { art: '🦄', name: 'Sparkle' }, { art: '🐙', name: 'Inky' },
+    { art: '🦖', name: 'Rexie' }, { art: '🐳', name: 'Bloo' }, { art: '🦋', name: 'Flit' },
+    { art: '🦁', name: 'Mane' }, { art: '🐝', name: 'Buzz' }, { art: '🦓', name: 'Stripes' },
+    { art: '🦦', name: 'Otto' }, { art: '🐧', name: 'Waddle' }, { art: '🦚', name: 'Plume' },
+  ];
+  const INITIAL = [
+    { id: 1, art: '🐉', name: 'Draco', owner: 'alice' },
+    { id: 2, art: '🦄', name: 'Sparkle', owner: 'bob' },
+    { id: 3, art: '🐙', name: 'Inky', owner: 'carol' },
+  ];
+
+  let tokens = INITIAL.map((t) => ({ ...t }));
+  let nextId = 4;
+  let mintCursor = 3; // first three critters are already minted
+
+  const gallery = $('#nft-gallery');
+  const caller = $('#nft-caller');
+  const tokenSelect = $('#nft-token');
+  const recipient = $('#nft-recipient');
+  const log = $('#nft-log');
+
+  function renderTokenOptions() {
+    const prev = tokenSelect.value;
+    tokenSelect.replaceChildren(...tokens.map((t) => {
+      const opt = document.createElement('option');
+      opt.value = String(t.id);
+      opt.textContent = `#${t.id} ${t.art} ${t.name}`;
+      return opt;
+    }));
+    if (tokens.some((t) => String(t.id) === prev)) tokenSelect.value = prev;
+  }
+
+  function renderGallery() {
+    gallery.replaceChildren(...tokens.map((t) => {
+      const card = document.createElement('article');
+      card.className = 'nft-card';
+      card.classList.toggle('mine', t.owner === caller.value);
+
+      const art = document.createElement('p');
+      art.className = 'nft-art';
+      art.textContent = t.art;
+
+      const name = document.createElement('p');
+      name.className = 'nft-name';
+      name.textContent = t.name;
+
+      const idTag = document.createElement('p');
+      idTag.className = 'nft-id';
+      idTag.textContent = `Token #${t.id}`;
+
+      const ownerTag = document.createElement('p');
+      ownerTag.className = 'nft-owner';
+      ownerTag.textContent = `owner: ${ACCOUNTS[t.owner]}`;
+
+      const uri = document.createElement('p');
+      uri.className = 'nft-uri';
+      uri.textContent = `🔗 ipfs://…/${t.id}.json`;
+      uri.title = 'tokenURI — a link to off-chain metadata';
+
+      card.append(art, name, idTag, ownerTag, uri);
+      return card;
+    }));
+  }
+
+  function addLog(text, ok) {
+    $('.log-empty', log)?.remove();
+    const li = document.createElement('li');
+    li.className = ok ? 'log-ok' : 'log-bad';
+    li.textContent = text;
+    log.prepend(li);
+  }
+
+  function render() {
+    renderTokenOptions();
+    renderGallery();
+  }
+
+  $('#nft-transfer').addEventListener('click', () => {
+    const from = caller.value;
+    const to = recipient.value;
+    const id = Number(tokenSelect.value);
+    const token = tokens.find((t) => t.id === id);
+    if (!token) return;
+    const call = `transferFrom(${ACCOUNTS[from]} → ${ACCOUNTS[to]}, #${id})`;
+
+    if (token.owner !== from) {
+      addLog(`❌ ${call} reverted: ${ACCOUNTS[from]} is not the owner of #${id} (owner is ${ACCOUNTS[token.owner]})`, false);
+      return;
+    }
+    if (from === to) {
+      addLog(`❌ ${call} reverted: #${id} already belongs to ${ACCOUNTS[to]}`, false);
+      return;
+    }
+    token.owner = to;
+    render();
+    addLog(`✅ Transfer(#${id} ${token.art} ${token.name}: ${ACCOUNTS[from]} → ${ACCOUNTS[to]})`, true);
+  });
+
+  $('#nft-mint').addEventListener('click', () => {
+    const to = caller.value;
+    const critter = CRITTERS[mintCursor % CRITTERS.length];
+    mintCursor++;
+    const token = { id: nextId++, art: critter.art, name: critter.name, owner: to };
+    tokens.push(token);
+    render();
+    tokenSelect.value = String(token.id);
+    addLog(`✅ Mint(#${token.id} ${token.art} ${token.name} → ${ACCOUNTS[to]}) — a brand-new unique token`, true);
+  });
+
+  $('#nft-reset').addEventListener('click', () => {
+    tokens = INITIAL.map((t) => ({ ...t }));
+    nextId = 4;
+    mintCursor = 3;
+    const empty = document.createElement('li');
+    empty.className = 'log-empty';
+    empty.textContent = 'no transactions yet';
+    log.replaceChildren(empty);
+    render();
+  });
+
+  caller.addEventListener('change', renderGallery);
+
+  render();
+}
+
 /* ============================== Boot ============================== */
 
 initRouter();
@@ -1080,6 +1253,7 @@ initHalvingDemo();
 initStakeDemo();
 initContractDemo();
 initGasDemo();
+initNftDemo();
 
 if (SUBTLE_OK) {
   initHashPlayground();

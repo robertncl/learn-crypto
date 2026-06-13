@@ -1,6 +1,6 @@
 # ⛓️ ChainLab — learn blockchain interactively
 
-An interactive, single-page course on blockchain and cryptocurrency. Seven short
+An interactive, single-page course on blockchain and cryptocurrency. Eight short
 modules with live, hands-on demos running entirely in your browser — no build
 step, no dependencies, no real coins.
 
@@ -27,15 +27,17 @@ python3 -m http.server 8000
 | 5 · Keys, wallets & signatures | Generate an ECDSA key pair, sign a message, tamper, verify |
 | 6 · Transactions & consensus | Stake-weighted validator selection simulator |
 | 7 · Ethereum & smart contracts | Call a token contract that enforces its own rules + live gas-fee estimator |
+| 8 · NFTs & digital ownership | Mint unique ERC-721 tokens and trade them in a live ownership registry |
 
 Every module also has a set of collapsible **"Go deeper" sections** with real
 protocol detail: the Byzantine generals problem and the blockchain trilemma,
 2²⁵⁶ scale arithmetic, real Bitcoin block headers, the difficulty adjustment,
 elliptic curves and seed phrases, UTXO vs accounts, hard/soft forks and
-finality, EIP-1559, The DAO hack, oracles, stablecoins and rollups.
+finality, EIP-1559, The DAO hack, oracles, stablecoins and rollups, NFT link
+rot, royalty enforcement and ERC-721 vs ERC-1155.
 
 Each module ends with a quiz (70% to pass); progress is saved in
-`localStorage`. There's also a glossary of ~35 key terms.
+`localStorage`. There's also a glossary of ~40 key terms.
 
 ## Tech
 
