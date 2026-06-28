@@ -41,10 +41,12 @@ The demos use the Web Crypto API (SHA-256, ECDSA), which needs a secure context
 
 Every module also has a set of collapsible **"Go deeper" sections** with real
 protocol detail: the Byzantine generals problem and the blockchain trilemma,
-2²⁵⁶ scale arithmetic, real Bitcoin block headers, the difficulty adjustment,
-elliptic curves and seed phrases, UTXO vs accounts, hard/soft forks and
-finality, EIP-1559, The DAO hack, oracles, stablecoins and rollups, NFT link
-rot, royalty enforcement and ERC-721 vs ERC-1155.
+2²⁵⁶ scale arithmetic, the birthday bound and length-extension attacks, real
+Bitcoin block headers, the difficulty adjustment and the target/difficulty math,
+elliptic curves, seed phrases and the ECDSA signing-nonce disaster, UTXO vs
+accounts, hard/soft forks and finality, MEV and proposer–builder separation,
+EIP-1559, The DAO hack, ABI function selectors, oracles, stablecoins and
+rollups, NFT link rot, royalty enforcement and ERC-721 vs ERC-1155.
 
 Each module ends with a quiz (70% to pass); progress is saved in
 `localStorage`. There's also a glossary of ~40 key terms.

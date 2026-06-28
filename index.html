@@ -422,6 +422,32 @@
           </ul>
         </details>
 
+        <details class="deep-dive">
+          <summary>The three resistances — and the birthday surprise</summary>
+          <p>
+            “One-way” is really three separate promises, and they aren’t equally hard to keep.
+            <strong>Preimage resistance</strong>: given a hash, you can’t find <em>any</em> input that produces it.
+            <strong>Second-preimage resistance</strong>: given one input, you can’t find a <em>different</em> input
+            with the same hash. <strong>Collision resistance</strong>: you can’t find <em>any two</em> inputs that
+            collide at all — and this is the weakest link, because of the <strong>birthday paradox</strong>. In a
+            room of just 23 people the odds that two share a birthday already pass 50%; the same combinatorics mean
+            that finding a collision takes only about the <em>square root</em> of the brute-force effort — roughly
+            2¹²⁸ tries for a 256-bit hash, not 2²⁵⁶. So SHA-256 buys 256-bit preimage security but only
+            <strong>128-bit</strong> collision security — still astronomically safe, yet a sharp reminder that
+            output size and security level are not the same number.
+          </p>
+          <p>
+            There’s a second subtle edge. SHA-256 digests a message by streaming it through an internal state (the
+            Merkle–Damgård construction) and then <em>publishes that final state as the hash</em> — which lets an
+            attacker who knows the hash of <code>secret + message</code> compute the hash of
+            <code>secret + message + anything</code> <em>without knowing the secret</em>. That’s the
+            <strong>length-extension attack</strong>, and it’s exactly why Bitcoin hashes block headers <em>twice</em>
+            (“SHA-256d” — SHA-256 of SHA-256): the second pass hides the internal state. Keccak/SHA-3, which
+            Ethereum uses, is immune by design. None of this threatens mining; it’s why protocol designers reach for
+            the right hash <em>construction</em>, not merely the right number of bits.
+          </p>
+        </details>
+
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="hashing"></form>
       </section>
@@ -660,6 +686,28 @@
           </p>
         </details>
 
+        <details class="deep-dive">
+          <summary>Reading the target: what “difficulty” is, in numbers</summary>
+          <p>
+            Our demo asks for leading zeros, but Bitcoin’s real rule is subtler: a block is valid when its header
+            hash, read as one gigantic 256-bit number, is <em>less than or equal to a target</em>. Leading zeros are
+            just the visible side-effect of a very small target. The 80-byte header (Module 3) packs that target
+            into a 4-byte field called <strong>bits</strong> — a compact floating-point-like encoding, one byte of
+            exponent and three of mantissa — and every node expands it the same way to check the winner.
+            <strong>Difficulty</strong> is then simply a ratio: the easiest-ever target divided by the current one.
+            “Difficulty 1” was the genesis setting; today’s figure runs into the tens of trillions.
+          </p>
+          <p>
+            That ratio has a beautifully concrete meaning — the expected number of hashes to mine one block is
+            <strong>difficulty × 2³²</strong>. At a difficulty around 100 trillion that’s roughly 4 × 10²³ hashes
+            <em>per block</em> (hundreds of zettahashes), network-wide, every ten minutes. It also explains the
+            4-byte nonce problem from Module 3: 2³² ≈ 4.3 billion guesses is a rounding error against 10²³, which is
+            why a miner exhausts the nonce in well under a second and must keep varying the coinbase and timestamp to
+            refresh the search space. Difficulty isn’t a vague knob — it’s an exact, auditable number that every
+            node recomputes and enforces.
+          </p>
+        </details>
+
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="mining"></form>
       </section>
@@ -787,6 +835,30 @@
             The defenses are unglamorous: a hardware wallet for savings, verifying addresses character-by-character
             (or via a second channel), keeping the seed offline, and assuming any request for it is a scam — because
             it is.
+          </p>
+        </details>
+
+        <details class="deep-dive">
+          <summary>The signing nonce: the one-time number that emptied wallets</summary>
+          <p>
+            Every ECDSA signature mixes in a fresh random number, <em>k</em> — confusingly also called a “nonce”,
+            and a different one from mining’s. It must be secret and <strong>never reused</strong>, because the math
+            is unforgiving: sign two different messages with the same <em>k</em> and anyone can solve the two
+            resulting equations for <em>k</em>, and from there recover your <strong>private key</strong> with
+            schoolbook algebra. Even a <em>slightly</em> biased or predictable <em>k</em> leaks the key a few bits
+            per signature until it can be reconstructed entirely.
+          </p>
+          <p>
+            This is not hypothetical. In 2010 Sony signed PlayStation 3 software with a <em>constant</em> <em>k</em>,
+            handing hackers the console’s master signing key. In 2013 a flaw in Android’s random-number generator
+            reused <em>k</em> across Bitcoin transactions and thieves swept the exposed wallets. The standard fix is
+            to stop rolling dice altogether: <strong>RFC 6979</strong> derives <em>k</em> deterministically from the
+            private key and the message itself, so it is unpredictable to outsiders yet can never accidentally
+            repeat. It’s a pointed complement to the theft list above — those were phishing and malware <em>around</em>
+            the cryptography, whereas this is a hole in its very plumbing: the curve math holds perfectly, but one
+            weak random number beside it can still cost you everything. Bitcoin’s newer <strong>Schnorr</strong>
+            signatures (Taproot, 2021) keep the same curve but a cleaner equation that also makes a group’s joint
+            signature indistinguishable from one person’s.
           </p>
         </details>
 
@@ -971,6 +1043,30 @@
             <li><strong>Proof of authority</strong> — named, legally identifiable validators. Fine for testnets and consortium chains; not trustless at all.</li>
             <li><strong>Hybrids</strong> — e.g. Solana pairs PoS with “proof of history”, a cryptographic clock that lets validators order events without waiting on each other, buying huge throughput at the cost of heavyweight hardware requirements.</li>
           </ul>
+        </details>
+
+        <details class="deep-dive">
+          <summary>MEV: who really decides the order</summary>
+          <p>
+            The fee-market demo assumed a miner just sorts by fee rate. In reality the <em>order</em> of
+            transactions inside a block is itself worth money, and whoever builds the block can reorder, insert or
+            drop transactions to capture it. This is <strong>MEV</strong> — maximal extractable value. The classic
+            move is a <strong>sandwich attack</strong>: a bot spots your pending swap on a decentralized exchange,
+            buys just ahead of you (pushing the price up), lets your trade execute at the worse price, then sells
+            right after — pocketing the spread, all inside one block. Cross-exchange arbitrage and racing to
+            liquidate undercollateralized loans are gentler, often useful versions of the same thing.
+          </p>
+          <p>
+            MEV reframes the mempool: it isn’t a fair queue, it’s a <em>public auction room</em> where “searchers”
+            run bots and bid priority fees for favorable positioning (the Flashbots project built the first open
+            marketplace for it). Left unchecked it pushes toward centralization — whoever has the best ordering
+            algorithm earns the most and can outbid everyone for block space. Ethereum’s mitigation is
+            <strong>proposer–builder separation</strong>: specialized <em>builders</em> compete to assemble the
+            most valuable block and the validator simply picks the highest-paying one, so an ordinary validator
+            doesn’t need a bot farm to keep up. It works, yet it concentrates power in a few dominant builders — an
+            unsolved tension and one of the field’s most active research fronts. Extracted MEV is estimated in the
+            billions of dollars since 2020.
+          </p>
         </details>
 
         <h2>Check your understanding</h2>
@@ -1221,6 +1317,28 @@
           </p>
         </details>
 
+        <details class="deep-dive">
+          <summary>Under the hood of a call: ABIs and the 4-byte selector</summary>
+          <p>
+            When the demo “calls <code>transfer()</code>”, what actually travels on-chain is a blob of bytes called
+            <strong>calldata</strong>. Its first four bytes are a <strong>function selector</strong>: the Keccak-256
+            hash (Module 2) of the function’s signature — <code>transfer(address,uint256)</code> — truncated to four
+            bytes, which works out to <code>0xa9059cbb</code> for every ERC-20 token ever written. The arguments
+            follow, each padded into 32-byte words. The EVM reads those four bytes, jumps to the matching function,
+            and decodes the rest. There’s no method <em>name</em> on the wire — just a hash prefix and packed numbers.
+          </p>
+          <p>
+            The agreed map between human-readable functions and this byte layout is the contract’s
+            <strong>ABI</strong> (application binary interface). It’s how a wallet that has never seen your contract
+            can still call it: hand it the ABI and it knows how to encode every call and decode every result. This
+            is the deeper reason “standards” like ERC-20 and ERC-721 (Module 8) matter so much — fixing the function
+            signatures fixes the selectors, so the entire ecosystem of wallets, explorers and exchanges can talk to a
+            brand-new contract on day one without ever seeing its source. (A quirk of the design: four bytes is only
+            ~4.3 billion possibilities, so unrelated functions occasionally collide on the same selector, and
+            explorers keep dictionaries to guess which one a transaction meant.)
+          </p>
+        </details>
+
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="ethereum"></form>
       </section>
@@ -1424,9 +1542,11 @@
           <details name="glossary"><summary>Double-spend</summary><p>Trying to spend the same coin twice. Consensus guarantees at most one of the conflicting transactions is ever confirmed.</p></details>
           <details name="glossary"><summary>UTXO</summary><p>Unspent transaction output — Bitcoin’s version of a coin, behaving like a bill: transactions consume whole UTXOs and create new ones, including “change” back to the sender. Ethereum uses account balances instead.</p></details>
           <details name="glossary"><summary>51% attack</summary><p>Controlling a majority of mining power (PoW) or stake (PoS), enough to censor or reorder recent transactions. Prohibitively expensive on large networks.</p></details>
+          <details name="glossary"><summary>MEV</summary><p>Maximal extractable value — profit a block producer (or a bot bidding for position) can capture purely by choosing the order of transactions in a block, e.g. “sandwiching” a victim’s trade. Mitigated, not eliminated, by proposer–builder separation.</p></details>
           <details name="glossary"><summary>Fork (soft / hard)</summary><p>A change to the protocol rules. Soft forks tighten rules and stay backward-compatible; hard forks don’t — if part of the network refuses to upgrade, the chain splits in two (Bitcoin / Bitcoin Cash, Ethereum / Ethereum Classic).</p></details>
           <details name="glossary"><summary>Blockchain trilemma</summary><p>The rule of thumb that decentralization, security and scalability trade off against each other — base layers usually maximize the first two and reach for scale via layer 2.</p></details>
           <details name="glossary"><summary>Smart contract</summary><p>A program stored on-chain that runs exactly as written when triggered by a transaction — the engine behind tokens, DeFi and NFTs.</p></details>
+          <details name="glossary"><summary>ABI &amp; function selector</summary><p>The ABI (application binary interface) is a contract’s published map of functions to their byte encoding. A call identifies the function by its <em>selector</em> — the first 4 bytes of the Keccak-256 hash of its signature — letting any wallet invoke a contract it has never seen, given the ABI.</p></details>
           <details name="glossary"><summary>Oracle</summary><p>A service that feeds off-chain facts (like prices) to smart contracts, which cannot fetch external data themselves. A trustless contract is only as honest as its oracle — the “oracle problem”.</p></details>
           <details name="glossary"><summary>Ethereum / EVM</summary><p>The largest smart-contract blockchain. Every node runs the Ethereum Virtual Machine (EVM), so contracts execute identically everywhere; ETH is its native coin and pays for gas.</p></details>
           <details name="glossary"><summary>Gas / fees</summary><p>The price paid to have the network process your transaction or run your contract; it compensates miners/validators and prevents spam.</p></details>
