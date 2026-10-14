@@ -3,6 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    /* Apply a saved light/dark override before first paint (avoids a flash of the wrong theme). */
+    try {
+      const saved = localStorage.getItem('chainlab-theme');
+      if (saved === 'light' || saved === 'dark') document.querySelector('meta[name="color-scheme"]').content = saved;
+    } catch { /* storage blocked — follow the system theme */ }
+  </script>
   <title>ChainLab · Learn blockchain interactively</title>
   <meta name="description" content="An interactive course on blockchain and cryptocurrency: hashing, blocks, mining, wallets, consensus and Ethereum smart contracts — learn by experimenting.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%93%3C/text%3E%3C/svg%3E">
@@ -16,8 +24,8 @@
     <a class="brand" href="#/home">⛓️ <strong>ChainLab</strong></a>
     <div class="header-tools">
       <p class="progress-wrap">
-        <span id="progress-label">0 / 8 modules</span>
-        <progress id="course-progress" max="8" value="0" aria-labelledby="progress-label"></progress>
+        <span id="progress-label">0 / 10 modules</span>
+        <progress id="course-progress" max="10" value="0" aria-labelledby="progress-label"></progress>
       </p>
       <button type="button" id="theme-toggle" class="btn ghost" aria-label="Switch color theme">🌗 Auto</button>
     </div>
@@ -37,6 +45,8 @@
           <li><a href="#/consensus" data-route="consensus"><span class="num">6</span> Transactions &amp; consensus <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/ethereum" data-route="ethereum"><span class="num">7</span> Ethereum &amp; smart contracts <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/nft" data-route="nft"><span class="num">8</span> NFTs &amp; digital ownership <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/defi" data-route="defi"><span class="num">9</span> DeFi: exchanges &amp; loans <span class="done-mark" hidden>✓</span></a></li>
+          <li><a href="#/zk" data-route="zk"><span class="num">10</span> Zero-knowledge proofs <span class="done-mark" hidden>✓</span></a></li>
           <li><a href="#/glossary" data-route="glossary">📖 Glossary</a></li>
         </ul>
       </nav>
@@ -44,8 +54,9 @@
 
     <main id="main">
       <p id="crypto-warning" class="banner warn" hidden>
-        ⚠️ The interactive demos need the Web Crypto API, which requires a secure context.
-        Serve this folder over <code>localhost</code> (for example <code>python3 -m http.server</code>) and reload.
+        ⚠️ A few demos (the SHA-256 playground, the Merkle tree, the toy blockchain, signing and seed phrases) need the
+        Web Crypto API, which requires a secure context. Serve this folder over <code>localhost</code> (for example
+        <code>python3 -m http.server</code>) and reload.
       </p>
       <noscript><p class="banner warn">This course is interactive and needs JavaScript enabled.</p></noscript>
 
@@ -54,9 +65,9 @@
         <div class="hero">
           <h1>Learn blockchain by <em>playing with one</em></h1>
           <p class="lede">
-            Eight short modules take you from “what even is a blockchain?” to mining blocks,
-            signing transactions, calling smart contracts and minting NFTs — all with live,
-            hands-on demos running right in your browser. No wallets, no real coins, nothing to install.
+            Ten modules take you from “what even is a blockchain?” to mining real Bitcoin headers, deriving wallet
+            addresses, stepping through the EVM, trading against a liquidity pool and verifying a zero-knowledge proof —
+            with nearly forty live demos running right in your browser. No wallets, no real coins, nothing to install.
           </p>
           <p><a class="btn primary big" href="#/basics">Start learning →</a></p>
         </div>
@@ -65,51 +76,62 @@
         <div class="card-grid">
           <article class="module-card" data-module="basics">
             <h3><a href="#/basics">1 · Blockchain basics</a></h3>
-            <p>Why blockchains exist, the shared-ledger idea, and what “decentralized” really means.</p>
+            <p>Corrupt nodes until the lie wins, learn why votes need weight, and test whether a project needs a blockchain at all.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
           <article class="module-card" data-module="hashing">
             <h3><a href="#/hashing">2 · Hashing</a></h3>
-            <p>Meet SHA-256, the fingerprint machine behind everything. Hash your own text live.</p>
+            <p>SHA-256 live, the avalanche effect bit by bit, Merkle proofs, a collision hunt and sealed-envelope commitments.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
           <article class="module-card" data-module="blocks">
             <h3><a href="#/blocks">3 · Blocks &amp; the chain</a></h3>
-            <p>Build intuition by tampering with a real (tiny) blockchain and watching it break.</p>
+            <p>Break a toy chain, then hash Bitcoin’s genesis block yourself and re-mine Satoshi’s nonce.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
           <article class="module-card" data-module="mining">
             <h3><a href="#/mining">4 · Mining &amp; proof of work</a></h3>
-            <p>Run a real miner in your browser and feel how difficulty turns into security.</p>
+            <p>Mine blocks and measure your luck, see why pools exist, shock the difficulty thermostat and walk the supply curve.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
           <article class="module-card" data-module="keys">
             <h3><a href="#/keys">5 · Keys, wallets &amp; signatures</a></h3>
-            <p>Generate a key pair, sign a message, then tamper with it and watch verification fail.</p>
+            <p>Hop along an elliptic curve, derive real Bitcoin and Ethereum addresses from a seed phrase, and steal a key from a reused nonce.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
           <article class="module-card" data-module="consensus">
             <h3><a href="#/consensus">6 · Transactions &amp; consensus</a></h3>
-            <p>Follow a transaction’s life and compare proof of work with proof of stake.</p>
+            <p>Spend UTXOs and make change, fill a block by fee rate, race a double-spender and slash a cheating validator.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
           <article class="module-card" data-module="ethereum">
             <h3><a href="#/ethereum">7 · Ethereum &amp; smart contracts</a></h3>
-            <p>Call a token contract that enforces its own rules, then price real-world gas fees.</p>
+            <p>Encode a contract call, step through EVM bytecode, watch the EIP-1559 base fee move and drain a vault by reentrancy.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
           <article class="module-card" data-module="nft">
             <h3><a href="#/nft">8 · NFTs &amp; digital ownership</a></h3>
-            <p>Mint unique tokens and move them around — then see what an NFT actually stores on-chain.</p>
+            <p>Mint and trade tokens, break an NFT’s link, and sell through a marketplace — then fall for a drainer scam.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="defi">
+            <h3><a href="#/defi">9 · DeFi: exchanges &amp; loans</a></h3>
+            <p>Trade against a liquidity pool, get sandwiched by a bot, measure impermanent loss and get liquidated.</p>
+            <p class="card-status" hidden>Completed ✓</p>
+          </article>
+          <article class="module-card" data-module="zk">
+            <h3><a href="#/zk">10 · Zero-knowledge proofs</a></h3>
+            <p>Catch a bluffer in the magic cave, then verify a real zero-knowledge proof built from hash commitments.</p>
             <p class="card-status" hidden>Completed ✓</p>
           </article>
         </div>
 
         <h2>How it works</h2>
         <ul class="feature-list">
-          <li>🧪 <strong>Real cryptography</strong> — demos use your browser’s built-in SHA-256 and ECDSA, the same primitives Bitcoin-style chains rely on.</li>
-          <li>🔬 <strong>Deep dives</strong> — optional expandable sections in every module go from intuition to real protocol detail: Merkle proofs, halvings, hard forks, EIP-1559 and more.</li>
-          <li>✅ <strong>Quizzes</strong> — each module ends with a short check; score 70% or more to mark it complete.</li>
+          <li>🧪 <strong>Real cryptography</strong> — the demos run genuine SHA-256, ECDSA on secp256k1, Keccak-256, RIPEMD-160 and the BIP-39/32 wallet standards. They reproduce published test vectors, from Bitcoin’s genesis block hash to the accounts developer tools derive from a test phrase.</li>
+          <li>📈 <strong>Simulations you can steer</strong> — difficulty retargeting, double-spend races, the EIP-1559 fee market and AMM pools, each with charts you can hover, read by keyboard or open as a data table.</li>
+          <li>🔬 <strong>Deep dives</strong> — optional expandable sections go from intuition to protocol detail: length-extension attacks, version rolling, Schnorr, flash loans, trusted setups and more.</li>
+          <li>✅ <strong>Quizzes</strong> — each module ends with a short check; score 70% or more to mark it complete, and your best score is remembered.</li>
           <li>💾 <strong>Progress saved locally</strong> — your progress lives in your browser only.</li>
         </ul>
       </section>
@@ -143,44 +165,25 @@
         </dl>
 
         <div class="demo-card">
-          <h2>Try it: the network rejects a cheat</h2>
-          <p>Three nodes hold identical copies of a tiny ledger. Tamper with one and see what the majority does.</p>
-          <div class="network" id="network-demo">
-            <article class="node-card" id="node-a">
-              <h3>Node A</h3>
-              <ul class="mini-ledger">
-                <li>Alice → Bob: 5</li>
-                <li>Bob → Carol: 2</li>
-                <li>Carol → Dan: 1</li>
-              </ul>
-            </article>
-            <article class="node-card" id="node-b">
-              <h3>Node B</h3>
-              <ul class="mini-ledger">
-                <li>Alice → Bob: 5</li>
-                <li>Bob → Carol: 2</li>
-                <li>
-                  <span class="entry-orig">Carol → Dan: 1</span>
-                  <span class="entry-fake" hidden>Carol → Mallory: 99</span>
-                </li>
-              </ul>
-              <p class="reject-chip" hidden>✗ Rejected by majority</p>
-            </article>
-            <article class="node-card" id="node-c">
-              <h3>Node C</h3>
-              <ul class="mini-ledger">
-                <li>Alice → Bob: 5</li>
-                <li>Bob → Carol: 2</li>
-                <li>Carol → Dan: 1</li>
-              </ul>
-            </article>
-          </div>
+          <h2>Try it: who decides the truth?</h2>
+          <p>
+            Five nodes hold identical copies of a tiny ledger. Mallory wants the last entry to read
+            “Carol → Mallory: 99”. Let her corrupt one node, then another, then another — and watch what the
+            network as a whole believes.
+          </p>
+          <div class="network" id="network-demo" aria-label="Five nodes and their ledgers"></div>
+          <p class="vote-bar" aria-hidden="true"><span class="vote-honest" id="vote-honest"></span><span class="vote-forged" id="vote-forged"></span></p>
+          <p class="verdict" id="network-verdict" role="status"></p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="tamper-btn">Tamper with Node B</button>
+            <button type="button" class="btn ghost" id="network-reset">Restore every node</button>
           </p>
           <p class="demo-note">
-            Node B can scribble whatever it wants in <em>its own copy</em> — but A and C still agree on the truth,
-            so the network ignores B. To rewrite history you’d have to out-vote the entire honest network.
+            One forged copy changes nothing: the others still agree, so the network ignores it. But notice the
+            catch at three. If votes were counted <em>per computer</em>, Mallory wouldn’t bother hacking nodes — she’d
+            spin up a million fake ones for free (a <strong>Sybil attack</strong>). So real blockchains weight each
+            vote by something scarce: computing work in proof of work (<a href="#/mining">Module 4</a>) or locked-up
+            coins in proof of stake (<a href="#/consensus">Module 6</a>). A “51% attack” means controlling a majority
+            of <em>that</em>.
           </p>
         </div>
 
@@ -191,6 +194,43 @@
           and not dependent on any bank. Bitcoin (2009) was the first system to make this work; thousands of
           others followed.
         </p>
+
+        <div class="demo-card">
+          <h2>Try it: do you actually need a blockchain?</h2>
+          <p>
+            Decentralization is bought, not free. Every node stores and re-checks <em>everything</em>, so a public
+            blockchain is a spectacularly slow database: Bitcoin settles ~7 transactions per second and Ethereum
+            ~15–30, while one ordinary database server handles tens of thousands. Pick a scenario — or answer the
+            three questions yourself.
+          </p>
+          <p class="demo-actions" role="group" aria-label="Example scenarios">
+            <button type="button" class="btn" data-scenario="bakery" aria-pressed="false">🧁 A bakery’s stock list</button>
+            <button type="button" class="btn" data-scenario="game" aria-pressed="false">🎮 A game’s leaderboard</button>
+            <button type="button" class="btn" data-scenario="banks" aria-pressed="false">🏦 Payments between rival banks</button>
+            <button type="button" class="btn" data-scenario="money" aria-pressed="false">🌍 Money no one can freeze</button>
+          </p>
+          <fieldset class="checklist" id="need-questions">
+            <legend>The three-question test</legend>
+            <label><input type="checkbox" id="need-q1"><span>Several parties need to <strong>write</strong> to the same records</span></label>
+            <label><input type="checkbox" id="need-q2"><span>…and they <strong>don’t fully trust</strong> each other or any single operator</span></label>
+            <label><input type="checkbox" id="need-q3"><span>…and <strong>no acceptable middleman</strong> exists — too costly, too censoring, or itself untrusted</span></label>
+          </fieldset>
+          <p class="verdict" id="need-verdict" role="status"></p>
+          <p class="demo-note" id="need-note">
+            A blockchain earns its cost only when all three hold. Most “enterprise blockchain” projects of the
+            2010s quietly became shared databases for exactly this reason: the participants already had a referee.
+          </p>
+        </div>
+
+        <aside class="takeaways" aria-labelledby="basics-takeaways">
+          <h2 id="basics-takeaways">Key takeaways</h2>
+          <ul>
+            <li>A blockchain is a <strong>shared, append-only ledger</strong> that many independent nodes keep in sync — there is no single record keeper to trust or attack.</li>
+            <li>Editing your own copy achieves nothing while the honest majority disagrees; history changes only if an attacker controls the <strong>majority</strong>.</li>
+            <li>Votes must be weighted by something <strong>costly</strong> — work or stake — because counting computers invites Sybil attacks.</li>
+            <li>Decentralization costs speed and money. It pays off only with many mutually distrustful writers and no acceptable middleman.</li>
+          </ul>
+        </aside>
 
         <h2>Go deeper</h2>
         <details class="deep-dive">
@@ -216,25 +256,6 @@
         </details>
 
         <details class="deep-dive">
-          <summary>Do you actually need a blockchain?</summary>
-          <p>
-            Decentralization is bought, not free. Every node stores and re-verifies <em>everything</em>, so a
-            base-layer blockchain is a spectacularly slow database: Bitcoin processes ~7 transactions per second
-            and Ethereum ~15–30, while one ordinary database server handles tens of thousands.
-          </p>
-          <p>A useful test — a blockchain earns that cost only when <em>all three</em> hold:</p>
-          <ol class="steps">
-            <li><strong>Several parties</strong> need to write to the same records…</li>
-            <li>…and they <strong>don’t fully trust each other</strong> (or any single operator)…</li>
-            <li>…and <strong>no acceptable middleman</strong> exists — too expensive, censoring, or itself untrusted.</li>
-          </ol>
-          <p>
-            If a trusted operator exists, a regular database is simpler, faster and cheaper. Most “enterprise
-            blockchain” projects of the 2010s quietly became databases for exactly this reason.
-          </p>
-        </details>
-
-        <details class="deep-dive">
           <summary>The blockchain trilemma</summary>
           <p>Three properties everyone wants — and a base layer realistically maximizes two:</p>
           <dl class="props">
@@ -255,7 +276,7 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th scope="col"></th><th scope="col">Public</th><th scope="col">Permissioned / consortium</th><th scope="col">Private</th></tr>
+                <tr><td></td><th scope="col">Public</th><th scope="col">Permissioned / consortium</th><th scope="col">Private</th></tr>
               </thead>
               <tbody>
                 <tr><th scope="row">Who validates</th><td>Anyone (Bitcoin, Ethereum)</td><td>Approved organizations</td><td>One organization</td></tr>
@@ -302,7 +323,11 @@
           <textarea id="hash-input" rows="3" spellcheck="false">Hello, blockchain!</textarea>
           <p class="hash-label">SHA-256:</p>
           <output class="hash-box copyable" id="hash-output" for="hash-input"></output>
-          <p class="demo-note">Paste an entire essay — the output stays exactly 64 hex characters.</p>
+          <p class="stat-line" id="hash-sizes"></p>
+          <p class="demo-note">
+            Paste an entire essay — the output stays exactly 64 hex characters. Try an emoji, too: “🙂” is
+            4 bytes in UTF-8, because hash functions only ever see bytes, never letters.
+          </p>
         </div>
 
         <div class="demo-card">
@@ -320,6 +345,8 @@
           </div>
           <output class="hash-box" id="ava-out-a" for="ava-a"></output>
           <output class="hash-box" id="ava-out-b" for="ava-b"></output>
+          <p class="hash-label" id="ava-bits-label">All 256 output bits — filled squares flipped:</p>
+          <div class="bit-grid" id="ava-bits" role="img" aria-labelledby="ava-bits-label ava-stats"></div>
           <p class="stat" id="ava-stats"></p>
           <p class="demo-note">
             A one-character tweak flips roughly half of all 256 bits. That’s why a hash works as a tamper seal:
@@ -372,12 +399,142 @@
           </p>
           <p class="demo-note">
             Edit Tx C: H(C), H(CD) and the root change — H(A), H(B) and H(AB) don’t. That path is the point.
-            To prove Tx C is in the block you hand someone just H(D) and H(AB): two hashes instead of four
-            transactions. With a million transactions it’s only ~20 hashes — this <strong>Merkle proof</strong> is
-            how a phone wallet verifies a payment without downloading the whole chain (Bitcoin’s whitepaper calls
-            it SPV, simplified payment verification).
+            (For readability this demo hashes the hex text of each child pair; Bitcoin hashes the raw bytes,
+            twice — same structure.)
           </p>
         </div>
+
+        <div class="demo-card">
+          <h2>Try it: prove a payment with a Merkle proof</h2>
+          <p>
+            A phone wallet doesn’t download blocks — only their 80-byte headers, which contain the Merkle root.
+            To convince it that a transaction is in a block, a full node sends the transaction plus the
+            <em>sibling hashes</em> along its path. The wallet rebuilds the root and compares.
+          </p>
+          <p class="proof-picker">
+            <label for="mk-prove">Transaction to prove</label>
+            <select id="mk-prove">
+              <option value="0">Tx A</option>
+              <option value="1">Tx B</option>
+              <option value="2" selected>Tx C</option>
+              <option value="3">Tx D</option>
+            </select>
+          </p>
+          <p class="hash-label">Merkle root committed in the block header:</p>
+          <output class="hash-box small" id="mk-committed">–</output>
+          <ol class="proof-steps" id="mk-proof"></ol>
+          <p class="verdict" id="mk-proof-verdict" role="status"></p>
+          <p class="demo-note">
+            Two hashes stand in for the other three transactions. A million-transaction block needs only ~20 —
+            log₂ of the count — which is how Bitcoin’s whitepaper made <strong>SPV</strong> (simplified payment
+            verification) wallets possible. Now edit the transaction you’re proving in the tree above: the
+            rebuilt root no longer matches the header, so no one can “prove” a payment that isn’t there.
+          </p>
+        </div>
+
+        <h2>How hard is a hash to break?</h2>
+        <p>
+          “Breaking” a hash means one of two very different things. A <strong>preimage</strong> attack starts from
+          a given hash and hunts for an input that produces it — like forging a block that matches an existing
+          fingerprint. A <strong>collision</strong> attack just hunts for <em>any two</em> inputs with the same hash.
+          The second sounds only slightly easier. It is enormously easier — the same maths that makes it likely
+          two people in a room of 23 share a birthday.
+        </p>
+        <p>
+          We can’t attack all 256 bits of SHA-256 (nobody can), but we can attack the first few. Demand that only
+          the first <var>N</var> bits match and both hunts become feasible — and you can watch how differently they scale.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: preimage hunt vs collision hunt</h2>
+          <p>
+            <label for="hunt-bits">Bits that must match: <output id="hunt-bits-out" for="hunt-bits"></output></label>
+            <input type="range" id="hunt-bits" min="8" max="32" step="4" value="20">
+          </p>
+          <div class="hunts">
+            <section class="hunt" aria-labelledby="pre-title">
+              <h3 id="pre-title">🎯 Preimage hunt</h3>
+              <p>Find an input whose hash starts with the same bits as <code>SHA-256("ChainLab")</code>.</p>
+              <p class="hunt-target">Target: <code id="pre-target"></code></p>
+              <p class="demo-actions"><button type="button" class="btn primary" id="pre-run">Start hunt</button></p>
+              <p class="stat-line">Expected ≈ <span id="pre-expect"></span> tries</p>
+              <p class="stat-line" id="pre-skip"></p>
+              <p class="stat-line" id="pre-progress"></p>
+              <div class="hunt-result" id="pre-result" role="status"></div>
+            </section>
+            <section class="hunt" aria-labelledby="col-title">
+              <h3 id="col-title">🎂 Collision hunt</h3>
+              <p>Find <em>any two</em> different inputs whose hashes share those first bits.</p>
+              <p class="hunt-target">Target: any match at all</p>
+              <p class="demo-actions"><button type="button" class="btn primary" id="col-run">Start hunt</button></p>
+              <p class="stat-line">Expected ≈ <span id="col-expect"></span> tries</p>
+              <p class="stat-line" id="col-progress"></p>
+              <div class="hunt-result" id="col-result" role="status"></div>
+            </section>
+          </div>
+          <div class="table-wrap hunt-log-wrap" hidden>
+            <table>
+              <caption>Your hunts so far</caption>
+              <thead><tr><th scope="col">Bits</th><th scope="col">Hunt</th><th scope="col">Tries needed</th><th scope="col">Expected</th></tr></thead>
+              <tbody id="hunt-log"></tbody>
+            </table>
+          </div>
+          <p class="demo-note">
+            Each extra 4 bits multiplies the preimage work by 16 but the collision work by only 4: collisions cost
+            roughly the <em>square root</em> of the preimage effort. Extrapolate to the full 256 bits and a
+            preimage needs ~2²⁵⁶ tries while a collision needs “only” ~2¹²⁸ — so SHA-256 gives 128-bit collision
+            security. Both are still far beyond every computer on Earth combined (see “How big is 2²⁵⁶” below).
+          </p>
+        </div>
+
+        <h2>Hashes as sealed envelopes</h2>
+        <p>
+          Because a hash is one-way and collision-resistant, publishing one is like posting a sealed envelope: you
+          can <strong>commit</strong> to a value today and open it later, and nobody — including you — can swap the
+          contents in between. Commitments power sealed-bid auctions, fair coin flips between strangers, and the
+          zero-knowledge proofs of <a href="#/zk">Module 10</a>. There’s one catch, and it’s worth breaking on purpose.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: commit to a prediction</h2>
+          <div class="duo">
+            <p>
+              <label for="commit-msg">Your prediction</label>
+              <input type="text" id="commit-msg" value="Heads" spellcheck="false" autocomplete="off">
+            </p>
+            <p class="commit-salt-row">
+              <label><input type="checkbox" id="commit-use-salt" checked> Mix in a random salt</label>
+              <code id="commit-salt" class="small-code"></code>
+            </p>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="commit-seal">🔒 Publish commitment</button>
+          </p>
+          <p class="hash-label">Public commitment = SHA-256(prediction ‖ salt)</p>
+          <output class="hash-box" id="commit-hash">nothing published yet</output>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="commit-reveal" disabled>📬 Reveal &amp; verify</button>
+            <button type="button" class="btn" id="commit-crack" disabled>🕵️ Let a snoop guess it</button>
+          </p>
+          <p class="verdict" id="commit-verdict" role="status"></p>
+          <p class="demo-note">
+            Two properties make a commitment work. <strong>Binding</strong>: after publishing, edit your prediction
+            and reveal — it no longer matches, so you can’t change your mind. <strong>Hiding</strong>: the hash
+            mustn’t give the answer away — but switch the salt off and let the snoop try: “Heads” is one of a
+            handful of likely inputs, so hashing every guess cracks it instantly. The random salt is what makes the
+            input unguessable.
+          </p>
+        </div>
+
+        <aside class="takeaways" aria-labelledby="hashing-takeaways">
+          <h2 id="hashing-takeaways">Key takeaways</h2>
+          <ul>
+            <li>A hash is a fixed-size fingerprint: <strong>deterministic, one-way</strong>, and wildly sensitive to the smallest change.</li>
+            <li>A <strong>Merkle tree</strong> folds a block’s transactions into one root; proving one is included takes only ~log₂(n) hashes.</li>
+            <li>Collisions take roughly the <strong>square root</strong> of the work of preimages, so a 256-bit hash gives 128-bit collision security.</li>
+            <li>Hash + random salt = a <strong>commitment</strong>: binding (can’t be changed) and hiding (can’t be guessed).</li>
+          </ul>
+        </aside>
 
         <h2>Go deeper</h2>
         <details class="deep-dive">
@@ -411,6 +568,12 @@
             <li><strong>Ethereum</strong> uses <strong>Keccak-256</strong> from the SHA-3 family — different internals, same fingerprint contract.</li>
             <li><strong>Addresses</strong> often layer hashes: Bitcoin runs RIPEMD-160 on top of SHA-256 (Module 5).</li>
           </ul>
+          <p>
+            None of this is magic you have to take on faith. The miner and the collision hunt on this site run a
+            plain-JavaScript SHA-256 of about a hundred lines — 64 rounds of shifts, rotations, additions and
+            XORs — in <code>js/lib/sha256.js</code>, which the project’s tests check bit-for-bit against a standard
+            implementation.
+          </p>
         </details>
         <details class="deep-dive">
           <summary>Hashes beyond blockchains</summary>
@@ -423,28 +586,28 @@
         </details>
 
         <details class="deep-dive">
-          <summary>The three resistances — and the birthday surprise</summary>
+          <summary>The three resistances — and why birthdays matter</summary>
           <p>
-            “One-way” is really three separate promises, and they aren’t equally hard to keep.
-            <strong>Preimage resistance</strong>: given a hash, you can’t find <em>any</em> input that produces it.
-            <strong>Second-preimage resistance</strong>: given one input, you can’t find a <em>different</em> input
-            with the same hash. <strong>Collision resistance</strong>: you can’t find <em>any two</em> inputs that
-            collide at all — and this is the weakest link, because of the <strong>birthday paradox</strong>. In a
-            room of just 23 people the odds that two share a birthday already pass 50%; the same combinatorics mean
-            that finding a collision takes only about the <em>square root</em> of the brute-force effort — roughly
-            2¹²⁸ tries for a 256-bit hash, not 2²⁵⁶. So SHA-256 buys 256-bit preimage security but only
-            <strong>128-bit</strong> collision security — still astronomically safe, yet a sharp reminder that
-            output size and security level are not the same number.
+            “One-way” is really three separate promises. <strong>Preimage resistance</strong>: given a hash, you
+            can’t find <em>any</em> input that produces it. <strong>Second-preimage resistance</strong>: given one
+            input, you can’t find a <em>different</em> input with the same hash. <strong>Collision
+            resistance</strong>: you can’t find <em>any two</em> inputs that collide at all — the weakest of the three,
+            as the hunt above showed. The reason is counting <em>pairs</em>: after <var>k</var> tries a preimage hunt
+            has made <var>k</var> comparisons against its one target, but a collision hunt has made
+            <var>k</var>(<var>k</var>−1)/2 — every new hash is compared with every old one. Pairs grow with the square
+            of the effort, so a collision turns up after about √(2<sup>N</sup>) tries. That’s why output size and
+            security level are not the same number: SHA-256 offers 256-bit preimage but 128-bit collision security.
           </p>
           <p>
             There’s a second subtle edge. SHA-256 digests a message by streaming it through an internal state (the
             Merkle–Damgård construction) and then <em>publishes that final state as the hash</em> — which lets an
             attacker who knows the hash of <code>secret + message</code> compute the hash of
             <code>secret + message + anything</code> <em>without knowing the secret</em>. That’s the
-            <strong>length-extension attack</strong>, and it’s exactly why Bitcoin hashes block headers <em>twice</em>
-            (“SHA-256d” — SHA-256 of SHA-256): the second pass hides the internal state. Keccak/SHA-3, which
-            Ethereum uses, is immune by design. None of this threatens mining; it’s why protocol designers reach for
-            the right hash <em>construction</em>, not merely the right number of bits.
+            <strong>length-extension attack</strong>, and guarding against it is the usual explanation for why Bitcoin
+            hashes block headers <em>twice</em> (“SHA-256d” — SHA-256 of SHA-256): the second pass hides the internal
+            state. (Satoshi never stated the reason; double hashing was a common defensive recommendation at the
+            time.) Keccak/SHA-3, which Ethereum uses, is immune by design. None of this threatens mining; it’s why
+            protocol designers reach for the right hash <em>construction</em>, not merely the right number of bits.
           </p>
         </details>
 
@@ -488,10 +651,54 @@
           </p>
         </div>
 
+        <h2>From toy to real: the Bitcoin block header</h2>
+        <p>
+          Our toy blocks hash a line of text. A real Bitcoin block hashes an <strong>80-byte header</strong>: six
+          fields that summarize the block, including the previous block’s hash (the chain link) and the Merkle root
+          of every transaction inside (Module 2). Mining means finding a header whose double SHA-256 lands below a
+          target. Below are real headers from Bitcoin’s history — byte for byte what every node has verified.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: hash a real Bitcoin block</h2>
+          <p class="header-picker">
+            <label for="hdr-block">Block</label>
+            <select id="hdr-block"></select>
+          </p>
+          <p class="stat-line" id="hdr-note"></p>
+          <dl class="header-fields" id="hdr-fields"></dl>
+          <p class="hash-label">The 80 bytes that get hashed (each field stored little-endian — byte-reversed):</p>
+          <div class="header-bytes" id="hdr-bytes"></div>
+          <ol class="hash-steps" id="hdr-steps"></ol>
+          <p class="verdict" id="hdr-verdict" role="status"></p>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="hdr-search">⛏️ Re-mine it</button>
+            <button type="button" class="btn ghost" id="hdr-restore">Restore the real nonce</button>
+          </p>
+          <p class="stat-line" id="hdr-search-status"></p>
+          <p class="demo-note">
+            Change the nonce by one and the hash is garbage — and so is any block built on top of it, because the
+            next header stores this hash. <strong>Re-mine it</strong> starts 1.5 million nonces before the real one
+            and searches upward: every single guess fails until it reaches the exact nonce the original miner found.
+            That’s proof of work — and, at block 840,000’s difficulty, your browser would need longer than the age of
+            the universe to find one.
+          </p>
+        </div>
+
+        <aside class="takeaways" aria-labelledby="blocks-takeaways">
+          <h2 id="blocks-takeaways">Key takeaways</h2>
+          <ul>
+            <li>Each block stores the <strong>previous block’s hash</strong>, so editing any block breaks every block after it.</li>
+            <li>Repairing a broken chain means redoing the proof of work for every later block — faster than the honest network.</li>
+            <li>A real Bitcoin block hash is SHA-256 applied twice to an <strong>80-byte header</strong>; transactions are covered through the Merkle root.</li>
+            <li>A block is valid when its hash, read as a number, is <strong>below the target</strong> encoded in the header’s “bits”.</li>
+          </ul>
+        </aside>
+
         <h2>Go deeper</h2>
         <details class="deep-dive">
-          <summary>Inside a real Bitcoin block header</summary>
-          <p>Our toy blocks hash <code>index | prev hash | data | nonce</code>. A real Bitcoin block header is exactly 80 bytes:</p>
+          <summary>What each header field is for — and running out of nonces</summary>
+          <p>Our toy blocks hash <code>index | prev hash | data | nonce</code>. The real 80-byte header you just hashed holds:</p>
           <div class="table-wrap">
             <table>
               <thead><tr><th scope="col">Field</th><th scope="col">Size</th><th scope="col">What it’s for</th></tr></thead>
@@ -508,9 +715,14 @@
           <p>
             Transactions live in the block <em>body</em>; only this 80-byte header is hashed during mining, which is
             why mining speed doesn’t depend on how full a block is. And because a 4-byte nonce allows only ~4.3
-            billion guesses — an ASIC exhausts that in well under a second — miners also tweak the timestamp and an
-            <em>extraNonce</em> inside the first transaction, which changes the Merkle root and opens up a fresh 4.3
-            billion.
+            billion guesses — an ASIC exhausts that in well under a second — miners also tweak the timestamp, an
+            <em>extraNonce</em> inside the first transaction (which changes the Merkle root and opens up a fresh 4.3
+            billion), and spare bits of the version field (“version rolling” — hence block 840,000’s odd version).
+          </p>
+          <p>
+            One more trick: the nonce sits in the header’s last 16 bytes, and SHA-256 digests input in 64-byte
+            chunks. So miners hash the first 64 bytes <em>once</em> — the “midstate” — and redo only the final chunk
+            for each new nonce. The re-mining demo above does exactly that.
           </p>
         </details>
         <details class="deep-dive">
@@ -578,25 +790,114 @@
             </p>
             <p>
               <label for="mine-difficulty">Difficulty: <span id="mine-diff-label"></span></label>
-              <input type="range" id="mine-difficulty" min="1" max="4" value="3">
+              <input type="range" id="mine-difficulty" min="1" max="6" value="4">
             </p>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="mine-start">⛏️ Start mining</button>
+            <button type="button" class="btn primary" id="mine-start">⛏️ Mine one block</button>
+            <button type="button" class="btn" id="mine-repeat">🎲 Mine 10 in a row</button>
             <button type="button" class="btn" id="mine-stop" disabled>Stop</button>
           </p>
-          <div class="stat-grid" role="status" aria-live="polite">
-            <p><span class="stat-label">Status</span><span id="mine-status">idle</span></p>
+          <p class="verdict neutral" id="mine-status" role="status">Idle — press a button to start.</p>
+          <div class="stat-grid">
             <p><span class="stat-label">Attempts (nonce)</span><span id="mine-attempts">0</span></p>
             <p><span class="stat-label">Elapsed</span><span id="mine-time">0.0 s</span></p>
             <p><span class="stat-label">Speed</span><span id="mine-rate">–</span></p>
+            <p><span class="stat-label">Luck</span><span id="mine-luck">–</span></p>
           </div>
           <p class="hash-label">Latest hash:</p>
           <output class="hash-box copyable" id="mine-hash">–</output>
+          <div class="chart" id="mine-luck-chart" hidden></div>
           <p class="demo-note">
-            Bump the difficulty from 1 to 4 and feel the wait grow ~16× each step. Bitcoin’s real difficulty
-            currently demands hashes with <em>around 19 leading hex zeros</em> — which is why miners fill warehouses
-            with specialized hardware.
+            Each extra zero makes the wait ~16× longer <em>on average</em> — but mine ten blocks in a row and look at
+            the chart: some need a tenth of the expected work, others three times as much. Every guess is a fresh
+            lottery ticket with no memory of the last. Bitcoin’s real difficulty demands hashes with around 19–20
+            leading hex zeros, which is why miners fill warehouses with specialized hardware.
+          </p>
+        </div>
+
+        <h2>Luck, variance and mining pools</h2>
+        <p>
+          That spread is the business problem of mining. The network finds a block every ten minutes on average, so
+          your expected income is simply your share of the total hashpower. But a small share means long, random
+          droughts between rewards — while the electricity bill arrives every month.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: should you mine solo?</h2>
+          <div class="duo">
+            <p>
+              <label for="solo-rig">Your hardware</label>
+              <select id="solo-rig">
+                <option value="5e7">A laptop CPU (roughly 50 MH/s)</option>
+                <option value="2e9">A gaming GPU (roughly 2 GH/s)</option>
+                <option value="2e14" selected>One modern ASIC miner (~200 TH/s)</option>
+                <option value="2e16">A warehouse of 100 ASICs (~20 PH/s)</option>
+                <option value="5e19">A top mining company (~50 EH/s)</option>
+              </select>
+            </p>
+            <p>
+              <label for="solo-net">Whole network (EH/s)</label>
+              <input type="number" id="solo-net" value="1000" min="1" step="50" aria-describedby="solo-net-hint">
+              <span class="field-hint" id="solo-net-hint">1,000 EH/s = 1 zettahash per second — roughly the 2025 level. Edit freely.</span>
+            </p>
+          </div>
+          <div class="stat-grid">
+            <p><span class="stat-label">Your share of all hashing</span><span id="solo-share">–</span></p>
+            <p><span class="stat-label">Average wait for a block, solo</span><span id="solo-wait">–</span></p>
+            <p><span class="stat-label">Chance of ≥ 1 block this year</span><span id="solo-year">–</span></p>
+            <p><span class="stat-label">Steady pool payout instead</span><span id="solo-pool">–</span></p>
+          </div>
+          <p class="stat" id="solo-verdict"></p>
+          <p class="demo-note">
+            A pool turns that lottery into a salary: thousands of miners hash for the same block template and split each
+            reward by work contributed, so your income arrives daily instead of once a century. Pool payouts here count
+            only the 3.125 BTC block subsidy, before fees and costs. The catch is centralization — see “From laptop
+            CPUs to warehouse ASICs” below.
+          </p>
+        </div>
+
+        <h2>The difficulty thermostat</h2>
+        <p>
+          If mining is a lottery, what stops blocks from arriving faster as more miners join? Every 2,016 blocks
+          (about two weeks) every node measures how long those blocks actually took. Faster than ten minutes each →
+          difficulty rises in proportion; slower → it falls, never by more than 4× at once. Hashpower has grown by a
+          factor of trillions since 2009, yet blocks keep their ten-minute heartbeat and coins are issued no faster.
+          Extra hashpower only buys miners a bigger <em>share</em> of the same rewards — and makes the network more
+          expensive to attack.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: shock the network, watch it recover</h2>
+          <p>
+            Each step is one 2,016-block adjustment period. Set how much hashpower the network has, run a period, and
+            watch the block time react — then the difficulty catch up.
+          </p>
+          <p>
+            <label for="rt-hash">Network hashpower (start = 100): <output id="rt-hash-out" for="rt-hash"></output></label>
+            <input type="range" id="rt-hash" min="10" max="400" step="5" value="100">
+          </p>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="rt-step">▶ Run one period</button>
+            <button type="button" class="btn" id="rt-ban">📉 Replay mid-2021: half the miners switch off</button>
+            <button type="button" class="btn" id="rt-boom">📈 New chips: hashpower doubles</button>
+            <button type="button" class="btn ghost" id="rt-reset">Reset</button>
+          </p>
+          <div class="stat-grid">
+            <p><span class="stat-label">Periods run</span><span id="rt-period">0</span></p>
+            <p><span class="stat-label">Last period’s block time</span><span id="rt-time">–</span></p>
+            <p><span class="stat-label">Last period took</span><span id="rt-days">–</span></p>
+            <p><span class="stat-label">Difficulty adjustment</span><span id="rt-adjust">–</span></p>
+          </div>
+          <p class="verdict" id="rt-verdict" role="status"></p>
+          <div class="chart" id="rt-time-chart"></div>
+          <div class="chart" id="rt-diff-chart"></div>
+          <p class="demo-note">
+            Notice the lag. When hashpower halves, blocks take twenty minutes for the <em>rest of the period</em> —
+            and the period itself stretches to four weeks — before difficulty drops and the rhythm returns. That is
+            what happened when China banned mining in mid-2021: about half the world’s hashpower vanished within
+            weeks, blocks crawled, and the next adjustment cut difficulty by ~28%, the largest drop ever.
+            (Proof-of-stake chains skip all this: Ethereum proposes a block every fixed 12-second slot.)
           </p>
         </div>
 
@@ -615,40 +916,33 @@
             <label for="halving-era">Halving era: <output id="halving-era-out"></output></label>
             <input type="range" id="halving-era" min="0" max="33" value="4">
           </p>
-          <div class="stat-grid" role="status" aria-live="polite">
+          <div class="stat-grid">
             <p><span class="stat-label">Years (approx.)</span><span id="halving-years">–</span></p>
             <p><span class="stat-label">Reward per block</span><span id="halving-reward">–</span></p>
             <p><span class="stat-label">Minted by era’s end</span><span id="halving-minted">–</span></p>
             <p><span class="stat-label">Share of 21 M cap</span><span id="halving-pct">–</span></p>
           </div>
-          <p class="win-bar supply-bar"><span class="win-fill" id="supply-fill"></span></p>
-          <p class="stat" id="halving-note" role="status" aria-live="polite"></p>
+          <div class="chart" id="supply-chart"></div>
+          <p class="stat" id="halving-note"></p>
           <p class="demo-note">
-            Drag right and watch the bar crawl toward — but never quite reach — 21 million. The schedule is ordinary
-            code that every node enforces, and it <em>is</em> the entire monetary policy: no committee, no surprise
-            issuance. Whether a fixed supply is good economics is hotly debated; that the supply is <em>credible</em>
-            is the novel engineering.
+            Drag right and watch the curve flatten toward — but never quite reach — 21 million. Half of all bitcoin was
+            minted in the first four years. The schedule is ordinary code that every node enforces, and it <em>is</em>
+            the entire monetary policy: no committee, no surprise issuance. Whether a fixed supply is good economics is
+            hotly debated; that the supply is <em>credible</em> is the novel engineering.
           </p>
         </div>
 
+        <aside class="takeaways" aria-labelledby="mining-takeaways">
+          <h2 id="mining-takeaways">Key takeaways</h2>
+          <ul>
+            <li>Mining is a guessing game: find a nonce whose hash falls below the target. Finding takes trillions of guesses; <strong>checking takes one</strong>.</li>
+            <li>The <em>average</em> work per block is set by the difficulty, but each block is a fresh lottery — so small miners join <strong>pools</strong> for steady income.</li>
+            <li>Every 2,016 blocks the difficulty <strong>retargets</strong>, keeping blocks ~10 minutes apart however much hashpower joins or leaves.</li>
+            <li>The block subsidy <strong>halves</strong> every 210,000 blocks, so total supply approaches but never exceeds 21 million BTC.</li>
+          </ul>
+        </aside>
+
         <h2>Go deeper</h2>
-        <details class="deep-dive">
-          <summary>The difficulty thermostat</summary>
-          <p>
-            If mining is a lottery, what stops blocks arriving faster as more miners join? Every 2,016 blocks
-            (about two weeks) Bitcoin measures how long they actually took. Faster than the 10-minute target →
-            difficulty rises proportionally; slower → it falls (clamped to a 4× change per adjustment). The result
-            is a thermostat: hashpower can grow a millionfold — and it has — yet blocks keep their ~10-minute
-            heartbeat, and coins are issued no faster. Extra hashpower buys miners a bigger <em>share</em> of the
-            same rewards, while the network simply gets more expensive to attack.
-          </p>
-          <p>
-            The thermostat works in reverse too. When China banned mining in mid-2021, roughly half the world’s
-            hashpower vanished within weeks; blocks crawled, and the next adjustment dropped difficulty ~28% — the
-            largest cut ever — restoring the rhythm. (Proof-of-stake chains skip all this: Ethereum proposes a
-            block every fixed 12-second slot, no race involved.)
-          </p>
-        </details>
         <details class="deep-dive">
           <summary>From laptop CPUs to warehouse ASICs — and pools</summary>
           <p>
@@ -695,7 +989,7 @@
             into a 4-byte field called <strong>bits</strong> — a compact floating-point-like encoding, one byte of
             exponent and three of mantissa — and every node expands it the same way to check the winner.
             <strong>Difficulty</strong> is then simply a ratio: the easiest-ever target divided by the current one.
-            “Difficulty 1” was the genesis setting; today’s figure runs into the tens of trillions.
+            “Difficulty 1” was the genesis setting; block 840,000 (April 2024) sat at about 86 trillion, and the figure has since climbed past 100 trillion.
           </p>
           <p>
             That ratio has a beautifully concrete meaning — the expected number of hashes to mine one block is
@@ -763,59 +1057,215 @@
           </p>
         </div>
 
+        <h2>Where public keys come from: elliptic curves</h2>
+        <p>
+          Your private key is just a huge random number, <var>k</var>. Your public key is a <em>point</em> on an
+          elliptic curve: start from a fixed, publicly known point <var>G</var> and “hop” along the curve <var>k</var>
+          times — written <var>k</var> × <var>G</var>. Bitcoin and Ethereum use the curve <strong>secp256k1</strong>:
+          the points satisfying <code>y² = x³ + 7</code>, with all arithmetic done modulo a 256-bit prime. Below is
+          the very same equation modulo 97 instead, small enough to see every point.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: hop along a (tiny) elliptic curve</h2>
+          <div class="curve-layout">
+            <figure class="curve-figure">
+              <svg id="curve-plot" class="curve-plot" viewBox="-4 -4 105 105" role="img" aria-labelledby="curve-caption"></svg>
+              <figcaption id="curve-caption">All 78 points with y² = x³ + 7 (mod 97). The path traces G, 2G, 3G, … up to your public key.</figcaption>
+            </figure>
+            <div class="curve-side">
+              <p>
+                <label for="curve-k">Private key <var>k</var>: <output id="curve-k-out" for="curve-k"></output></label>
+                <input type="range" id="curve-k" min="1" max="78" value="7">
+              </p>
+              <dl class="curve-facts">
+                <dt>Public key <var>k</var> × <var>G</var></dt><dd id="curve-pub">–</dd>
+                <dt>Fast way to compute it</dt><dd id="curve-steps">–</dd>
+              </dl>
+              <p class="demo-actions">
+                <button type="button" class="btn" id="curve-hide">🎯 Hide a random key</button>
+                <button type="button" class="btn primary" id="curve-crack" disabled>🔨 Brute-force it</button>
+              </p>
+              <p class="verdict" id="curve-verdict" role="status"></p>
+            </div>
+          </div>
+          <p class="demo-note">
+            Notice how the path leaps around unpredictably — that is what makes the reverse direction hard. Going
+            forward is cheap even for enormous <var>k</var>: “double-and-add” reaches a 256-bit key in a few hundred
+            steps. Going backward — the <strong>discrete logarithm problem</strong> — has no known shortcut; you just
+            try <var>k</var> = 1, 2, 3… On this curve that takes a blink. secp256k1 has about 1.16 × 10⁷⁷ points, so at
+            a billion billion tries per second the search would take ~10⁵¹ years.
+          </p>
+        </div>
+
+        <h2>From public key to address</h2>
+        <p>
+          An address is not the public key — it’s a <em>hash</em> of it, shortened and wrapped in a format with a
+          built-in checksum. Bitcoin and Ethereum use the same curve, so one private key controls an address on
+          each chain; only the hashing and the encoding differ.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: one private key, two blockchains</h2>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="addr-random">🎲 New random private key</button>
+            <button type="button" class="btn" id="addr-one">Use private key = 1</button>
+          </p>
+          <ol class="pipeline" id="addr-pipeline"></ol>
+          <p class="verdict warn" id="addr-warning" hidden>
+            ⚠️ Private key 1 is the first number anyone would try. Its addresses are public knowledge, and bots sweep any
+            coins sent to them within seconds. A key is only as secret as it is random — the downfall of “brain wallets”
+            made from memorable phrases.
+          </p>
+          <h3 class="subhead">Typo test</h3>
+          <p>
+            <label for="addr-check">Edit one character of an address — or paste any address — and see if its checksum still holds:</label>
+            <input type="text" id="addr-check" spellcheck="false" autocomplete="off">
+          </p>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="addr-typo">✏️ Introduce a random typo</button>
+          </p>
+          <p class="verdict" id="addr-check-verdict" role="status"></p>
+          <p class="demo-note">
+            Why hash at all? It’s shorter, and a Bitcoin address keeps the public key itself off-chain until the first
+            time you spend. The checksums are one of the few mercies in this system: a typo gets your payment
+            <em>rejected</em> instead of sent into the void. Ethereum’s mixed-case checksum (EIP-55) arrived later and
+            is optional — an all-lowercase address carries no protection at all.
+          </p>
+        </div>
+
+        <h2>Seed phrases: one secret, endless keys</h2>
+        <p>
+          Nobody should hand-copy a 256-bit number, so wallets encode their master randomness as <strong>12 or 24
+          words</strong> from a fixed list of 2,048 (the BIP-39 standard). From that one seed, a <strong>hierarchical
+          deterministic</strong> wallet (BIP-32) derives an unlimited tree of key pairs along standard paths — a fresh
+          address per payment, on any chain. Restore the words on a new device and every key reappears.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: from 128 random bits to a wallet full of addresses</h2>
+          <p class="banner warn">
+            ⚠️ Never type a real seed phrase into any website — including this one. Anyone who sees your words owns your
+            coins. This demo only generates throwaway phrases and loads well-known public test phrases.
+          </p>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="seed-new">🎲 Generate a new phrase</button>
+            <button type="button" class="btn" data-test-phrase="abandon">Test phrase: “abandon … about”</button>
+            <button type="button" class="btn" data-test-phrase="test">Test phrase: “test … junk”</button>
+          </p>
+          <p class="hash-label">128 random bits + 4 checksum bits = 12 groups of 11 bits → 12 words</p>
+          <ol class="seed-words" id="seed-words"></ol>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="seed-typo">✏️ Make a transcription error</button>
+            <button type="button" class="btn ghost" id="seed-fix" hidden>Undo the error</button>
+          </p>
+          <p class="verdict" id="seed-verdict" role="status"></p>
+          <p class="seed-pass">
+            <label for="seed-pass">Optional passphrase (“25th word”)</label>
+            <input type="text" id="seed-pass" spellcheck="false" autocomplete="off" placeholder="leave empty for none">
+          </p>
+          <p class="stat-line" id="seed-progress"></p>
+          <div class="table-wrap">
+            <table class="seed-table">
+              <caption>Addresses derived from this phrase</caption>
+              <thead><tr><th scope="col">Chain</th><th scope="col">Derivation path</th><th scope="col">Address</th></tr></thead>
+              <tbody id="seed-addresses"></tbody>
+            </table>
+          </div>
+          <p class="demo-note" id="seed-note">
+            The words are stretched into a 512-bit seed (PBKDF2, 2,048 rounds of HMAC-SHA512), the seed becomes a master
+            key, and each path step derives a child key. Load “test … junk” — the default phrase of the Ethereum developer
+            tools Hardhat and Foundry — and you’ll get exactly the accounts those tools print, because this page runs the
+            real algorithms. Then add a passphrase: a completely different wallet, from the same 12 words.
+          </p>
+        </div>
+
+        <h2>The signing nonce: one number that must never repeat</h2>
+        <p>
+          Every ECDSA signature mixes in a fresh secret number <var>k</var> — confusingly also called a “nonce”, and a
+          different one from mining’s. The signature is <var>r</var> = (<var>k</var> × <var>G</var>).x and
+          <var>s</var> = <var>k</var>⁻¹(<var>z</var> + <var>r</var>·<var>d</var>), where <var>z</var> is the message
+          hash and <var>d</var> the private key. Reuse <var>k</var> for two different messages and the private key falls
+          out with schoolbook algebra. This isn’t hypothetical: Sony signed PlayStation 3 software with a constant
+          <var>k</var> (exposed in 2010), and in 2013 a flawed Android random-number generator repeated <var>k</var> in
+          Bitcoin wallets, which thieves promptly emptied.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: steal a private key from two signatures</h2>
+          <p class="stat-line" id="nonce-victim"></p>
+          <div class="duo">
+            <p><label for="nonce-m1">Message 1</label><input type="text" id="nonce-m1" value="Pay Bob 1 BTC" spellcheck="false"></p>
+            <p><label for="nonce-m2">Message 2</label><input type="text" id="nonce-m2" value="Pay Carol 2 BTC" spellcheck="false"></p>
+          </div>
+          <fieldset class="choice-row">
+            <legend>How the wallet picks <var>k</var></legend>
+            <label><input type="radio" name="nonce-mode" value="random" checked> Fresh random <var>k</var> each time</label>
+            <label><input type="radio" name="nonce-mode" value="rfc6979"> RFC 6979: derived from key + message</label>
+            <label><input type="radio" name="nonce-mode" value="reuse"> The same <var>k</var> twice (the PS3 bug)</label>
+          </fieldset>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="nonce-sign">✍️ Sign both messages</button>
+            <button type="button" class="btn" id="nonce-attack" disabled>🕵️ Attack: solve for the private key</button>
+          </p>
+          <div class="sig-pair" id="nonce-sigs"></div>
+          <ol class="hash-steps" id="nonce-steps"></ol>
+          <p class="verdict" id="nonce-verdict" role="status"></p>
+          <p class="demo-note">
+            The fix is to stop rolling dice altogether. <strong>RFC 6979</strong> derives <var>k</var> from the private
+            key and the message itself, so it is unpredictable to outsiders yet can never accidentally repeat for two
+            different messages — and signing the <em>same</em> message twice just reproduces the same signature, which
+            leaks nothing. (Real wallets also apply “low-s” normalization; it’s omitted here to keep the algebra textbook.)
+          </p>
+        </div>
+
         <h2>Custody in one sentence</h2>
         <p>
           “<strong>Not your keys, not your coins</strong>” — if an exchange holds your private keys, you hold an IOU,
           not cryptocurrency. Hardware wallets and seed phrases exist purely to keep private keys safe and recoverable.
         </p>
 
+        <aside class="takeaways" aria-labelledby="keys-takeaways">
+          <h2 id="keys-takeaways">Key takeaways</h2>
+          <ul>
+            <li>A private key is a <strong>random number</strong>; the public key is that many hops along an elliptic curve — easy forward, infeasible backward.</li>
+            <li>An address is a <strong>hash</strong> of the public key in a checksummed format; one key yields addresses on many chains.</li>
+            <li>A seed phrase encodes the wallet’s master secret; <strong>the phrase is the wallet</strong>, so anyone who reads it owns everything.</li>
+            <li>Signatures prove approval of one exact message — and leak the key if a signing nonce is ever <strong>reused</strong>.</li>
+          </ul>
+        </aside>
+
         <h2>Go deeper</h2>
         <details class="deep-dive">
-          <summary>The math: elliptic curves in plain words</summary>
+          <summary>What a “hop” really is: point addition</summary>
           <p>
-            Your private key is just a 256-bit number, <em>k</em>. Your public key is the result of starting from
-            a fixed point <em>G</em> on a special curve and “hopping” along it <em>k</em> times — written
-            <em>k × G</em>. Computing the hops forward is fast (a few hundred operations, using
-            doubling tricks); going backward — recovering <em>k</em> from the public key, the “discrete logarithm
-            problem” — has no known shortcut. The only attack is brute force through a 2²⁵⁶ keyspace, and Module 2’s
-            deep dive showed how that ends.
+            Picture the curve over ordinary real numbers: a smooth loop-and-tail shape. To add two points <var>P</var>
+            and <var>Q</var>, draw the straight line through them; it always crosses the curve at exactly one more point.
+            Reflect that third point across the x-axis — that’s <var>P</var> + <var>Q</var>. Adding a point to itself uses
+            the tangent line instead (“doubling”). It sounds arbitrary, but it obeys the familiar rules of addition, so
+            <var>k</var> × <var>G</var> is well-defined however you group the hops.
           </p>
           <p>
-            Bitcoin and Ethereum both use the curve <strong>secp256k1</strong>. The demo above uses
-            <strong>P-256</strong>, a sibling curve, because that’s the one your browser’s Web Crypto API ships —
-            same construction, different constants. One honest caveat: a large-scale quantum computer running
-            Shor’s algorithm would break both. Post-quantum signature schemes already exist and chains can migrate
-            to them; it’s a watched-but-distant problem, and coins marketed today as “quantum-proof” are mostly
-            marketing.
-          </p>
-        </details>
-        <details class="deep-dive">
-          <summary>Seed phrases &amp; HD wallets: one secret, endless keys</summary>
-          <p>
-            Nobody should hand-copy a 256-bit number, so wallets encode their master randomness as
-            <strong>12 or 24 words</strong> drawn from a fixed 2,048-word list (the BIP-39 standard) — words are
-            far harder to mistranscribe than hex. From that seed, a <strong>hierarchical deterministic</strong>
-            (HD, BIP-32) wallet derives an unlimited tree of key pairs along well-known paths, fresh address per
-            payment included. Restore the phrase on a brand-new device and every key — every coin — reappears.
-          </p>
-          <p>
-            That’s the magic and the danger in one sentence: <em>the phrase is the wallet</em>. Anyone who reads
-            it owns everything derived from it, instantly and irrevocably. Hence the rules: write it on paper or
-            steel, never in a photo, cloud note or password manager synced online; and treat anyone asking for it
-            — “support staff” above all — as an attacker by definition. Many wallets add an optional passphrase
-            (“25th word”) so the paper backup alone isn’t sufficient.
+            Over a finite field the same rule becomes pure arithmetic, every step taken modulo <var>p</var>: the slope is
+            λ = (<var>y</var>₂ − <var>y</var>₁) / (<var>x</var>₂ − <var>x</var>₁) (division meaning multiplication by a
+            modular inverse), then <var>x</var>₃ = λ² − <var>x</var>₁ − <var>x</var>₂ and
+            <var>y</var>₃ = λ(<var>x</var>₁ − <var>x</var>₃) − <var>y</var>₁. The tiny curve above and the real secp256k1 code
+            behind the address demo (<code>js/lib/secp256k1.js</code>) run exactly these formulas — the only difference
+            is a 97 versus a 78-digit prime.
           </p>
         </details>
         <details class="deep-dive">
-          <summary>From public key to address</summary>
+          <summary>Beyond ECDSA: Schnorr, multisig and the quantum question</summary>
           <p>
-            An address is not the public key — it’s a <em>hash</em> of it, shortened and wrapped in a
-            typo-resistant encoding. Bitcoin runs the public key through SHA-256 then RIPEMD-160 and encodes the
-            result (legacy <code>1…</code> and <code>3…</code> formats, modern <code>bc1…</code> bech32); Ethereum
-            takes the last 20 bytes of the Keccak-256 hash, giving the familiar <code>0x…</code>. The encodings
-            carry checksums, so a mistyped address is rejected by your wallet instead of sending coins into the
-            void — one of the few mercies in this system. Why hash at all? It’s shorter, and it keeps the public
-            key itself off-chain until the first time you spend.
+            Bitcoin’s newer <strong>Schnorr</strong> signatures (activated with Taproot in 2021) keep the same curve but
+            use a cleaner, linear equation. One big consequence: several keys can combine into one joint signature that
+            looks exactly like a single person’s — cheaper multisig wallets, and more privacy.
+          </p>
+          <p>
+            One honest caveat about all of this: a large-scale quantum computer running Shor’s algorithm would break
+            both secp256k1 and P-256 (the sibling curve your browser’s Web Crypto uses in the signing demo above).
+            Post-quantum signature schemes already exist and chains can migrate to them; it’s a watched-but-distant
+            problem, and coins marketed today as “quantum-proof” are mostly marketing.
           </p>
         </details>
         <details class="deep-dive">
@@ -828,37 +1278,14 @@
             <li><strong>Phishing</strong> — fake wallet sites, fake airdrops, “support” DMs asking for your seed phrase.</li>
             <li><strong>Malware</strong> — clipboard swappers that silently replace the address you just copied with the thief’s.</li>
             <li><strong>SIM swaps</strong> — hijacking your phone number to defeat SMS-based logins at exchanges.</li>
-            <li><strong>Malicious approvals</strong> — signing a contract interaction that grants unlimited spending of a token (Module 7).</li>
+            <li><strong>Malicious approvals</strong> — signing a contract interaction that lets someone else move your tokens (Module 8 shows how).</li>
+            <li><strong>Weak randomness</strong> — guessable keys and repeated signing nonces, as the demos above showed.</li>
             <li><strong>Custodial failure</strong> — exchanges collapsing with customer funds (Mt. Gox 2014, FTX 2022): the “not your keys” lesson, at scale.</li>
           </ul>
           <p>
             The defenses are unglamorous: a hardware wallet for savings, verifying addresses character-by-character
             (or via a second channel), keeping the seed offline, and assuming any request for it is a scam — because
             it is.
-          </p>
-        </details>
-
-        <details class="deep-dive">
-          <summary>The signing nonce: the one-time number that emptied wallets</summary>
-          <p>
-            Every ECDSA signature mixes in a fresh random number, <em>k</em> — confusingly also called a “nonce”,
-            and a different one from mining’s. It must be secret and <strong>never reused</strong>, because the math
-            is unforgiving: sign two different messages with the same <em>k</em> and anyone can solve the two
-            resulting equations for <em>k</em>, and from there recover your <strong>private key</strong> with
-            schoolbook algebra. Even a <em>slightly</em> biased or predictable <em>k</em> leaks the key a few bits
-            per signature until it can be reconstructed entirely.
-          </p>
-          <p>
-            This is not hypothetical. In 2010 Sony signed PlayStation 3 software with a <em>constant</em> <em>k</em>,
-            handing hackers the console’s master signing key. In 2013 a flaw in Android’s random-number generator
-            reused <em>k</em> across Bitcoin transactions and thieves swept the exposed wallets. The standard fix is
-            to stop rolling dice altogether: <strong>RFC 6979</strong> derives <em>k</em> deterministically from the
-            private key and the message itself, so it is unpredictable to outsiders yet can never accidentally
-            repeat. It’s a pointed complement to the theft list above — those were phishing and malware <em>around</em>
-            the cryptography, whereas this is a hole in its very plumbing: the curve math holds perfectly, but one
-            weak random number beside it can still cost you everything. Bitcoin’s newer <strong>Schnorr</strong>
-            signatures (Taproot, 2021) keep the same curve but a cleaner equation that also makes a group’s joint
-            signature indistinguishable from one person’s.
           </p>
         </details>
 
@@ -886,6 +1313,55 @@
           Consensus rules also solve the <strong>double-spend problem</strong>: if you broadcast two transactions
           spending the same coin, the network will only ever confirm one — the other is rejected as invalid.
         </p>
+
+        <h2>Coins, change and fees: the UTXO model</h2>
+        <p>
+          Bitcoin stores no account balances anywhere. It tracks <strong>UTXOs</strong> — unspent transaction outputs —
+          which behave like banknotes: a transaction consumes whole notes as <em>inputs</em> and creates new notes as
+          <em>outputs</em>. To pay 0.25 BTC with a 0.2 and a 0.12 note, you hand over both; the transaction creates
+          0.25 for Bob and about 0.07 of <strong>change</strong> back to you. Anything you don’t assign to an output
+          is the miner’s <strong>fee</strong>. Your wallet’s “balance” is just the sum of the notes you can spend.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: spend coins like a Bitcoin wallet</h2>
+          <p>Alice wants to pay Bob. Choose which of her coins to spend, then decide where the leftover goes.</p>
+          <div class="utxo-layout">
+            <fieldset class="utxo-inputs">
+              <legend>Alice’s coins — tick the ones to spend</legend>
+              <div id="utxo-list"></div>
+              <p class="demo-actions"><button type="button" class="btn ghost" id="utxo-auto">🤖 Let the wallet choose</button></p>
+            </fieldset>
+            <div class="utxo-outputs">
+              <p><label for="utxo-pay">Pay Bob (BTC)</label><input type="number" id="utxo-pay" value="0.25" min="0.0001" step="0.01"></p>
+              <p>
+                <label for="utxo-rate">Fee rate (sat/vB)</label>
+                <input type="number" id="utxo-rate" value="10" min="1" step="1" aria-describedby="utxo-rate-hint">
+                <span class="field-hint" id="utxo-rate-hint">Size ≈ 11 + 68 per input + 31 per output vBytes.</span>
+              </p>
+              <p class="check-inline"><label><input type="checkbox" id="utxo-change" checked> Send the change back to myself</label></p>
+            </div>
+          </div>
+          <div class="tx-preview" id="utxo-tx" aria-live="off"></div>
+          <p class="verdict" id="utxo-verdict" role="status"></p>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="utxo-send">📡 Broadcast &amp; confirm</button>
+            <button type="button" class="btn" id="utxo-replay" disabled>🔁 Try to spend those coins again</button>
+            <button type="button" class="btn ghost" id="utxo-reset">Reset</button>
+          </p>
+          <div class="table-wrap">
+            <table>
+              <caption>The network’s UTXO set — every unspent coin and who can spend it</caption>
+              <thead><tr><th scope="col">Coin (txid : output)</th><th scope="col">Owner</th><th scope="col">Amount</th></tr></thead>
+              <tbody id="utxo-set"></tbody>
+            </table>
+          </div>
+          <p class="demo-note">
+            Untick “send the change back” and look at the fee: the whole leftover goes to the miner. People have
+            really paid multi-BTC fees this way. And once a coin is spent it vanishes from the UTXO set, so the replay
+            is rejected by every node — that is the double-spend problem solved by bookkeeping, with no bank involved.
+          </p>
+        </div>
 
         <div class="demo-card">
           <h2>Try it: build a block from the mempool</h2>
@@ -923,11 +1399,50 @@
           </p>
         </div>
 
+        <h2>How many confirmations are enough?</h2>
+        <p>
+          A confirmed payment can still be undone if an attacker secretly mines a competing chain that leaves it out,
+          then publishes once that chain is longer. Each block on top of your payment is another block the attacker must
+          overtake. Satoshi worked out the odds in section 11 of the Bitcoin whitepaper: they fall exponentially with the
+          number of confirmations <var>z</var> — how fast depends on the attacker’s share <var>q</var> of all hashpower.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: race a double-spending attacker</h2>
+          <div class="duo">
+            <p>
+              <label for="race-q">Attacker’s share of hashpower: <output id="race-q-out" for="race-q"></output></label>
+              <input type="range" id="race-q" min="1" max="50" value="10">
+            </p>
+            <p>
+              <label for="race-z">Confirmations you wait for: <output id="race-z-out" for="race-z"></output></label>
+              <input type="range" id="race-z" min="0" max="12" value="6">
+            </p>
+          </div>
+          <div class="stat-grid">
+            <p><span class="stat-label">Attacker succeeds (exact)</span><span id="race-exact">–</span></p>
+            <p><span class="stat-label">Satoshi’s 2008 estimate</span><span id="race-satoshi">–</span></p>
+            <p><span class="stat-label">Wait needed for &lt; 0.1% risk</span><span id="race-needed">–</span></p>
+          </div>
+          <div class="chart" id="race-chart"></div>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="race-sim">🏁 Simulate 10,000 attacks</button>
+          </p>
+          <p class="verdict" id="race-verdict" role="status"></p>
+          <p class="demo-note">
+            Satoshi treated the attacker’s progress as a smooth Poisson process; the exact calculation (Meni Rosenfeld,
+            2012) shows the shortcut is slightly pessimistic at one or two confirmations but <em>optimistic</em> at the
+            depths that matter — for a 10% attacker and 6 confirmations it says 0.024% when the true risk is 0.059%. The
+            simulation plays the race block by block and agrees with the exact figure. At 50% or more, no number of
+            confirmations is safe: a majority attacker always catches up eventually.
+          </p>
+        </div>
+
         <h2>Proof of work vs. proof of stake</h2>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th scope="col"></th><th scope="col">Proof of Work (Bitcoin)</th><th scope="col">Proof of Stake (Ethereum)</th></tr>
+              <tr><td></td><th scope="col">Proof of Work (Bitcoin)</th><th scope="col">Proof of Stake (Ethereum)</th></tr>
             </thead>
             <tbody>
               <tr><th scope="row">Who adds blocks</th><td>Whoever wins the hashing race</td><td>A validator chosen ~randomly, weighted by staked coins</td></tr>
@@ -964,12 +1479,17 @@
           <p class="demo-actions">
             <button type="button" class="btn primary" id="stake-pick">🎲 Select next validator</button>
             <button type="button" class="btn" id="stake-run">Run 100 rounds</button>
+            <button type="button" class="btn" id="stake-slash">😈 Ben signs two conflicting blocks</button>
             <button type="button" class="btn ghost" id="stake-reset">Reset</button>
           </p>
           <p class="stat" id="stake-summary" role="status" aria-live="polite"></p>
           <p class="demo-note">
             Run enough rounds and each validator’s share of wins converges on their share of stake.
-            More stake → more blocks → more rewards — but also more to lose if they cheat.
+            More stake → more blocks → more rewards — but also more to lose. Make Ben cheat: signing two different
+            blocks for the same slot is <em>provable</em>, so anyone can submit both signatures as evidence and the
+            protocol <strong>slashes</strong> him — burning stake and forcibly ejecting him. Here he loses everything to
+            keep it simple; on Ethereum the penalty starts small and scales with how many validators misbehave at the
+            same time, up to the entire stake.
           </p>
         </div>
 
@@ -981,18 +1501,21 @@
           <a href="#/ethereum">Module 7</a> goes next.
         </p>
 
+        <aside class="takeaways" aria-labelledby="consensus-takeaways">
+          <h2 id="consensus-takeaways">Key takeaways</h2>
+          <ul>
+            <li>Bitcoin tracks <strong>unspent outputs</strong>, not balances: transactions consume whole coins and create new ones, including change; the leftover is the fee.</li>
+            <li>Block space is scarce, so miners pick transactions by <strong>fee rate</strong> (sats per vByte), not by total fee.</li>
+            <li>Reversal risk falls <strong>exponentially</strong> with each confirmation — unless the attacker controls a majority, in which case no wait is safe.</li>
+            <li>Proof of stake picks proposers in proportion to stake and <strong>slashes</strong> provable cheating, replacing energy with collateral.</li>
+          </ul>
+        </aside>
+
         <h2>Go deeper</h2>
         <details class="deep-dive">
-          <summary>Two ways to track money: UTXO vs accounts</summary>
+          <summary>UTXOs vs accounts: Ethereum’s different bookkeeping</summary>
           <p>
-            Bitcoin has no balances anywhere in its data. It tracks <strong>UTXOs</strong> — unspent transaction
-            outputs — which behave like bills in a cash drawer: a transaction consumes whole bills and mints new
-            ones, including <em>change back to yourself</em>. Pay 3 BTC from a 5-BTC output and the transaction
-            creates two outputs: 3 to the merchant, ~2 back to you (minus the fee). Your wallet’s “balance” is just
-            it adding up every bill you can still spend.
-          </p>
-          <p>
-            Ethereum instead keeps an <strong>account model</strong>: real balances, debited and credited, plus a
+            The UTXO demo above is Bitcoin’s way. Ethereum instead keeps an <strong>account model</strong>: real balances, debited and credited, plus a
             per-account counter (the <em>nonce</em> — same word as mining’s nonce, different job) that orders your
             transactions and blocks replays. The trade-offs: UTXOs parallelize well and make coin-tracing slightly
             harder; accounts are far simpler for smart contracts, which need persistent state — you wouldn’t want
@@ -1093,7 +1616,7 @@
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th scope="col"></th><th scope="col">Bitcoin</th><th scope="col">Ethereum</th></tr>
+              <tr><td></td><th scope="col">Bitcoin</th><th scope="col">Ethereum</th></tr>
             </thead>
             <tbody>
               <tr><th scope="row">Main purpose</th><td>Digital money</td><td>Programmable platform (money included)</td></tr>
@@ -1161,7 +1684,7 @@
             <button type="button" class="btn ghost" id="eth-reset">Reset</button>
           </p>
           <p class="hash-label">Transaction log:</p>
-          <ul class="mini-ledger event-log" id="eth-log" role="log" aria-live="polite">
+          <ul class="mini-ledger event-log" id="eth-log" aria-live="polite">
             <li class="log-empty">no transactions yet</li>
           </ul>
           <p class="demo-note">
@@ -1171,22 +1694,149 @@
           </p>
         </div>
 
+        <h2>What a contract call really sends: selectors and calldata</h2>
+        <p>
+          When the demo above “calls <code>transfer()</code>”, what actually travels on-chain is a blob of bytes called
+          <strong>calldata</strong>. Its first four bytes are the <strong>function selector</strong>: the start of the
+          Keccak-256 hash (Module 2) of the function’s signature. The arguments follow, each padded to a 32-byte word.
+          There is no function <em>name</em> on the wire — just a hash prefix and numbers. The contract’s
+          <strong>ABI</strong> (application binary interface) is the published map from functions to these bytes, which
+          is how a wallet can call a contract it has never seen before.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: encode a contract call</h2>
+          <p class="demo-actions" role="group" aria-label="Example function signatures">
+            <button type="button" class="btn" data-sig="transfer(address,uint256)">transfer</button>
+            <button type="button" class="btn" data-sig="approve(address,uint256)">approve</button>
+            <button type="button" class="btn" data-sig="balanceOf(address)">balanceOf</button>
+            <button type="button" class="btn" data-sig="setApprovalForAll(address,bool)">setApprovalForAll</button>
+            <button type="button" class="btn" data-sig="transfer(address, uint256)">…with a sneaky space</button>
+          </p>
+          <p>
+            <label for="abi-sig">Function signature</label>
+            <input type="text" id="abi-sig" value="transfer(address,uint256)" spellcheck="false" autocomplete="off">
+          </p>
+          <div class="abi-args" id="abi-args"></div>
+          <p class="hash-label">Keccak-256 of the signature (the first 4 bytes are the selector):</p>
+          <output class="hash-box" id="abi-hash"></output>
+          <p class="hash-label">Calldata — exactly what the transaction carries:</p>
+          <div class="calldata" id="abi-calldata"></div>
+          <p class="verdict" id="abi-verdict" role="status"></p>
+          <p class="demo-note">
+            Because the standards fix the signatures, they fix the selectors: <code>0xa9059cbb</code> means
+            <code>transfer</code> for every ERC-20 token ever deployed, so wallets and exchanges can talk to a brand-new
+            token on day one. Signatures must be written canonically — no spaces, <code>uint256</code> not
+            <code>uint</code> — or the hash changes completely. And since four bytes allow only ~4.3 billion
+            selectors, unrelated functions occasionally collide; block explorers keep dictionaries to guess which one a
+            transaction meant.
+          </p>
+        </div>
+
         <h2>Gas: paying the world computer</h2>
         <p>
-          Running code on thousands of machines isn’t free. Every EVM operation has a price measured in
-          <strong>gas</strong>; you pay <em>gas used × gas price</em>, in ETH. Gas does two jobs: it pays
-          validators for computation and storage, and it makes spam and infinite loops impossible — a program
-          that runs out of fuel simply stops and its transaction reverts.
+          Running code on thousands of machines isn’t free. Every EVM operation has a fixed price in
+          <strong>gas</strong>, and you pay <em>gas used × gas price</em>, in ETH. Gas does two jobs: it pays
+          validators for computation and storage, and it makes runaway programs impossible — a program that runs out of
+          fuel simply stops, and its transaction reverts.
         </p>
         <ul>
-          <li><strong>Gas used</strong> — depends on the work: a plain ETH transfer is exactly 21,000 gas; calling complex contracts costs more.</li>
-          <li><strong>Gas price</strong> — quoted in <strong>gwei</strong> (a billionth of an ETH) and set by supply and demand for block space. Busy network → higher price.</li>
-          <li><strong>Layer 2 rollups</strong> — networks that batch thousands of transactions off-chain and post a compressed proof to Ethereum, cutting fees 10–100×.</li>
+          <li><strong>Gas used</strong> — depends on the work: a plain ETH transfer is exactly 21,000 gas; contract calls add the cost of every operation they run.</li>
+          <li><strong>Gas price</strong> — quoted in <strong>gwei</strong> (a billionth of an ETH): a base fee set by the protocol plus a tip you choose (the fee market below).</li>
+          <li><strong>Layer 2 rollups</strong> — networks that batch thousands of transactions off-chain and post the result to Ethereum, cutting fees 10–100× (see “Rollups” below).</li>
         </ul>
 
         <div class="demo-card">
-          <h2>Try it: estimate a gas fee</h2>
-          <p>Pick a transaction type, then drag the gas price to see how a quiet network differs from a congested one.</p>
+          <h2>Try it: run bytecode on a tiny EVM</h2>
+          <p>
+            The Ethereum Virtual Machine is a simple <strong>stack machine</strong>: it reads one-byte opcodes, pushes and
+            pops numbers, and charges gas for every step. Pick a program, set a gas limit, and step through it.
+          </p>
+          <div class="duo">
+            <p>
+              <label for="evm-prog">Program</label>
+              <select id="evm-prog">
+                <option value="add">Add 2 + 3 and store the result</option>
+                <option value="loop">Count down from 3 in a loop</option>
+                <option value="forever">An infinite loop</option>
+              </select>
+            </p>
+            <p>
+              <label for="evm-gas">Gas limit</label>
+              <input type="number" id="evm-gas" min="0" step="1">
+            </p>
+          </div>
+          <p class="hash-label">Bytecode — what is actually stored on-chain:</p>
+          <p class="bytecode" id="evm-bytes"></p>
+          <div class="evm-layout">
+            <ol class="evm-code" id="evm-code" aria-label="Disassembled program"></ol>
+            <div class="evm-state">
+              <p class="hash-label">Stack (top first)</p>
+              <ol class="evm-stack" id="evm-stack" aria-label="Stack"></ol>
+              <p class="hash-label">Storage</p>
+              <p class="evm-storage" id="evm-storage"></p>
+              <p class="hash-label">Gas left</p>
+              <p class="cap-bar"><span class="cap-fill" id="evm-gas-fill"></span></p>
+              <p class="stat-line" id="evm-gas-text"></p>
+            </div>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="evm-step">⏭ Step</button>
+            <button type="button" class="btn" id="evm-run">▶ Run to the end</button>
+            <button type="button" class="btn ghost" id="evm-reset">Reset</button>
+          </p>
+          <p class="verdict" id="evm-verdict" role="status"></p>
+          <p class="demo-note">
+            Try the infinite loop: without gas it would freeze every node on the network, and no program can predict in
+            general whether code will finish (that’s the halting problem). Gas sidesteps the question — the loop simply
+            runs out of fuel. When that happens, every change the call made is <strong>reverted</strong>, but the gas is
+            still paid: validators did the work. Notice too that one <code>SSTORE</code> costs more than 7,000 additions —
+            permanent storage on thousands of machines is the most expensive thing you can buy. (Real transactions also
+            pay a flat 21,000 gas before running any code.)
+          </p>
+        </div>
+
+        <h2>The fee market: EIP-1559</h2>
+        <p>
+          Since August 2021 the gas price has two parts: <em>fee = gas used × (base fee + tip)</em>. The protocol sets
+          the <strong>base fee</strong> block by block, aiming for blocks that are half full: after a fuller block it rises
+          — by up to 12.5% for a completely full one — and after an emptier block it falls by up to 12.5%, in proportion
+          to the gap. The base fee is <strong>burned</strong>, destroyed rather than paid to anyone; only the optional
+          <strong>tip</strong> goes to the validator. Wallets can finally <em>quote</em> a fee instead of guessing a bid,
+          and validators gain nothing by stuffing blocks to push fees up.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: watch the base fee chase demand</h2>
+          <p>
+            <label for="bf-demand">Demand — how full the next blocks are: <output id="bf-demand-out" for="bf-demand"></output></label>
+            <input type="range" id="bf-demand" min="0" max="100" value="50">
+          </p>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="bf-step">▶ Produce one block</button>
+            <button type="button" class="btn" id="bf-ten">⏩ Ten blocks</button>
+            <button type="button" class="btn" id="bf-frenzy">🖼️ NFT-launch frenzy: 10 full blocks</button>
+            <button type="button" class="btn ghost" id="bf-reset">Reset</button>
+          </p>
+          <div class="stat-grid">
+            <p><span class="stat-label">Base fee now</span><span id="bf-fee">–</span></p>
+            <p><span class="stat-label">Change after last block</span><span id="bf-change">–</span></p>
+            <p><span class="stat-label">ETH burned so far</span><span id="bf-burned">–</span></p>
+          </div>
+          <p class="verdict" id="bf-verdict" role="status"></p>
+          <div class="chart" id="bf-fee-chart"></div>
+          <div class="chart" id="bf-fill-chart"></div>
+          <p class="demo-note">
+            Ten full blocks multiply the base fee by 1.125¹⁰ ≈ 3.2× — about two minutes of 12-second blocks — and an
+            empty stretch brings it back down just as fast. Blocks here have a 30 M gas limit (target 15 M), the value
+            Ethereum used for most of 2021–2024; validators have since voted the limit higher. Burned ETH is gone for
+            good: in busy periods the burn has outpaced new issuance, briefly shrinking ETH’s total supply.
+          </p>
+        </div>
+
+        <div class="demo-card">
+          <h2>Try it: price a transaction</h2>
+          <p>Pick a transaction type, then set the base fee and your tip to see what you pay — and where the money goes.</p>
           <div class="duo">
             <p>
               <label for="gas-op">Transaction type</label>
@@ -1198,24 +1848,75 @@
               </select>
             </p>
             <p>
-              <label for="gas-price">Gas price: <output id="gas-price-out"></output></label>
+              <label for="gas-price">Base fee: <output id="gas-price-out" for="gas-price"></output></label>
               <input type="range" id="gas-price" min="1" max="200" value="25">
+            </p>
+            <p>
+              <label for="gas-tip">Your tip: <output id="gas-tip-out" for="gas-tip"></output></label>
+              <input type="range" id="gas-tip" min="0" max="10" step="0.5" value="1">
             </p>
             <p>
               <label for="gas-eth-usd">ETH price (USD)</label>
               <input type="number" id="gas-eth-usd" value="3000" min="1" step="50">
             </p>
           </div>
-          <div class="stat-grid" role="status" aria-live="polite">
+          <div class="stat-grid">
             <p><span class="stat-label">Gas used</span><span id="gas-units-out">–</span></p>
-            <p><span class="stat-label">Fee in ETH</span><span id="gas-eth-out">–</span></p>
-            <p><span class="stat-label">Fee in USD</span><span id="gas-usd-out">–</span></p>
+            <p><span class="stat-label">Burned (base fee)</span><span id="gas-burn-out">–</span></p>
+            <p><span class="stat-label">To the validator (tip)</span><span id="gas-tip-eth-out">–</span></p>
+            <p><span class="stat-label">You pay</span><span id="gas-eth-out">–</span></p>
           </div>
           <p class="stat" id="gas-math"></p>
           <p class="demo-note">
-            1 gwei = 0.000000001 ETH. Quiet days sit around a few gwei; famous NFT launches have pushed
-            the network past 200. Same transaction, wildly different bill — which is exactly the problem
-            layer-2 rollups were built to solve.
+            1 gwei = 0.000000001 ETH. Quiet days sit at a few gwei or less; famous NFT launches pushed the base fee past 200.
+            Same transaction, wildly different bill — exactly the problem layer-2 rollups were built to solve.
+          </p>
+        </div>
+
+        <h2>When “code is law” goes wrong: reentrancy</h2>
+        <p>
+          In 2016 a crowdfunded, code-governed venture fund called <strong>The DAO</strong> raised about $150M in ETH.
+          Its withdraw function sent ETH <em>before</em> updating the caller’s balance — and sending ETH to a contract
+          runs that contract’s code. An attacker’s contract used that moment to call withdraw again, and again, draining
+          ~3.6M ETH through a perfectly legal sequence of calls. The contract did exactly what it was written to do; it
+          just wasn’t written to do what its authors meant.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: drain a vulnerable vault</h2>
+          <p>
+            A vault holds 10 ETH: Alice deposited 4, Bob 5, and the attacker 1. The attacker’s contract calls
+            <code>withdraw()</code>. Step through it — then switch to the fixed version and try again.
+          </p>
+          <fieldset class="choice-row">
+            <legend>Vault version</legend>
+            <label><input type="radio" name="re-mode" value="vulnerable" checked> Vulnerable: send first, update after</label>
+            <label><input type="radio" name="re-mode" value="fixed"> Fixed: checks → effects → interactions</label>
+          </fieldset>
+          <div class="reentry-code">
+            <pre class="contract-code" id="re-vault" aria-label="Vault contract source"></pre>
+            <pre class="contract-code" id="re-attacker" aria-label="Attacker contract source"></pre>
+          </div>
+          <div class="stat-grid">
+            <p><span class="stat-label">Vault holds</span><span id="re-vault-eth">–</span></p>
+            <p><span class="stat-label">Attacker holds</span><span id="re-attacker-eth">–</span></p>
+            <p><span class="stat-label">Vault’s record of the attacker</span><span id="re-record">–</span></p>
+            <p><span class="stat-label">Owed to Alice + Bob</span><span id="re-owed">–</span></p>
+          </div>
+          <p class="hash-label">Call stack (newest last)</p>
+          <ol class="call-stack" id="re-stack"></ol>
+          <p class="re-narration" id="re-narration"></p>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="re-step">⏭ Step</button>
+            <button type="button" class="btn" id="re-run">▶ Run the attack</button>
+            <button type="button" class="btn ghost" id="re-reset">Reset</button>
+          </p>
+          <p class="verdict" id="re-verdict" role="status"></p>
+          <p class="demo-note">
+            The fix is a rule now drilled into every Solidity developer: <strong>checks, effects, interactions</strong> —
+            validate, update your own records, and only then call out to anyone else. (The <code>LabToken</code> above
+            already follows it.) Many contracts also add a <em>reentrancy guard</em>: a lock that makes any nested call
+            into the function fail outright.
           </p>
         </div>
 
@@ -1223,46 +1924,31 @@
         <p>
           Once contracts can hold money and enforce rules, finance becomes software:
           <strong>tokens</strong> (currencies and loyalty points as contracts), <strong>DeFi</strong>
-          (exchanges and lending markets with no company in the middle), <strong>NFTs</strong> (contracts
-          tracking ownership of unique items), and <strong>DAOs</strong> (organizations whose treasury and
+          (exchanges and lending markets with no company in the middle — <a href="#/defi">Module 9</a>), <strong>NFTs</strong>
+          (contracts tracking ownership of unique items), and <strong>DAOs</strong> (organizations whose treasury and
           voting rules are code). Every one of them is just a program — like <code>LabToken</code>, only bigger.
         </p>
 
+        <aside class="takeaways" aria-labelledby="ethereum-takeaways">
+          <h2 id="ethereum-takeaways">Key takeaways</h2>
+          <ul>
+            <li>Ethereum’s nodes all run the same <strong>EVM</strong> bytecode, so they agree on the results of programs, not just payments.</li>
+            <li>A call is <strong>calldata</strong>: a 4-byte selector (a Keccak-256 prefix of the signature) plus arguments padded to 32-byte words.</li>
+            <li>Every opcode costs <strong>gas</strong>; running out reverts the call but still costs the fee — which is how infinite loops are tamed.</li>
+            <li>EIP-1559 fees = <strong>burned base fee</strong> (set by how full blocks are) + a <strong>tip</strong> to the validator.</li>
+            <li>Code does exactly what it says: update state <strong>before</strong> calling out, or reentrancy can drain you.</li>
+          </ul>
+        </aside>
+
         <h2>Go deeper</h2>
         <details class="deep-dive">
-          <summary>The modern fee market: EIP-1559</summary>
+          <summary>The DAO aftermath: should history be rewritten?</summary>
           <p>
-            Since August 2021 the “gas price” you saw in the estimator is really two parts:
-            <em>fee = gas used × (base fee + tip)</em>. The <strong>base fee</strong> is set by the protocol
-            itself, block by block: if a block runs more than half full, the base fee rises 12.5% for the next
-            one; less than half full, it falls 12.5%. Congestion pricing with no auction — wallets can finally
-            <em>quote</em> a fee instead of guessing a bid.
-          </p>
-          <p>
-            The twist: the base fee is <strong>burned</strong> — destroyed, paid to no one. Only the small
-            optional <strong>tip</strong> goes to the validator. Burning kills the incentive for validators to
-            congest the network to drive fees up, and it offsets new ETH issuance; in busy periods Ethereum has
-            been net-deflationary. When you read a gas tracker, mentally split the number: a big burned base fee
-            plus a sliver of tip.
-          </p>
-        </details>
-        <details class="deep-dive">
-          <summary>When “code is law” goes wrong: The DAO</summary>
-          <p>
-            In 2016 a crowdfunded, code-governed venture fund called <strong>The DAO</strong> raised about $150M
-            in ETH — then an attacker found a <strong>reentrancy</strong> bug: its withdraw function sent ETH
-            <em>before</em> updating the caller’s balance, and the recipient’s code could call back into withdraw
-            again, and again, draining ~3.6M ETH through a perfectly legal sequence of calls. The contract did
-            exactly what it was written to do; it just wasn’t written to do what its authors meant.
-          </p>
-          <p>
-            The community faced the philosophy head-on: accept the theft (“code is law”) or hard-fork history to
-            unwind it. The majority forked — that chain is the Ethereum you know — while the minority kept the
-            untouched ledger as <strong>Ethereum Classic</strong>. The episode built the modern safety culture:
-            audits, bug bounties, formal verification, and patterns like
-            <em>checks-effects-interactions</em> — notice <code>LabToken</code> above checks
-            <code>require(...)</code> and updates balances <em>before</em> any interaction. Immutability cuts both
-            ways: unstoppable rules, unstoppable bugs.
+            After the 2016 drain the community faced the philosophy head-on: accept the theft (“code is law”) or hard-fork
+            the chain to move the stolen ETH to a refund contract. The majority forked — that chain is the Ethereum you
+            know — while the minority kept the untouched ledger as <strong>Ethereum Classic</strong>. The episode built
+            the modern safety culture: audits, bug bounties, formal verification and the checks-effects-interactions
+            pattern you just used. Immutability cuts both ways: unstoppable rules, unstoppable bugs.
           </p>
         </details>
         <details class="deep-dive">
@@ -1317,28 +2003,6 @@
           </p>
         </details>
 
-        <details class="deep-dive">
-          <summary>Under the hood of a call: ABIs and the 4-byte selector</summary>
-          <p>
-            When the demo “calls <code>transfer()</code>”, what actually travels on-chain is a blob of bytes called
-            <strong>calldata</strong>. Its first four bytes are a <strong>function selector</strong>: the Keccak-256
-            hash (Module 2) of the function’s signature — <code>transfer(address,uint256)</code> — truncated to four
-            bytes, which works out to <code>0xa9059cbb</code> for every ERC-20 token ever written. The arguments
-            follow, each padded into 32-byte words. The EVM reads those four bytes, jumps to the matching function,
-            and decodes the rest. There’s no method <em>name</em> on the wire — just a hash prefix and packed numbers.
-          </p>
-          <p>
-            The agreed map between human-readable functions and this byte layout is the contract’s
-            <strong>ABI</strong> (application binary interface). It’s how a wallet that has never seen your contract
-            can still call it: hand it the ABI and it knows how to encode every call and decode every result. This
-            is the deeper reason “standards” like ERC-20 and ERC-721 (Module 8) matter so much — fixing the function
-            signatures fixes the selectors, so the entire ecosystem of wallets, explorers and exchanges can talk to a
-            brand-new contract on day one without ever seeing its source. (A quirk of the design: four bytes is only
-            ~4.3 billion possibilities, so unrelated functions occasionally collide on the same selector, and
-            explorers keep dictionaries to guess which one a transaction meant.)
-          </p>
-        </details>
-
         <h2>Check your understanding</h2>
         <form class="quiz" data-quiz="ethereum"></form>
       </section>
@@ -1374,6 +2038,46 @@
           points to the image. The chain proves <em>who owns token #7</em>; the picture it refers to lives
           somewhere else — often IPFS, sometimes an ordinary web server that can go down.
         </p>
+        <p>
+          Where that link points makes all the difference. A plain <strong>HTTPS URL</strong> is cheap but fragile: whoever
+          runs the server can change the file or stop paying for it. An <strong>IPFS</strong> link uses <em>content
+          addressing</em> — the address is a hash of the file (Module 2), so the content can’t be swapped without the
+          address changing — but someone still has to keep a copy online (“pinning”). A fully <strong>on-chain</strong>
+          NFT stores the artwork itself in the contract, usually as a compact SVG: it lives as long as the chain does, at a
+          much higher gas cost.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: break an NFT’s link</h2>
+          <p>Token #7 stores only a link to its metadata. Choose where that metadata lives, then let time do its damage.</p>
+          <fieldset class="choice-row">
+            <legend>Token #7’s tokenURI points to…</legend>
+            <label><input type="radio" name="cid-mode" value="https" checked> a company web server (HTTPS)</label>
+            <label><input type="radio" name="cid-mode" value="ipfs"> IPFS (content-addressed)</label>
+            <label><input type="radio" name="cid-mode" value="chain"> the contract itself (on-chain)</label>
+          </fieldset>
+          <p class="hash-label">tokenURI stored in the contract (it never changes):</p>
+          <output class="hash-box small" id="cid-uri"></output>
+          <div class="cid-layout">
+            <div>
+              <p class="hash-label" id="cid-file-label">The metadata file on the host</p>
+              <pre class="contract-code cid-file" id="cid-file" aria-labelledby="cid-file-label"></pre>
+            </div>
+            <div class="nft-card cid-wallet" id="cid-wallet" aria-live="polite"></div>
+          </div>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="cid-swap">🎨 The host swaps the picture</button>
+            <button type="button" class="btn" id="cid-down">🔌 The host shuts down</button>
+            <label class="check-inline-label" id="cid-pin-row"><input type="checkbox" id="cid-pin" checked> Another node also pins the file</label>
+            <button type="button" class="btn ghost" id="cid-reset">Reset</button>
+          </p>
+          <p class="verdict" id="cid-verdict" role="status"></p>
+          <p class="demo-note">
+            The token itself survives all of this — what dies is the picture it points to. Before valuing an NFT, ask the
+            same question you’d ask of a DeFi protocol’s oracle (Module 7): <em>where does the thing it points to actually
+            live, and who keeps it alive?</em>
+          </p>
+        </div>
 
         <div class="demo-card">
           <h2>Try it: mint and trade unique tokens</h2>
@@ -1420,7 +2124,7 @@
             <button type="button" class="btn ghost" id="nft-reset">Reset</button>
           </p>
           <p class="hash-label">Transaction log:</p>
-          <ul class="mini-ledger event-log" id="nft-log" role="log" aria-live="polite">
+          <ul class="mini-ledger event-log" id="nft-log" aria-live="polite">
             <li class="log-empty">no transactions yet</li>
           </ul>
           <p class="demo-note">
@@ -1428,6 +2132,53 @@
             token, just like the LAB token in Module 7. Notice each mint creates a new <code>#id</code> that can
             never be duplicated, and that every card shows a <code>tokenURI</code> link — proof that the chain
             stores a pointer to the art, not the art itself.
+          </p>
+        </div>
+
+        <h2>Selling an NFT: approvals, marketplaces and royalties</h2>
+        <p>
+          Marketplaces don’t take custody of your NFT. Instead you <strong>approve</strong> the marketplace’s contract as an
+          operator — <code>setApprovalForAll(market, true)</code> — and when a buyer pays, the marketplace calls
+          <code>transferFrom</code> on your behalf. That one approval covers <em>every</em> token you own in the collection,
+          which is exactly why scam sites that trick people into signing it are the most common way NFTs are stolen.
+        </p>
+        <p>
+          And the promised resale <strong>royalties</strong> (“the artist earns 5% of every future sale, forever”)? The
+          ERC-721 standard has no such thing. A transfer is just <code>ownerOf[id] = to</code>; the contract never sees a
+          price, so it can’t take a cut. Royalties were paid <em>voluntarily by marketplaces</em> — and when competition
+          heated up in 2022–2023, several made them optional. (EIP-2981 only lets a contract <em>advertise</em> a royalty.)
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: sell an NFT through a marketplace</h2>
+          <p>Alice owns two NFTs made by the artist Ada. Bob wants to buy one.</p>
+          <div class="market-tokens" id="mkt-tokens"></div>
+          <div class="stat-grid">
+            <p><span class="stat-label">🦊 Alice</span><span id="mkt-alice">–</span></p>
+            <p><span class="stat-label">🐢 Bob</span><span id="mkt-bob">–</span></p>
+            <p><span class="stat-label">🎨 Ada (artist)</span><span id="mkt-ada">–</span></p>
+            <p><span class="stat-label">Alice’s approvals</span><span id="mkt-approvals">–</span></p>
+          </div>
+          <p class="check-inline"><label><input type="checkbox" id="mkt-royalty" checked> This marketplace pays the artist’s 5% royalty</label></p>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="mkt-list">🏷️ Alice lists #1 for 5 ETH</button>
+            <button type="button" class="btn" id="mkt-approve">✅ Alice approves the marketplace</button>
+            <button type="button" class="btn primary" id="mkt-buy">🛒 Bob buys #1</button>
+          </p>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="mkt-phish">😈 Alice clicks “free mint” on a scam site</button>
+            <button type="button" class="btn" id="mkt-revoke">🧹 Revoke all approvals</button>
+            <button type="button" class="btn ghost" id="mkt-reset">Reset</button>
+          </p>
+          <p class="hash-label">Transaction log:</p>
+          <ul class="mini-ledger event-log" id="mkt-log" aria-live="polite">
+            <li class="log-empty">no transactions yet</li>
+          </ul>
+          <p class="demo-note">
+            Untick the royalty and sell again: the NFT contract behaves identically, because it never knew a sale
+            happened. Then try the scam: the “free mint” button really asks Alice to sign
+            <code>setApprovalForAll(drainer, true)</code>, and the drainer empties her collection seconds later. Nothing
+            was hacked — she granted the permission herself. Read what you sign, and revoke approvals you no longer need.
           </p>
         </div>
 
@@ -1443,39 +2194,17 @@
           <li><strong>Real-world assets &amp; certificates</strong> — deeds, diplomas and provenance records, where a tamper-evident owner history is the whole point.</li>
         </ul>
 
+        <aside class="takeaways" aria-labelledby="nft-takeaways">
+          <h2 id="nft-takeaways">Key takeaways</h2>
+          <ul>
+            <li>An NFT is an entry in a contract’s <strong>ownerOf</strong> table: one unique ID, one owner, moved only by the owner or an approved operator.</li>
+            <li>The chain usually stores a <strong>link</strong> to the art, not the art — so durability depends on where that link points (HTTPS, IPFS or on-chain).</li>
+            <li>Marketplaces work through <strong>approvals</strong>, which cover your whole collection — the favourite target of scam sites.</li>
+            <li>A blockchain enforces what’s in the code and nothing more: <strong>royalties</strong> were a marketplace courtesy, not a protocol rule.</li>
+          </ul>
+        </aside>
+
         <h2>Go deeper</h2>
-        <details class="deep-dive">
-          <summary>Where the picture actually lives: on-chain, IPFS &amp; link rot</summary>
-          <p>
-            An NFT’s <code>tokenURI</code> can point three very different places, with very different durability.
-            A plain <strong>HTTPS URL</strong> is cheap but fragile: if the company stops paying for the server,
-            the image 404s and your token points at nothing — the buyer still “owns” the token, but the art is
-            gone. <strong>IPFS</strong> links use <em>content addressing</em> (the link is a hash of the file, the
-            same idea as Module 2), so the data can’t be silently swapped — but someone still has to keep a copy
-            online (“pinning”) or it falls out of the network. Fully <strong>on-chain</strong> NFTs store the
-            artwork itself in contract storage, usually as a compact SVG, so it lives exactly as long as the
-            blockchain does — at the cost of much higher gas.
-          </p>
-          <p>
-            The practical lesson: before valuing an NFT, ask the same question you’d ask of a DeFi protocol’s
-            oracle (Module 7) — <em>where does the thing it points to actually live, and who keeps it alive?</em>
-          </p>
-        </details>
-        <details class="deep-dive">
-          <summary>Royalties were never really enforced by the chain</summary>
-          <p>
-            A headline promise of NFTs was automatic resale <strong>royalties</strong> — “the artist earns 5% on
-            every future sale, forever.” The uncomfortable truth: the ERC-721 standard has no such thing. A
-            transfer is just <code>ownerOf[id] = to</code>; the contract has no idea money changed hands, so it
-            can’t take a cut. Royalties were paid <em>voluntarily by marketplaces</em>, and when competition heated
-            up in 2022–2023, several made them optional and the income largely evaporated.
-          </p>
-          <p>
-            The standard EIP-2981 only lets a contract <em>advertise</em> a royalty figure; honoring it is still up
-            to whoever processes the sale. It’s a clean example of a recurring theme in this course: a blockchain
-            enforces what’s <em>in the contract’s code</em>, and not one thing more.
-          </p>
-        </details>
         <details class="deep-dive">
           <summary>The 2021 boom, the crash, and what stuck</summary>
           <p>
@@ -1511,57 +2240,472 @@
         <form class="quiz" data-quiz="nft"></form>
       </section>
 
+      <!-- ============================== MODULE 9 ============================== -->
+      <section id="defi" class="view" hidden>
+        <p class="kicker">Module 9</p>
+        <h1>DeFi: exchanges and loans as open software</h1>
+        <p class="lede">
+          Smart contracts can hold money and enforce rules — so exchanges and lending markets can run as public programs,
+          with no company in the middle and no account to open. Here are the two building blocks behind most of
+          decentralized finance, and the ways they get exploited.
+        </p>
+
+        <h2>An exchange without an order book</h2>
+        <p>
+          A traditional exchange matches buyers with sellers. An <strong>automated market maker</strong> (AMM) such as
+          Uniswap replaces the order book with a <strong>pool</strong> holding two tokens and one rule: the product of the
+          reserves, <code>x · y = k</code>, must never shrink. You trade against the pool — put USDC in, take ETH out — and
+          the price is whatever keeps the product constant. Each trade also pays a 0.3% fee that stays in the pool.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: trade against a liquidity pool</h2>
+          <div class="duo">
+            <p>
+              <label for="amm-dir">Trade</label>
+              <select id="amm-dir">
+                <option value="buy">Buy ETH with USDC</option>
+                <option value="sell">Sell ETH for USDC</option>
+              </select>
+            </p>
+            <p>
+              <label for="amm-amount">You pay: <output id="amm-amount-out" for="amm-amount"></output></label>
+              <input type="range" id="amm-amount" min="0" max="100" value="10">
+            </p>
+          </div>
+          <div class="stat-grid">
+            <p><span class="stat-label">You receive</span><span id="amm-out">–</span></p>
+            <p><span class="stat-label">Average price you get</span><span id="amm-avg">–</span></p>
+            <p><span class="stat-label">Price impact (incl. fee)</span><span id="amm-impact">–</span></p>
+            <p><span class="stat-label">Pool price after</span><span id="amm-after">–</span></p>
+          </div>
+          <div class="chart" id="amm-chart"></div>
+          <p class="demo-actions">
+            <button type="button" class="btn primary" id="amm-swap">🔄 Execute the swap</button>
+            <button type="button" class="btn ghost" id="amm-reset">Reset the pool</button>
+          </p>
+          <p class="verdict" id="amm-verdict" role="status"></p>
+          <p class="demo-note">
+            The pool holds 100 ETH and 300,000 USDC, so its price starts at 3,000 USDC per ETH. Small trades get roughly that
+            price; big ones slide along the curve and pay more and more per ETH — <strong>price impact</strong>. Deeper pools
+            mean less impact. And when a trade leaves the pool’s price off the wider market’s, arbitrage bots trade it back
+            within seconds: that is how a pool with no idea what ETH “should” cost stays in line with the world.
+          </p>
+        </div>
+
+        <h2>The sandwich attack</h2>
+        <p>
+          Your swap waits in the public mempool before it is mined (Module 6), and anyone can read it. A bot that sees a big
+          buy can <strong>buy just before you</strong> — pushing the price up — let you buy at the worse price, then
+          <strong>sell just after you</strong> at the higher price you created. You are the filling in its sandwich. The only
+          defense in the transaction itself is your <strong>slippage tolerance</strong>: the worst price you agree to, beyond
+          which your swap reverts.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: get sandwiched</h2>
+          <p>A trader buys ETH with 30,000 USDC from the same 100 ETH / 300,000 USDC pool. A searcher bot sees it coming.</p>
+          <p>
+            <label for="sw-slip">Trader’s slippage tolerance: <output id="sw-slip-out" for="sw-slip"></output></label>
+            <input type="range" id="sw-slip" min="0" max="30" value="20">
+          </p>
+          <ol class="sandwich" id="sw-steps"></ol>
+          <div class="stat-grid">
+            <p><span class="stat-label">Trader would get (no attack)</span><span id="sw-fair">–</span></p>
+            <p><span class="stat-label">Trader actually gets</span><span id="sw-got">–</span></p>
+            <p><span class="stat-label">Trader’s loss</span><span id="sw-loss">–</span></p>
+            <p><span class="stat-label">Bot’s profit after ~$20 gas + tip</span><span id="sw-profit">–</span></p>
+          </div>
+          <p class="demo-note">
+            The bot picks the biggest front-run your tolerance allows. Its take comes from two places: the worse price
+            you get, and the price your own large trade pushes the pool to, which it sells into on the way out. Against
+            that it pays the 0.3% fee on both legs, plus gas and a tip for its exact position in the block (assumed here
+            to be $20). Tighten the tolerance far enough and nothing is left for it — but set it too tight and ordinary
+            price movement makes your own swap fail. This is the <strong>MEV</strong> of Module 6 in miniature; many
+            wallets now send swaps through private channels so bots never see them in the public mempool.
+          </p>
+        </div>
+
+        <h2>Providing liquidity: fees versus impermanent loss</h2>
+        <p>
+          Where do a pool’s tokens come from? <strong>Liquidity providers</strong> (LPs) deposit both tokens in the current
+          ratio and earn the 0.3% fees. The catch: when the price moves, arbitrageurs rebalance the pool — buying the token
+          that’s rising from it — so LPs end up holding more of whatever fell. Compared with simply holding the two tokens,
+          the LP position is worth less. That shortfall is <strong>impermanent loss</strong>: “impermanent” because it
+          vanishes if the price returns to where it started, but very permanent if you withdraw before it does.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: deposit, then move the price</h2>
+          <p>You deposit 10 ETH + 30,000 USDC (worth $60,000) when ETH costs $3,000.</p>
+          <p>
+            <label for="il-move">ETH price moves to: <output id="il-move-out" for="il-move"></output></label>
+            <input type="range" id="il-move" min="-33" max="23" value="10">
+          </p>
+          <div class="stat-grid">
+            <p><span class="stat-label">If you had just held</span><span id="il-hold">–</span></p>
+            <p><span class="stat-label">Your pool position is worth</span><span id="il-pool">–</span></p>
+            <p><span class="stat-label">Pool now holds for you</span><span id="il-tokens">–</span></p>
+            <p><span class="stat-label">Impermanent loss</span><span id="il-loss">–</span></p>
+          </div>
+          <div class="chart" id="il-chart"></div>
+          <p class="demo-note">
+            The loss depends only on <em>how far</em> the price moved, not which way: a 2× move in either direction costs
+            about 5.7%, a 4× move 20%. LPs come out ahead only if the fees they earn while the price wanders exceed that
+            gap — which is why pools of two stablecoins (whose prices barely move) are a favourite, and why volatile pools
+            must pay high fees to attract liquidity. (Fees aren’t included in this calculator.)
+          </p>
+        </div>
+
+        <h2>Borrowing without a bank</h2>
+        <p>
+          Lending protocols such as Aave and Compound let anyone deposit crypto to earn interest, and anyone borrow against
+          collateral — no credit check, no paperwork, because every loan must be <strong>over-collateralized</strong>. The
+          protocol tracks a <strong>health factor</strong>: collateral value × a liquidation threshold ÷ debt. If prices
+          move and it drops below 1, anyone may <strong>liquidate</strong> the loan: repay part of the debt and take that
+          much collateral, plus a bonus, at a discount. No margin call, no grace period.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: borrow against ETH, then crash the price</h2>
+          <p>You deposit 10 ETH as collateral and borrow USDC against it when ETH is $3,000 (at most 75% of its value).</p>
+          <div class="duo">
+            <p>
+              <label for="ln-borrow">You borrowed: <output id="ln-borrow-out" for="ln-borrow"></output></label>
+              <input type="range" id="ln-borrow" min="0" max="22500" step="500" value="15000">
+            </p>
+            <p>
+              <label for="ln-price">ETH price now: <output id="ln-price-out" for="ln-price"></output></label>
+              <input type="range" id="ln-price" min="500" max="6000" step="50" value="3000">
+            </p>
+          </div>
+          <div class="stat-grid">
+            <p><span class="stat-label">Collateral value</span><span id="ln-coll">–</span></p>
+            <p><span class="stat-label">Debt</span><span id="ln-debt">–</span></p>
+            <p><span class="stat-label">Health factor</span><span id="ln-hf">–</span></p>
+            <p><span class="stat-label">Liquidated if ETH falls to</span><span id="ln-liq">–</span></p>
+          </div>
+          <p class="verdict" id="ln-verdict" role="status"></p>
+          <p class="demo-actions">
+            <button type="button" class="btn" id="ln-liquidate" disabled>⚡ A liquidation bot steps in</button>
+            <button type="button" class="btn ghost" id="ln-reset">Reset</button>
+          </p>
+          <p class="demo-note">
+            Rules here follow the common pattern: liquidation when the health factor drops below 1 (an 80% liquidation
+            threshold), the liquidator may repay up to half the debt and receives the matching collateral plus a 5% bonus —
+            pure profit, paid by you. Liquidations keep lenders whole without anyone’s judgment, but in a crash they come all
+            at once. On “Black Thursday”, 12 March 2020, ETH fell by about half within a day; network congestion broke many
+            liquidation bots, and some MakerDAO collateral auctions cleared at zero bids — about $8 million of ETH lost.
+          </p>
+        </div>
+
+        <aside class="takeaways" aria-labelledby="defi-takeaways">
+          <h2 id="defi-takeaways">Key takeaways</h2>
+          <ul>
+            <li>An AMM prices trades with a formula (<code>x · y = k</code>) instead of an order book; bigger trades suffer more <strong>price impact</strong>.</li>
+            <li>Public mempools invite <strong>sandwich attacks</strong>; slippage tolerance caps how much a bot can take from you.</li>
+            <li>Liquidity providers earn fees but suffer <strong>impermanent loss</strong> whenever the price moves.</li>
+            <li>DeFi loans are <strong>over-collateralized</strong> and liquidated automatically — by anyone, at a profit — when the health factor drops below 1.</li>
+          </ul>
+        </aside>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>Flash loans: millions, with no collateral, for one transaction</summary>
+          <p>
+            Because a transaction either completes entirely or reverts entirely, a contract can lend you any amount with no
+            collateral at all — as long as you pay it back <em>within the same transaction</em>. If you don’t, the whole
+            thing reverts as if the loan never happened. Aave popularized these <strong>flash loans</strong> in 2020. They
+            are great for arbitrage and for swapping collateral in one step — and they gave attackers instant
+            whale-sized capital: in the bZx attacks of February 2020, borrowed millions pushed thin markets around to fool
+            a protocol’s price oracle. Flash loans don’t create bugs; they remove the capital barrier to exploiting them.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Where does the yield come from?</summary>
+          <p>
+            Every DeFi return has to be paid by someone: traders paying swap fees, borrowers paying interest, or the protocol
+            printing its own token as a reward (“emissions”) — which only pays off if someone later buys that token. The
+            sustainable sources are the first two. A useful rule of thumb from the industry: <em>if you can’t see where the
+            yield comes from, you are the yield.</em>
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>Concentrated liquidity: Uniswap v3</summary>
+          <p>
+            In the pool above, liquidity is spread across every price from zero to infinity, so most of it sits idle. Uniswap
+            v3 (2021) let LPs concentrate their deposit on a price range they choose. Inside the range they earn far more fees
+            per dollar; if the price leaves the range, their position turns entirely into the less valuable token and stops
+            earning — impermanent loss, amplified. Liquidity provision became an active, professional strategy.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>DeFi’s risk stack</summary>
+          <ul>
+            <li><strong>Contract bugs</strong> — reentrancy (Module 7), rounding errors, missing access checks. Audits reduce, never remove, the risk.</li>
+            <li><strong>Oracle manipulation</strong> — a protocol is only as honest as its price feed.</li>
+            <li><strong>Admin keys and upgrades</strong> — many “decentralized” protocols can be changed or paused by a small team or multisig.</li>
+            <li><strong>Bridges</strong> — contracts holding assets for other chains were the biggest targets of 2022: Ronin (~$625M), Wormhole (~$320M), Nomad (~$190M).</li>
+            <li><strong>Stablecoin and collateral risk</strong> — when a stablecoin or a big collateral asset fails (Terra, 2022; Module 7), every protocol built on it inherits the loss.</li>
+          </ul>
+        </details>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="defi"></form>
+      </section>
+
+      <!-- ============================== MODULE 10 ============================== -->
+      <section id="zk" class="view" hidden>
+        <p class="kicker">Module 10</p>
+        <h1>Zero-knowledge proofs: proving without revealing</h1>
+        <p class="lede">
+          Can you convince someone a statement is true without revealing <em>why</em> it is true? Zero-knowledge proofs say
+          yes — and they now secure billions of dollars in ZK rollups and make private payments possible. Two hands-on
+          protocols build the intuition.
+        </p>
+
+        <h2>The paradox</h2>
+        <p>
+          Prove you know a password without typing it. Prove you’re over 18 without showing your birth date. Prove a batch of
+          10,000 transactions was processed correctly without anyone re-running them. A <strong>zero-knowledge proof</strong>
+          (introduced by Goldwasser, Micali and Rackoff in 1985) must be:
+        </p>
+        <dl class="props">
+          <div><dt>Complete</dt><dd>If the statement is true, an honest prover can always convince the verifier.</dd></div>
+          <div><dt>Sound</dt><dd>If it’s false, a cheating prover gets caught — except with a vanishingly small probability.</dd></div>
+          <div><dt>Zero-knowledge</dt><dd>The verifier learns nothing except that the statement is true.</dd></div>
+        </dl>
+
+        <div class="demo-card">
+          <h2>Try it: the magic cave</h2>
+          <p>
+            A ring-shaped cave has a magic door deep inside, opened only by a secret word. Peggy wants to prove to Victor she
+            knows the word without saying it. She walks in along path A or B while Victor waits outside; then Victor shouts
+            which path she must come back out of. With the word she can always obey — through the door if needed. Without it,
+            she only succeeds if Victor happens to call the side she’s already on.
+          </p>
+          <div class="cave-layout">
+            <svg class="cave" id="cave-svg" viewBox="0 0 220 198" role="img" aria-labelledby="cave-caption"></svg>
+            <div>
+              <p class="check-inline"><label><input type="checkbox" id="cave-knows" checked> Peggy really knows the secret word</label></p>
+              <p class="demo-actions">
+                <button type="button" class="btn primary" id="cave-round">🔦 Run one round</button>
+                <button type="button" class="btn" id="cave-ten">Run 10 rounds</button>
+                <button type="button" class="btn ghost" id="cave-reset">Reset</button>
+              </p>
+              <p class="stat-line" id="cave-caption">Round-by-round: Peggy picks a path at random, then Victor calls one.</p>
+              <ol class="cave-log" id="cave-log" aria-label="Rounds so far"></ol>
+            </div>
+          </div>
+          <p class="verdict" id="cave-verdict" role="status"></p>
+          <p class="demo-note">
+            One round proves little — a bluffer survives half the time. But each round halves her chances: after 20 rounds a
+            bluffer survives one time in a million. And here is the zero-knowledge part: Victor’s video of the rounds would
+            convince <em>nobody else</em>, because Peggy and a friend could stage the same footage by agreeing on the calls in
+            advance. Victor ends up certain, yet holding nothing he could pass on — he learned only that she knows.
+          </p>
+        </div>
+
+        <h2>A real protocol: proving a map can be 3-coloured</h2>
+        <p>
+          The cave is a story; here is genuine computer science (Goldreich, Micali and Wigderson, 1986). Peggy knows how to
+          colour every node of a graph with one of three colours so that no line joins two nodes of the same colour — hard to
+          find, easy to check. She proves she knows such a colouring without revealing it. Each round: she
+          <strong>shuffles</strong> the three colours, <strong>commits</strong> to each node’s colour with a hash
+          (exactly the sealed envelopes of Module 2), Victor <strong>picks one line</strong>, and Peggy opens only its two
+          envelopes. Two different colours? Pass. Because the colours are reshuffled every round, Victor never learns the
+          actual colouring.
+        </p>
+
+        <div class="demo-card">
+          <h2>Try it: verify a zero-knowledge proof</h2>
+          <fieldset class="choice-row">
+            <legend>Peggy…</legend>
+            <label><input type="radio" name="zk-mode" value="honest" checked> knows a valid colouring</label>
+            <label><input type="radio" name="zk-mode" value="bluff"> is bluffing (her colouring has one bad line)</label>
+          </fieldset>
+          <div class="zk-layout">
+            <svg class="zk-graph" id="zk-graph" viewBox="-8 -12 116 124" role="img" aria-labelledby="zk-graph-caption"></svg>
+            <div class="zk-side">
+              <p class="stat-line" id="zk-graph-caption">Seven nodes, twelve lines. Locked nodes show only Peggy’s commitment hash.</p>
+              <p class="demo-actions">
+                <button type="button" class="btn primary" id="zk-commit">🔒 New round: Peggy commits</button>
+              </p>
+              <p>
+                <label for="zk-edge">Victor challenges the line</label>
+                <select id="zk-edge"></select>
+              </p>
+              <p class="demo-actions">
+                <button type="button" class="btn" id="zk-challenge" disabled>🔍 Open that line</button>
+                <button type="button" class="btn" id="zk-auto">⏩ Run 25 random rounds</button>
+                <button type="button" class="btn ghost" id="zk-reset">Reset</button>
+              </p>
+            </div>
+          </div>
+          <ol class="zk-reveal" id="zk-reveal"></ol>
+          <p class="verdict" id="zk-verdict" role="status"></p>
+          <div class="stat-grid">
+            <p><span class="stat-label">Rounds passed</span><span id="zk-rounds">0</span></p>
+            <p><span class="stat-label">A bluffer survives that many with probability</span><span id="zk-odds">100%</span></p>
+          </div>
+          <p class="demo-note">
+            You can also click a line in the picture. A bluffer has at least one bad line, so each round she survives with
+            probability at most 11/12: after 25 rounds that’s ~11%, after 100 rounds 0.017%. The opened colours are freshly
+            shuffled every round — compare rounds and you’ll see the same node “change colour”, so the transcript reveals
+            nothing about the real colouring. And because the commitments are salted hashes, Peggy can’t change a node’s
+            colour after seeing which line Victor picked.
+          </p>
+        </div>
+
+        <h2>From conversation to proof: Fiat–Shamir</h2>
+        <p>
+          A blockchain can’t hold a live conversation with every verifier. The trick (Fiat and Shamir, 1986): let a hash
+          function play Victor. Peggy commits, hashes her own commitments, and uses the hash output as the “random” challenge
+          — she can’t predict it without committing first, so she can’t cheat any more than before. The whole exchange
+          collapses into one message that anyone can check later. Add heavy mathematics to make proofs tiny and fast to
+          verify, and you get the <strong>zk-SNARKs</strong> and <strong>zk-STARKs</strong> used on blockchains today.
+        </p>
+
+        <h2>Where zero-knowledge proofs are used</h2>
+        <ul>
+          <li><strong>ZK rollups</strong> — prove that thousands of transactions were executed correctly; Ethereum checks one small proof instead of re-running them all (Module 7).</li>
+          <li><strong>Private payments</strong> — Zcash (2016) hides sender, receiver and amount while proving no money was created out of thin air.</li>
+          <li><strong>Identity</strong> — prove you are over 18, or a citizen, or on an allow-list, without revealing who you are.</li>
+          <li><strong>Verifiable computation</strong> — outsource a heavy calculation and get a proof the answer is right, instead of trusting the server.</li>
+        </ul>
+
+        <aside class="takeaways" aria-labelledby="zk-takeaways">
+          <h2 id="zk-takeaways">Key takeaways</h2>
+          <ul>
+            <li>A zero-knowledge proof is <strong>complete, sound and zero-knowledge</strong>: convincing if true, nearly impossible to fake, and revealing nothing else.</li>
+            <li>Repetition drives a cheater’s odds toward zero: each round multiplies her survival chance by a fraction.</li>
+            <li><strong>Commitments</strong> (salted hashes) stop the prover changing answers; fresh randomness each round keeps the verifier from learning anything.</li>
+            <li>Fiat–Shamir replaces the verifier’s coin flips with a hash, turning interactive proofs into ones anyone can verify — the basis of ZK rollups.</li>
+          </ul>
+        </aside>
+
+        <h2>Go deeper</h2>
+        <details class="deep-dive">
+          <summary>SNARKs vs STARKs</summary>
+          <p>
+            <strong>zk-SNARKs</strong> (“succinct non-interactive arguments of knowledge”) produce proofs of a few hundred bytes
+            that verify in milliseconds, but most constructions need a one-time <em>trusted setup</em>: secret randomness that
+            must be destroyed afterwards, or whoever kept it could forge proofs. <strong>zk-STARKs</strong> (“scalable,
+            transparent”) need no trusted setup and rely only on hash functions — which also makes them believed to resist
+            quantum computers — at the cost of larger proofs (tens to hundreds of kilobytes). Rollups use both.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>The ceremony: how Zcash handled its trusted setup</summary>
+          <p>
+            Before launching in 2016, Zcash generated its SNARK parameters in a “ceremony”: six participants in different
+            places each contributed a piece of the secret randomness and then destroyed their machines’ copies. The setup is
+            safe as long as at least <em>one</em> participant really destroyed their piece. Later ceremonies scaled the idea up
+            — Ethereum’s 2023 KZG ceremony for rollup data drew over 140,000 contributions — so that trusting “at least one
+            honest participant” is a very safe bet.
+          </p>
+        </details>
+        <details class="deep-dive">
+          <summary>What “zero knowledge” means precisely</summary>
+          <p>
+            The formal definition is the cave’s video trick turned into mathematics: a protocol is zero-knowledge if a
+            <em>simulator</em> — someone who does <strong>not</strong> know the secret — could produce transcripts that look
+            exactly like real ones. In the graph protocol the simulator just picks the challenged line in advance and gives its
+            two nodes different random colours. If fake transcripts are indistinguishable from real ones, a real transcript
+            can’t contain any knowledge about the secret.
+          </p>
+        </details>
+
+        <h2>Check your understanding</h2>
+        <form class="quiz" data-quiz="zk"></form>
+      </section>
+
       <!-- ============================== GLOSSARY ============================== -->
       <section id="glossary" class="view" hidden>
         <p class="kicker">Reference</p>
         <h1>Glossary</h1>
         <p class="lede">Quick definitions for the terms used across the course. One opens at a time.</p>
 
+        <p class="glossary-search">
+          <label for="glossary-filter">Filter terms</label>
+          <input type="search" id="glossary-filter" placeholder="e.g. nonce, gas, Merkle" autocomplete="off" spellcheck="false">
+        </p>
+        <p class="stat" id="glossary-count" role="status"></p>
+
         <div class="glossary">
-          <details name="glossary"><summary>Blockchain</summary><p>A shared, append-only ledger replicated across many computers, where blocks of records are linked by hashes so history can’t be quietly rewritten.</p></details>
+          <details name="glossary"><summary>51% attack</summary><p>Controlling a majority of mining power (PoW) or stake (PoS), enough to censor or reorder recent transactions. Prohibitively expensive on large networks.</p></details>
+          <details name="glossary"><summary>ABI &amp; function selector</summary><p>The ABI (application binary interface) is a contract’s published map of functions to their byte encoding. A call identifies the function by its <em>selector</em> — the first 4 bytes of the Keccak-256 hash of its signature — letting any wallet invoke a contract it has never seen, given the ABI.</p></details>
+          <details name="glossary"><summary>Address checksum</summary><p>Error detection built into address formats — Base58Check, Bech32 and Ethereum’s mixed-case EIP-55 — so a mistyped address is rejected instead of paid.</p></details>
+          <details name="glossary"><summary>AMM (automated market maker)</summary><p>A smart contract that trades two tokens from a pool using a formula — most famously <code>x · y = k</code> — instead of matching buyers with sellers.</p></details>
+          <details name="glossary"><summary>Approval (setApprovalForAll)</summary><p>Permission for another address, such as a marketplace, to move your tokens. One approval covers a whole collection, which makes it the favourite target of phishing sites.</p></details>
+          <details name="glossary"><summary>Base fee &amp; tip (EIP-1559)</summary><p>Ethereum’s fee model since 2021: a protocol-set base fee that is <em>burned</em> — rising after blocks more than half full and falling after emptier ones, by at most 12.5% per block — plus an optional tip that pays the validator.</p></details>
+          <details name="glossary"><summary>Birthday bound</summary><p>Collisions in an <var>n</var>-bit hash appear after roughly 2<sup><var>n</var>/2</sup> tries, because every new hash is compared with every earlier one. SHA-256 therefore has 128-bit collision security.</p></details>
           <details name="glossary"><summary>Block</summary><p>A batch of transactions plus metadata: the previous block’s hash, a nonce, and its own hash. The first block of a chain is the <em>genesis block</em>.</p></details>
+          <details name="glossary"><summary>Blockchain</summary><p>A shared, append-only ledger replicated across many computers, where blocks of records are linked by hashes so history can’t be quietly rewritten.</p></details>
+          <details name="glossary"><summary>Blockchain trilemma</summary><p>The rule of thumb that decentralization, security and scalability trade off against each other — base layers usually maximize the first two and reach for scale via layer 2.</p></details>
+          <details name="glossary"><summary>Bytecode &amp; opcodes</summary><p>Contracts are stored as bytecode: one-byte instructions (opcodes) such as PUSH1, ADD and SSTORE, each with a fixed gas cost, run by the EVM’s stack machine.</p></details>
+          <details name="glossary"><summary>Change output</summary><p>A transaction output that returns leftover value to the sender. Leave it out and the whole remainder goes to the miner as a fee.</p></details>
+          <details name="glossary"><summary>Cold / hot wallet</summary><p>Cold = keys kept on a device that never touches the internet (hardware wallet, steel plate); hot = keys on an online device. Convenience goes up, safety goes down.</p></details>
+          <details name="glossary"><summary>Commitment (commit–reveal)</summary><p>Publishing the hash of a value plus a random salt to lock it in without revealing it. <em>Binding</em>: it can’t be changed later. <em>Hiding</em>: it can’t be guessed.</p></details>
+          <details name="glossary"><summary>Confirmation</summary><p>Each block added after the one containing your transaction. More confirmations = deeper burial = harder to reverse.</p></details>
+          <details name="glossary"><summary>Content addressing / CID</summary><p>Naming data by its hash, as IPFS does with content identifiers (CIDs): change the content and the address changes, so it can’t be swapped silently.</p></details>
+          <details name="glossary"><summary>DAO</summary><p>Decentralized autonomous organization — members coordinate through tokens and on-chain votes, and the treasury is controlled by a smart contract instead of officers. (“The DAO”, 2016, was the first and most infamous one.)</p></details>
+          <details name="glossary"><summary>DeFi &amp; NFT</summary><p>Decentralized finance: lending, trading and earning interest via smart contracts. NFTs: unique on-chain tokens representing ownership of a specific item.</p></details>
+          <details name="glossary"><summary>Difficulty adjustment</summary><p>The automatic re-tuning of the proof-of-work target (every 2,016 blocks on Bitcoin) so blocks keep arriving roughly every 10 minutes no matter how much hashpower joins or leaves.</p></details>
+          <details name="glossary"><summary>Digital signature</summary><p>Proof, verifiable by anyone, that the holder of a private key approved one exact message. The basis of transaction authorization.</p></details>
+          <details name="glossary"><summary>Discrete logarithm problem</summary><p>Recovering <var>k</var> from <var>k</var> × G. Computing forward takes a few hundred steps; no known method reverses it faster than brute force, which is what makes elliptic-curve keys safe.</p></details>
+          <details name="glossary"><summary>Double-spend</summary><p>Trying to spend the same coin twice. Consensus guarantees at most one of the conflicting transactions is ever confirmed.</p></details>
+          <details name="glossary"><summary>Elliptic curve / secp256k1</summary><p>The curve <code>y² = x³ + 7</code> over a 256-bit prime field, used by Bitcoin and Ethereum. A public key is the private key times a fixed point G.</p></details>
+          <details name="glossary"><summary>ERC-20 / ERC-721 / ERC-1155</summary><p>Standard “shapes” for Ethereum token contracts: ERC-20 for fungible currencies, ERC-721 for one-of-a-kind NFTs, and ERC-1155 for a mix of fungible and non-fungible tokens in a single contract.</p></details>
+          <details name="glossary"><summary>Ethereum / EVM</summary><p>The largest smart-contract blockchain. Every node runs the Ethereum Virtual Machine (EVM), so contracts execute identically everywhere; ETH is its native coin and pays for gas.</p></details>
+          <details name="glossary"><summary>Fiat–Shamir</summary><p>Replacing a verifier’s random challenges with a hash of the prover’s own commitments, which turns an interactive proof into a single message anyone can verify.</p></details>
+          <details name="glossary"><summary>Finality</summary><p>The point after which a transaction can’t be reversed. Probabilistic under PoW (deeper = safer, never absolute); explicit under Ethereum PoS, where reverting a finalized block requires destroying at least ⅓ of all staked ETH.</p></details>
+          <details name="glossary"><summary>Flash loan</summary><p>An uncollateralized loan that must be repaid within the same transaction; if it isn’t, the whole transaction reverts as if it never happened.</p></details>
+          <details name="glossary"><summary>Fork (soft / hard)</summary><p>A change to the protocol rules. Soft forks tighten rules and stay backward-compatible; hard forks don’t — if part of the network refuses to upgrade, the chain splits in two (Bitcoin / Bitcoin Cash, Ethereum / Ethereum Classic).</p></details>
+          <details name="glossary"><summary>Fungible vs. non-fungible</summary><p>Fungible tokens are interchangeable — any one unit equals any other (BTC, ETH, dollars). Non-fungible tokens (NFTs) are each unique and indivisible, identified by a token ID; you own a specific item, not an amount.</p></details>
+          <details name="glossary"><summary>Gas / fees</summary><p>The price paid to have the network process your transaction or run your contract. Every EVM operation costs a fixed amount of gas; running out reverts the call but the gas is still paid.</p></details>
+          <details name="glossary"><summary>Gwei</summary><p>A billionth of an ETH — the unit gas prices are quoted in. Your fee is gas used × gas price in gwei.</p></details>
+          <details name="glossary"><summary>Halving</summary><p>Bitcoin’s block reward cuts in half every 210,000 blocks (~4 years): 50 → 25 → 12.5 → … BTC. It’s why total supply approaches, but never exceeds, 21 million coins.</p></details>
           <details name="glossary"><summary>Hash</summary><p>A fixed-size fingerprint of any data, produced by a one-way function such as SHA-256. Any change to the input produces a completely different hash.</p></details>
+          <details name="glossary"><summary>HD wallet &amp; derivation path</summary><p>A wallet (BIP-32) that derives a whole tree of keys from one seed, addressed by paths such as <code>m/44'/60'/0'/0/0</code> (BIP-44) — the same words restore every account.</p></details>
+          <details name="glossary"><summary>Health factor &amp; liquidation</summary><p>In lending protocols: collateral value × liquidation threshold ÷ debt. Below 1, anyone may repay part of the loan and take collateral at a discount.</p></details>
+          <details name="glossary"><summary>Impermanent loss</summary><p>How much less a liquidity position is worth than simply holding the same two tokens, after the price moves. It shrinks back to zero only if the price returns.</p></details>
+          <details name="glossary"><summary>Keccak-256</summary><p>Ethereum’s hash function: the version of SHA-3 from before NIST changed its padding, so its outputs differ from the standard SHA3-256.</p></details>
+          <details name="glossary"><summary>Layer 2 / rollup</summary><p>A network that executes transactions cheaply off the main chain, then posts compressed proof of them on-chain — inheriting its security at a fraction of the fee.</p></details>
+          <details name="glossary"><summary>Liquidity pool / LP</summary><p>The two tokens deposited in an AMM by liquidity providers (LPs), who earn the trading fees in exchange for bearing impermanent loss.</p></details>
+          <details name="glossary"><summary>Mempool</summary><p>Each node’s waiting room of valid but not-yet-confirmed transactions, from which miners/validators assemble blocks.</p></details>
+          <details name="glossary"><summary>Merkle proof (SPV)</summary><p>The sibling hashes on the path from a transaction up to the Merkle root — about log₂(<var>n</var>) of them — which prove the transaction is in a block without downloading it.</p></details>
           <details name="glossary"><summary>Merkle tree / root</summary><p>A tree of hashes: transactions are hashed in pairs, then the pairs are hashed in pairs, up to a single <em>Merkle root</em> stored in the block header. Changing any transaction changes the root, and inclusion of one transaction can be proven with only ~log₂(n) hashes.</p></details>
-          <details name="glossary"><summary>Node</summary><p>A computer that stores the ledger, validates new blocks and relays transactions. Anyone can run one.</p></details>
-          <details name="glossary"><summary>Nonce</summary><p>“Number used once” — the value miners vary to search for a hash that satisfies the difficulty target.</p></details>
+          <details name="glossary"><summary>MEV</summary><p>Maximal extractable value — profit a block producer (or a bot bidding for position) can capture purely by choosing the order of transactions in a block, e.g. “sandwiching” a victim’s trade. Mitigated, not eliminated, by proposer–builder separation.</p></details>
           <details name="glossary"><summary>Mining</summary><p>Racing to find a valid nonce for the next block. The winner earns newly issued coins plus transaction fees.</p></details>
           <details name="glossary"><summary>Mining pool</summary><p>Miners who combine hashpower and split each block reward in proportion to work contributed — trading lottery-style jackpots for a steady trickle.</p></details>
-          <details name="glossary"><summary>Difficulty adjustment</summary><p>The automatic re-tuning of the proof-of-work target (every 2,016 blocks on Bitcoin) so blocks keep arriving roughly every 10 minutes no matter how much hashpower joins or leaves.</p></details>
-          <details name="glossary"><summary>Halving</summary><p>Bitcoin’s block reward cuts in half every 210,000 blocks (~4 years): 50 → 25 → 12.5 → … BTC. It’s why total supply approaches, but never exceeds, 21 million coins.</p></details>
-          <details name="glossary"><summary>Proof of Work (PoW)</summary><p>Consensus by computation: blocks are expensive to produce but cheap to verify, so rewriting history costs more than honest participation.</p></details>
-          <details name="glossary"><summary>Proof of Stake (PoS)</summary><p>Consensus by collateral: validators lock up coins for the right to propose blocks, and lose them (“slashing”) if they cheat.</p></details>
-          <details name="glossary"><summary>Private key</summary><p>A secret number that controls an address’s funds. Whoever knows it owns the coins; lose it and the coins are gone forever.</p></details>
-          <details name="glossary"><summary>Seed phrase</summary><p>12 or 24 dictionary words (BIP-39) encoding a wallet’s master secret. An HD wallet re-derives every key from it, so anyone holding the words holds all the coins.</p></details>
-          <details name="glossary"><summary>Public key / address</summary><p>The shareable half of a key pair. An address — what you give people to get paid — is essentially a hash of the public key.</p></details>
-          <details name="glossary"><summary>Digital signature</summary><p>Proof, verifiable by anyone, that the holder of a private key approved one exact message. The basis of transaction authorization.</p></details>
-          <details name="glossary"><summary>Wallet</summary><p>Software or hardware that stores keys and signs transactions. It holds no coins — coins exist only as ledger entries.</p></details>
-          <details name="glossary"><summary>Cold / hot wallet</summary><p>Cold = keys kept on a device that never touches the internet (hardware wallet, steel plate); hot = keys on an online device. Convenience goes up, safety goes down.</p></details>
-          <details name="glossary"><summary>Mempool</summary><p>Each node’s waiting room of valid but not-yet-confirmed transactions, from which miners/validators assemble blocks.</p></details>
-          <details name="glossary"><summary>Confirmation</summary><p>Each block added after the one containing your transaction. More confirmations = deeper burial = harder to reverse.</p></details>
-          <details name="glossary"><summary>Finality</summary><p>The point after which a transaction can’t be reversed. Probabilistic under PoW (deeper = safer, never absolute); explicit under Ethereum PoS, where reverting a finalized block requires destroying at least ⅓ of all staked ETH.</p></details>
-          <details name="glossary"><summary>Double-spend</summary><p>Trying to spend the same coin twice. Consensus guarantees at most one of the conflicting transactions is ever confirmed.</p></details>
-          <details name="glossary"><summary>UTXO</summary><p>Unspent transaction output — Bitcoin’s version of a coin, behaving like a bill: transactions consume whole UTXOs and create new ones, including “change” back to the sender. Ethereum uses account balances instead.</p></details>
-          <details name="glossary"><summary>51% attack</summary><p>Controlling a majority of mining power (PoW) or stake (PoS), enough to censor or reorder recent transactions. Prohibitively expensive on large networks.</p></details>
-          <details name="glossary"><summary>MEV</summary><p>Maximal extractable value — profit a block producer (or a bot bidding for position) can capture purely by choosing the order of transactions in a block, e.g. “sandwiching” a victim’s trade. Mitigated, not eliminated, by proposer–builder separation.</p></details>
-          <details name="glossary"><summary>Fork (soft / hard)</summary><p>A change to the protocol rules. Soft forks tighten rules and stay backward-compatible; hard forks don’t — if part of the network refuses to upgrade, the chain splits in two (Bitcoin / Bitcoin Cash, Ethereum / Ethereum Classic).</p></details>
-          <details name="glossary"><summary>Blockchain trilemma</summary><p>The rule of thumb that decentralization, security and scalability trade off against each other — base layers usually maximize the first two and reach for scale via layer 2.</p></details>
-          <details name="glossary"><summary>Smart contract</summary><p>A program stored on-chain that runs exactly as written when triggered by a transaction — the engine behind tokens, DeFi and NFTs.</p></details>
-          <details name="glossary"><summary>ABI &amp; function selector</summary><p>The ABI (application binary interface) is a contract’s published map of functions to their byte encoding. A call identifies the function by its <em>selector</em> — the first 4 bytes of the Keccak-256 hash of its signature — letting any wallet invoke a contract it has never seen, given the ABI.</p></details>
-          <details name="glossary"><summary>Oracle</summary><p>A service that feeds off-chain facts (like prices) to smart contracts, which cannot fetch external data themselves. A trustless contract is only as honest as its oracle — the “oracle problem”.</p></details>
-          <details name="glossary"><summary>Ethereum / EVM</summary><p>The largest smart-contract blockchain. Every node runs the Ethereum Virtual Machine (EVM), so contracts execute identically everywhere; ETH is its native coin and pays for gas.</p></details>
-          <details name="glossary"><summary>Gas / fees</summary><p>The price paid to have the network process your transaction or run your contract; it compensates miners/validators and prevents spam.</p></details>
-          <details name="glossary"><summary>Gwei</summary><p>A billionth of an ETH — the unit gas prices are quoted in. Your fee is gas used × gas price in gwei.</p></details>
-          <details name="glossary"><summary>Base fee &amp; tip (EIP-1559)</summary><p>Ethereum’s fee model since 2021: a protocol-set base fee that is <em>burned</em> (rising 12.5% when blocks run over half full, falling when they don’t) plus an optional tip that pays the validator.</p></details>
-          <details name="glossary"><summary>Satoshi / wei</summary><p>The smallest units of the major coins: 1 BTC = 100,000,000 satoshis; 1 ETH = 10¹⁸ wei. On-chain amounts are integers of these units — the decimals are just display.</p></details>
-          <details name="glossary"><summary>Token vs. coin</summary><p>A <em>coin</em> is a blockchain’s native currency (BTC, ETH). A <em>token</em> is an asset created by a smart contract on top of an existing chain.</p></details>
-          <details name="glossary"><summary>Stablecoin</summary><p>A token engineered to track a currency like the US dollar — via custodial reserves (USDC, USDT), overcollateralized crypto (DAI), or — riskily, see Terra 2022 — pure algorithms.</p></details>
-          <details name="glossary"><summary>Layer 2 / rollup</summary><p>A network that executes transactions cheaply off the main chain, then posts compressed proof of them on-chain — inheriting its security at a fraction of the fee.</p></details>
-          <details name="glossary"><summary>DeFi &amp; NFT</summary><p>Decentralized finance: lending, trading and earning interest via smart contracts. NFTs: unique on-chain tokens representing ownership of a specific item.</p></details>
-          <details name="glossary"><summary>Fungible vs. non-fungible</summary><p>Fungible tokens are interchangeable — any one unit equals any other (BTC, ETH, dollars). Non-fungible tokens (NFTs) are each unique and indivisible, identified by a token ID; you own a specific item, not an amount.</p></details>
           <details name="glossary"><summary>Mint</summary><p>Creating a new token on-chain. Minting an NFT writes a fresh, never-before-used token ID into the contract and assigns it an owner.</p></details>
+          <details name="glossary"><summary>Node</summary><p>A computer that stores the ledger, validates new blocks and relays transactions. Anyone can run one.</p></details>
+          <details name="glossary"><summary>Nonce</summary><p>“Number used once” — the value miners vary to search for a hash that satisfies the difficulty target.</p></details>
+          <details name="glossary"><summary>Oracle</summary><p>A service that feeds off-chain facts (like prices) to smart contracts, which cannot fetch external data themselves. A trustless contract is only as honest as its oracle — the “oracle problem”.</p></details>
+          <details name="glossary"><summary>Over-collateralization</summary><p>Borrowing less than your collateral is worth, so the collateral still covers the debt if prices fall — DeFi’s substitute for credit checks.</p></details>
+          <details name="glossary"><summary>Price impact &amp; slippage tolerance</summary><p>Price impact is how far your own trade moves an AMM’s price; your slippage tolerance is the worst price you will accept before the swap reverts.</p></details>
+          <details name="glossary"><summary>Private key</summary><p>A secret number that controls an address’s funds. Whoever knows it owns the coins; lose it and the coins are gone forever.</p></details>
+          <details name="glossary"><summary>Proof of Stake (PoS)</summary><p>Consensus by collateral: validators lock up coins for the right to propose blocks, and lose them (“slashing”) if they cheat.</p></details>
+          <details name="glossary"><summary>Proof of Work (PoW)</summary><p>Consensus by computation: blocks are expensive to produce but cheap to verify, so rewriting history costs more than honest participation.</p></details>
+          <details name="glossary"><summary>Public key / address</summary><p>The shareable half of a key pair. An address — what you give people to get paid — is essentially a hash of the public key.</p></details>
+          <details name="glossary"><summary>Reentrancy</summary><p>A bug where a contract calls out to another before updating its own state, letting the callee call back in and repeat the action — how The DAO was drained in 2016. Fixed by “checks, effects, interactions”.</p></details>
+          <details name="glossary"><summary>Sandwich attack</summary><p>An MEV strategy: buy just before a victim’s swap and sell just after it, profiting from the price move the victim’s trade causes.</p></details>
+          <details name="glossary"><summary>Satoshi / wei</summary><p>The smallest units of the major coins: 1 BTC = 100,000,000 satoshis; 1 ETH = 10¹⁸ wei. On-chain amounts are integers of these units — the decimals are just display.</p></details>
+          <details name="glossary"><summary>Seed phrase</summary><p>12 or 24 dictionary words (BIP-39) encoding a wallet’s master secret. An HD wallet re-derives every key from it, so anyone holding the words holds all the coins.</p></details>
+          <details name="glossary"><summary>SHA-256d</summary><p>SHA-256 applied twice. Bitcoin uses it for block hashes and transaction IDs.</p></details>
+          <details name="glossary"><summary>Signing nonce (ECDSA k)</summary><p>The one-time secret number mixed into every ECDSA signature. Reusing it for two messages reveals the private key; RFC 6979 derives it deterministically so it never repeats.</p></details>
+          <details name="glossary"><summary>Slashing</summary><p>Destroying part or all of a misbehaving proof-of-stake validator’s stake and ejecting it, for provable offences such as signing two conflicting blocks.</p></details>
+          <details name="glossary"><summary>Smart contract</summary><p>A program stored on-chain that runs exactly as written when triggered by a transaction — the engine behind tokens, DeFi and NFTs.</p></details>
+          <details name="glossary"><summary>Stablecoin</summary><p>A token engineered to track a currency like the US dollar — via custodial reserves (USDC, USDT), overcollateralized crypto (DAI), or — riskily, see Terra 2022 — pure algorithms.</p></details>
+          <details name="glossary"><summary>Sybil attack</summary><p>Creating many fake identities to gain influence. It is why blockchains weight votes by something costly — work or stake — rather than counting computers.</p></details>
+          <details name="glossary"><summary>Target &amp; bits</summary><p>The number a block’s hash must be at or below. The header stores it in a compact 4-byte “bits” field; difficulty is the genesis target divided by the current one.</p></details>
           <details name="glossary"><summary>Token URI / metadata</summary><p>The link an NFT stores pointing to its metadata (name, traits and image). The artwork itself usually lives off-chain — on IPFS or a web server — so the chain records ownership, not the picture.</p></details>
-          <details name="glossary"><summary>ERC-20 / ERC-721 / ERC-1155</summary><p>Standard “shapes” for Ethereum token contracts: ERC-20 for fungible currencies, ERC-721 for one-of-a-kind NFTs, and ERC-1155 for a mix of fungible and non-fungible tokens in a single contract.</p></details>
-          <details name="glossary"><summary>DAO</summary><p>Decentralized autonomous organization — members coordinate through tokens and on-chain votes, and the treasury is controlled by a smart contract instead of officers. (“The DAO”, 2016, was the first and most infamous one.)</p></details>
+          <details name="glossary"><summary>Token vs. coin</summary><p>A <em>coin</em> is a blockchain’s native currency (BTC, ETH). A <em>token</em> is an asset created by a smart contract on top of an existing chain.</p></details>
+          <details name="glossary"><summary>UTXO</summary><p>Unspent transaction output — Bitcoin’s version of a coin, behaving like a bill: transactions consume whole UTXOs and create new ones, including “change” back to the sender. Ethereum uses account balances instead.</p></details>
+          <details name="glossary"><summary>Wallet</summary><p>Software or hardware that stores keys and signs transactions. It holds no coins — coins exist only as ledger entries.</p></details>
+          <details name="glossary"><summary>Zero-knowledge proof</summary><p>A proof that a statement is true which reveals nothing else. It must be complete (truths convince), sound (falsehoods get caught) and zero-knowledge.</p></details>
+          <details name="glossary"><summary>zk-SNARK / zk-STARK</summary><p>Compact, non-interactive zero-knowledge proofs. SNARKs are tiny and fast to check but usually need a trusted setup; STARKs need none and rely only on hash functions.</p></details>
         </div>
       </section>
 
@@ -1574,8 +2718,9 @@
   <dialog id="quiz-dialog" closedby="any">
     <h2 id="quiz-dialog-title">Result</h2>
     <p id="quiz-dialog-text"></p>
-    <form method="dialog">
-      <button class="btn primary" value="ok">Keep going</button>
+    <form method="dialog" class="dialog-actions">
+      <a class="btn primary" id="quiz-dialog-next" href="#/home" hidden>Next module →</a>
+      <button class="btn" value="ok">Keep going</button>
     </form>
   </dialog>
 </body>

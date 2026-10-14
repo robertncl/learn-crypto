@@ -8,6 +8,7 @@
     "dev": "bun ./index.html",
     "build": "bun build ./index.html --outdir dist --minify --sourcemap=linked",
     "serve": "bun serve.js",
-    "preview": "bun run build && bun run serve"
+    "preview": "bun run build && bun run serve",
+    "test": "bun test"
   }
 }
