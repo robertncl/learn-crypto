@@ -10,9 +10,10 @@ The project builds and serves with [Bun](https://bun.sh):
 
 ```sh
 bun run dev      # dev server with hot reload  → http://localhost:3000
-bun run build    # bundle + minify into dist/
+bun run build    # bundle + minify into dist/ (one lazy chunk per language)
 bun run preview  # build, then serve dist/     → http://localhost:8000
 bun test         # run the test suite in tests/
+bun run i18n     # check every translation is complete and well-formed
 ```
 
 `bun run dev` treats `index.html` as the bundler entrypoint, bundling its
@@ -28,6 +29,37 @@ PBKDF2/HMAC-SHA512 for seed phrases), which needs a secure context —
 > modules, so any static file server (`python3 -m http.server 8000`,
 > `npx serve`, …) can serve `index.html` directly. Bun just adds bundling,
 > minification and hot reload.
+
+## Languages
+
+The whole course — page text, everything the demos print, the quizzes and the
+glossary — is available in **English, 中文 (Simplified Chinese), Français,
+Español, Deutsch and 日本語**. Pick one from the selector in the header; the
+choice is remembered, and the first visit follows the browser's language. A link
+can force one with `?lang=ja`. Numbers, durations and the glossary's sort order
+follow the chosen language too.
+
+English is the source. Each other language is one catalog in `js/i18n/`,
+downloaded only when that language is chosen. Text in `index.html` is keyed by a
+hash of its English wording (`data-i18n="h3f9a…"`), so translating the page
+never means maintaining a copy of it; text built by the demos goes through
+`t("key", { vars })` with `{name}` placeholders and plural forms.
+Translated markup is rebuilt from an allowlist (text plus a few inline tags such
+as `<strong>` and `<code>`), never inserted as raw HTML.
+
+Workflow, all through `bun tools/i18n.mjs`:
+
+| Command | Does |
+| --- | --- |
+| `keys` | after editing `index.html`: (re)compute the `data-i18n` keys — put a bare `data-i18n` on any new element first |
+| `check` | per language: strings translated, stale, and problems (changed placeholders or inline tags, forbidden markup) — fails if anything is missing |
+| `export <lang> <dir>` | write the untranslated strings as numbered chunks (`en-000.tsv` …) |
+| `import <lang> <dir>` | read `<lang>-000.tsv` … back in (`N. translation`, one per line) |
+
+Adding a language means adding it to `LANGUAGES` and the loaders in
+`js/core/i18n.js`, an `<option>` in the header selector, and to `LANGS` in
+`tools/i18n.mjs` — then `export` and translate. `bun test` fails while any
+language is incomplete.
 
 ## What's inside
 
@@ -59,13 +91,16 @@ saved in `localStorage`. The glossary has 70+ searchable terms.
 index.html        all course content, one <section> per module
 css/styles.css    design tokens (light/dark via light-dark()), layout, components
 js/app.js         entry point: boots every demo
-js/core/          router, theme, progress, quizzes, SVG charts, glossary, DOM helpers
+js/core/          router, theme, progress, quizzes, SVG charts, glossary, DOM helpers,
+                  i18n (language loading, t(), translated markup)
 js/demos/         one file per course module
 js/lib/           pure, tested building blocks: SHA-256, Keccak-256, RIPEMD-160,
                   secp256k1/ECDSA (RFC 6979), Base58Check/Bech32/EIP-55/CIDv1,
                   BIP-39/32, Bitcoin headers, consensus maths, AMM maths
 js/data/          quiz questions, the BIP-39 wordlist, real Bitcoin block headers
-tests/            bun test suites for js/lib
+js/i18n/          one translation catalog per language (en.js = demo strings)
+tools/i18n.mjs    translation workflow: keys, check, export, import
+tests/            bun test suites for js/lib and the translations
 ```
 
 The cryptography in `js/lib` is written to be read. It is checked against
@@ -84,6 +119,8 @@ constant-time** — never use it to protect real funds.
 - the real block headers used in Module 3 (each must hash below its own target)
 - the attack-probability table from the Bitcoin whitepaper, Monte Carlo checks,
   retargeting, EIP-1559 and AMM/impermanent-loss maths
+- every translation: complete, no stale keys, placeholders and inline tags intact,
+  plural forms present, links limited to in-page and https, every `t()` key defined
 
 ## Tech
 

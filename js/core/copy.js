@@ -1,4 +1,5 @@
 import { $$ } from './dom.js';
+import { t } from './i18n.js';
 
 /* ============================== Copy-to-clipboard buttons ============================== */
 
@@ -13,8 +14,8 @@ export function initCopyButtons() {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'copy-btn';
-    btn.title = 'Copy to clipboard';
-    btn.setAttribute('aria-label', 'Copy to clipboard');
+    btn.title = t('copy.label');
+    btn.setAttribute('aria-label', t('copy.label'));
     btn.textContent = '⧉';
     wrap.append(box, btn);
 

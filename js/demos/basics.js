@@ -1,4 +1,5 @@
 import { $, $$, el } from '../core/dom.js';
+import { t } from '../core/i18n.js';
 
 /* ============================== Module 1: who decides the truth? ============================== */
 
@@ -16,8 +17,8 @@ export function initNetworkDemo() {
     const chip = el('span', { className: 'status-chip' });
     const last = el('li');
     const btn = el('button', { type: 'button', className: 'btn', 'aria-pressed': 'false' });
-    const card = el('article', { className: 'node-card', 'aria-label': `Node ${name}` },
-      el('h3', {}, `Node ${name} `, chip),
+    const card = el('article', { className: 'node-card', 'aria-label': t('basics.node', { name }) },
+      el('h3', {}, `${t('basics.node', { name })} `, chip),
       el('ul', { className: 'mini-ledger' }, ...LEDGER.map((entry) => el('li', { textContent: entry })), last),
       btn);
     btn.addEventListener('click', () => {
@@ -42,21 +43,22 @@ export function initNetworkDemo() {
       card.classList.toggle('is-rejected', rejected);
       last.textContent = isForged ? FORGED : HONEST;
       last.className = isForged ? 'entry-fake' : '';
-      chip.textContent = rejected ? '✗ outvoted' : '✓ majority';
-      btn.textContent = isForged ? 'Restore' : '😈 Corrupt';
+      chip.textContent = t(rejected ? 'basics.outvoted' : 'basics.majority');
+      btn.textContent = t(isForged ? 'basics.restore' : 'basics.corrupt');
       btn.setAttribute('aria-pressed', String(isForged));
-      btn.setAttribute('aria-label', isForged ? `Restore node ${name}` : `Corrupt node ${name}`);
+      btn.setAttribute('aria-label', t(isForged ? 'basics.restoreNode' : 'basics.corruptNode', { name }));
     }
 
     $('#vote-honest').style.inlineSize = `${(good / NODES.length) * 100}%`;
     $('#vote-forged').style.inlineSize = `${(bad / NODES.length) * 100}%`;
 
     verdict.className = `verdict ${forgedWins ? 'bad' : 'ok'}`;
+    const total = NODES.length;
     verdict.textContent =
-      bad === 0 ? `✓ All ${NODES.length} copies agree. The network’s ledger ends “${HONEST}”.`
-      : !forgedWins ? `✓ ${good} of ${NODES.length} copies still agree on “${HONEST}” — the forged ${bad === 1 ? 'copy is' : 'copies are'} simply outvoted.`
-      : good > 0 ? `✗ ${bad} of ${NODES.length} copies now say “${FORGED}”, and the majority rules: the forged history wins. Mallory has pulled off a majority (“51%”) attack.`
-      : `✗ Every copy is forged — there is no honest version left to compare against.`;
+      bad === 0 ? t('basics.v.agree', { total, entry: HONEST })
+      : !forgedWins ? t('basics.v.outvoted', { n: bad, good, total, entry: HONEST })
+      : good > 0 ? t('basics.v.forgedWins', { bad, total, entry: FORGED })
+      : t('basics.v.allForged');
   }
 
   $('#network-reset').addEventListener('click', () => {
@@ -71,10 +73,10 @@ export function initNetworkDemo() {
 
 export function initNeedBlockchainDemo() {
   const SCENARIOS = {
-    bakery: { answers: [false, false, false], note: 'One owner writes every record. A spreadsheet or database is faster, cheaper and easier to fix when someone makes a typo.' },
-    game: { answers: [true, false, false], note: 'Millions of players submit scores, but everyone already trusts the studio’s servers to run the game itself — a blockchain would add cost without removing any trust.' },
-    banks: { answers: [true, true, false], note: 'Rival banks don’t trust each other, but they all accept central banks and clearing houses as referees. That is why most bank “blockchain” pilots ended up as shared databases or permissioned ledgers.' },
-    money: { answers: [true, true, true], note: 'Anyone may pay anyone, nobody trusts anybody, and any middleman could be pressured to freeze or reverse payments — the gap Bitcoin was built to fill.' },
+    bakery: { answers: [false, false, false] },
+    game: { answers: [true, false, false] },
+    banks: { answers: [true, true, false] },
+    money: { answers: [true, true, true] },
   };
   const boxes = [1, 2, 3].map((i) => $(`#need-q${i}`));
   const buttons = $$('[data-scenario]');
@@ -85,15 +87,15 @@ export function initNeedBlockchainDemo() {
   function render(scenario = null) {
     const [writers, distrust, noMiddleman] = boxes.map((b) => b.checked);
     buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.scenario === scenario)));
-    note.textContent = scenario ? SCENARIOS[scenario].note : defaultNote;
+    note.textContent = scenario ? t(`basics.scenario.${scenario}`) : defaultNote;
 
     const all = writers && distrust && noMiddleman;
     verdict.className = `verdict ${all ? 'ok' : 'neutral'}`;
     verdict.textContent =
-      !writers ? '🗄️ Use a regular database. With a single writer there is nothing for strangers to agree on.'
-      : !distrust ? '🗄️ Use a shared database with access controls. Writers who trust each other — or a common operator — don’t need trustless consensus.'
-      : !noMiddleman ? '🏛️ Use the trusted middleman, or a permissioned ledger run by the members. An acceptable referee is faster and cheaper than global consensus.'
-      : '⛓️ A public blockchain earns its cost here: many writers, no mutual trust, and no referee everyone accepts.';
+      !writers ? t('basics.need.database')
+      : !distrust ? t('basics.need.shared')
+      : !noMiddleman ? t('basics.need.middleman')
+      : t('basics.need.blockchain');
   }
 
   boxes.forEach((b) => b.addEventListener('change', () => render()));

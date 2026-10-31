@@ -1,5 +1,6 @@
 import { $, $$ } from './dom.js';
 import { readJSON, writeJSON } from './storage.js';
+import { t } from './i18n.js';
 
 /* ============================== Progress ============================== */
 
@@ -29,7 +30,7 @@ export function updateProgressUI() {
   const done = QUIZ_IDS.filter((id) => progress[id]?.passed).length;
   $('#course-progress').max = QUIZ_IDS.length;
   $('#course-progress').value = done;
-  $('#progress-label').textContent = `${done} / ${QUIZ_IDS.length} modules`;
+  $('#progress-label').textContent = t('progress.label', { done, total: QUIZ_IDS.length });
 
   $$('#site-nav a').forEach((a) => {
     const mark = $('.done-mark', a);
@@ -42,6 +43,6 @@ export function updateProgressUI() {
     card.classList.toggle('is-done', passed);
     const status = $('.card-status', card);
     status.hidden = !passed;
-    if (passed) status.textContent = result.total ? `Completed ✓ · best ${result.score} / ${result.total}` : 'Completed ✓';
+    if (passed) status.textContent = result.total ? t('progress.completedBest', { score: result.score, total: result.total }) : t('progress.completed');
   });
 }

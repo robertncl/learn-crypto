@@ -1,4 +1,5 @@
-import { $, el, fmt, fmtCompact, fmtDuration, sha256Hex, yieldToMain } from '../core/dom.js';
+import { $, el, fmt, fmtCompact, fmtDuration, locale, sha256Hex, yieldToMain } from '../core/dom.js';
+import { t, tNodes } from '../core/i18n.js';
 import { REAL_BLOCKS } from '../data/bitcoin-blocks.js';
 import { HEADER_LAYOUT, parseHeader, serializeHeader } from '../lib/bitcoin-header.js';
 import { bitsToTarget, difficultyFromTarget } from '../lib/chain-math.js';
@@ -28,14 +29,14 @@ export function initChainDemo() {
     card.className = 'block';
 
     const title = document.createElement('h3');
-    title.textContent = i === 0 ? `Block #${i} (genesis)` : `Block #${i}`;
+    title.textContent = t(i === 0 ? 'blocks.titleGenesis' : 'blocks.title', { n: i });
     const chip = document.createElement('span');
     chip.className = 'status-chip';
     title.append(chip);
 
     const dataLabel = document.createElement('label');
     dataLabel.className = 'block-field';
-    dataLabel.textContent = 'Data';
+    dataLabel.textContent = t('blocks.data');
     dataLabel.htmlFor = `block-data-${i}`;
     const dataInput = document.createElement('input');
     dataInput.type = 'text';
@@ -45,26 +46,26 @@ export function initChainDemo() {
 
     const prevLabel = document.createElement('p');
     prevLabel.className = 'block-field';
-    prevLabel.textContent = 'Prev hash';
+    prevLabel.textContent = t('blocks.prev');
     const prevHash = document.createElement('p');
     prevHash.className = 'block-hash';
 
     const nonceLabel = document.createElement('p');
     nonceLabel.className = 'block-field';
-    nonceLabel.textContent = 'Nonce';
+    nonceLabel.textContent = t('blocks.nonce');
     const nonce = document.createElement('p');
     nonce.className = 'block-hash';
 
     const hashLabel = document.createElement('p');
     hashLabel.className = 'block-field';
-    hashLabel.textContent = 'Hash';
+    hashLabel.textContent = t('blocks.hash');
     const hash = document.createElement('p');
     hash.className = 'block-hash';
 
     const mineBtn = document.createElement('button');
     mineBtn.type = 'button';
     mineBtn.className = 'btn primary';
-    mineBtn.textContent = '⛏️ Mine';
+    mineBtn.textContent = t('blocks.mine');
 
     card.append(title, dataLabel, dataInput, prevLabel, prevHash, nonceLabel, nonce, hashLabel, hash, mineBtn);
 
@@ -92,7 +93,7 @@ export function initChainDemo() {
     chain.forEach((block, i) => {
       const ui = cards[i];
       ui.card.classList.toggle('invalid', !block.valid);
-      ui.chip.textContent = block.valid ? '✓ valid' : '✗ invalid';
+      ui.chip.textContent = t(block.valid ? 'blocks.valid' : 'blocks.invalid');
       ui.prevHash.textContent = block.prevHash;
       ui.prevHash.title = block.prevHash;
       ui.nonce.textContent = String(block.nonce);
@@ -176,13 +177,13 @@ export function initHeaderDemo() {
 
   const nonceInput = el('input', { type: 'number', id: 'hdr-nonce', min: 0, max: 4294967295, step: 1, className: 'nonce-input' });
   const nudge = (delta, label) => {
-    const b = el('button', { type: 'button', className: 'btn ghost', textContent: label, 'aria-label': `${delta > 0 ? 'Add' : 'Subtract'} 1 ${delta > 0 ? 'to' : 'from'} the nonce` });
+    const b = el('button', { type: 'button', className: 'btn ghost', textContent: label, 'aria-label': t(delta > 0 ? 'hdr.nonceAdd' : 'hdr.nonceSub') });
     b.addEventListener('click', () => setNonce(fields.nonce + delta));
     return b;
   };
   const nonceControls = el('span', { className: 'nonce-controls' }, nonceInput, nudge(-1, '−1'), nudge(1, '+1'));
 
-  select.replaceChildren(...REAL_BLOCKS.map((b, i) => el('option', { value: String(i), textContent: b.label })));
+  select.replaceChildren(...REAL_BLOCKS.map((b, i) => el('option', { value: String(i), textContent: t(`btc.block.${b.height}.label`) })));
 
   function setNonce(n) {
     if (!Number.isFinite(n)) return;
@@ -195,16 +196,22 @@ export function initHeaderDemo() {
     const block = REAL_BLOCKS[Number(select.value)];
     fields = parseHeader(block.header);
     realNonce = fields.nonce;
-    $('#hdr-note').textContent = block.note;
+    $('#hdr-note').textContent = t(`btc.block.${block.height}.note`);
     const difficulty = difficultyFromTarget(bitsToTarget(fields.bits));
     const row = (term, ...value) => [el('dt', {}, term), el('dd', {}, ...value)];
     fieldsEl.replaceChildren(
-      ...row('Version', `${fields.version} (hex ${fields.version.toString(16).padStart(8, '0')})`),
-      ...row('Previous block hash', el('code', { className: 'hash-inline', textContent: fields.prevHash })),
-      ...row('Merkle root', el('code', { className: 'hash-inline', textContent: fields.merkleRoot })),
-      ...row('Time', `${fields.time} = ${new Date(fields.time * 1000).toUTCString()}`),
-      ...row('Bits', `0x${fields.bits.toString(16).padStart(8, '0')} — a compact target, difficulty ${difficulty < 1e6 ? fmt(difficulty, difficulty < 10 ? 2 : 0) : fmtCompact(difficulty)}`),
-      ...row(el('label', { htmlFor: 'hdr-nonce', textContent: 'Nonce' }), nonceControls),
+      ...row(t('hdr.version'), t('hdr.versionValue', { v: fields.version, hex: fields.version.toString(16).padStart(8, '0') })),
+      ...row(t('hdr.prev'), el('code', { className: 'hash-inline', textContent: fields.prevHash })),
+      ...row(t('hdr.merkle'), el('code', { className: 'hash-inline', textContent: fields.merkleRoot })),
+      ...row(t('hdr.time'), t('hdr.timeValue', {
+        unix: fields.time,
+        date: `${new Date(fields.time * 1000).toLocaleString(locale(), { timeZone: 'UTC', dateStyle: 'full', timeStyle: 'medium' })} UTC`,
+      })),
+      ...row(t('hdr.bits'), t('hdr.bitsValue', {
+        hex: fields.bits.toString(16).padStart(8, '0'),
+        difficulty: difficulty < 1e6 ? fmt(difficulty, difficulty < 10 ? 2 : 0) : fmtCompact(difficulty),
+      })),
+      ...row(el('label', { htmlFor: 'hdr-nonce', textContent: t('blocks.nonce') }), nonceControls),
     );
     nonceInput.value = String(fields.nonce);
     status.textContent = '';
@@ -215,7 +222,7 @@ export function initHeaderDemo() {
     const bytes = serializeHeader(fields);
     const hex = bytesToHex(bytes);
     bytesEl.replaceChildren(...HEADER_LAYOUT.map((f) => el('span', { className: `hb-field hb-${f.key}` },
-      el('span', { className: 'hb-label', textContent: `${f.label} · ${f.end - f.start} B` }),
+      el('span', { className: 'hb-label', textContent: `${t(`hdr.field.${f.key}`)} · ${f.end - f.start} B` }),
       el('span', { className: 'hb-hex', textContent: hex.slice(f.start * 2, f.end * 2) }))));
 
     const h1 = sha256(bytes);
@@ -224,19 +231,20 @@ export function initHeaderDemo() {
     const target = bitsToTarget(fields.bits);
     const targetHex = target.toString(16).padStart(64, '0');
     stepsEl.replaceChildren(
-      el('li', {}, 'SHA-256 of the 80 bytes: ', el('code', { className: 'hash-inline', textContent: bytesToHex(h1) })),
-      el('li', {}, 'SHA-256 again — the “d” in SHA-256d. Notice where the zeros are: ', el('code', { className: 'hash-inline', textContent: bytesToHex(h2) })),
-      el('li', {}, 'Reverse the bytes to read it as one 256-bit number. This is the block hash: ', zeroHighlighted(display)),
-      el('li', {}, 'The target that “bits” encodes — the hash must be at or below it: ', zeroHighlighted(targetHex)),
+      el('li', {}, ...tNodes('hdr.step1', { hash: el('code', { className: 'hash-inline', textContent: bytesToHex(h1) }) })),
+      el('li', {}, ...tNodes('hdr.step2', { hash: el('code', { className: 'hash-inline', textContent: bytesToHex(h2) }) })),
+      el('li', {}, ...tNodes('hdr.step3', { hash: zeroHighlighted(display) })),
+      el('li', {}, ...tNodes('hdr.step4', { hash: zeroHighlighted(targetHex) })),
     );
 
     const ok = BigInt(`0x${display}`) <= target;
     const hashZeros = leadingZeroBits(display);
     const needZeros = leadingZeroBits(targetHex);
     verdict.className = `verdict ${ok ? 'ok' : 'bad'}`;
+    const matches = display === REAL_BLOCKS[Number(select.value)].hash;
     verdict.textContent = ok
-      ? `✓ Valid proof of work: the hash starts with ${hashZeros} zero bits and is below the target (which needs ${needZeros}).${display === REAL_BLOCKS[Number(select.value)].hash ? ' It matches the published hash exactly.' : ''}`
-      : `✗ Invalid: this hash is above the target (only ${hashZeros} leading zero bits; the target needs ${needZeros}). Every node would reject the block after a single hash.`;
+      ? t(matches ? 'hdr.validMatch' : 'hdr.valid', { zeros: hashZeros, need: needZeros })
+      : t('hdr.invalid', { zeros: hashZeros, need: needZeros });
   }
 
   async function runSearch() {
@@ -248,7 +256,7 @@ export function initHeaderDemo() {
     const target = bitsToTarget(fields.bits);
     const height = REAL_BLOCKS[Number(select.value)].height;
     search = { stop: false };
-    searchBtn.textContent = '⏹ Stop';
+    searchBtn.textContent = t('hdr.stop');
     select.disabled = true;
 
     let nonce = start;
@@ -266,23 +274,31 @@ export function initHeaderDemo() {
         }
       }
       const secs = (performance.now() - t0) / 1000;
-      status.textContent = `Trying nonce ${fmt(nonce)} · ${fmt(nonce - start)} tried · ${fmt((nonce - start) / Math.max(secs, 0.001))} hashes/s`;
+      status.textContent = t('hdr.trying', { nonce: fmt(nonce), tried: fmt(nonce - start), rate: fmt((nonce - start) / Math.max(secs, 0.001)) });
       await yieldToMain();
     }
 
     const secs = (performance.now() - t0) / 1000;
     const rate = (nonce - start) / Math.max(secs, 0.001);
     search = null;
-    searchBtn.textContent = '⛏️ Re-mine it';
+    searchBtn.textContent = t('hdr.remine');
     select.disabled = false;
     if (found === null) {
-      status.textContent = `⏹ Stopped at nonce ${fmt(nonce)} after ${fmt(nonce - start)} tries — none of them was valid.`;
+      status.textContent = t('hdr.stopped', { n: nonce - start, nonce: fmt(nonce), tried: fmt(nonce - start) });
       return;
     }
     setNonce(found);
     const expected = difficultyFromTarget(target) * 2 ** 32;
-    status.textContent = `✓ Found nonce ${fmt(found)} after ${fmt(found - start + 1)} tries (${secs.toFixed(1)} s at ${fmt(rate)} hashes/s) — the very nonce the original miner found. `
-      + `Mining block #${fmt(height)} from scratch needs ~${fmtCompact(expected)} hashes on average: about ${fmtDuration(expected / rate)} for this browser.`;
+    status.textContent = t('hdr.found', {
+      n: found - start + 1,
+      nonce: fmt(found),
+      tries: fmt(found - start + 1),
+      secs: fmt(secs, 1),
+      rate: fmt(rate),
+      height: fmt(height),
+      expected: fmtCompact(expected),
+      duration: fmtDuration(expected / rate),
+    });
   }
 
   select.addEventListener('change', renderBlock);

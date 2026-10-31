@@ -1,6 +1,7 @@
 import { $, $$ } from './dom.js';
 import { recordQuizResult } from './progress.js';
 import { QUIZZES } from '../data/quizzes.js';
+import { quizText, t } from './i18n.js';
 
 /* ============================== Quizzes ============================== */
 
@@ -16,12 +17,14 @@ export function initQuizzes() {
     const questions = QUIZZES[quizId];
 
     questions.forEach((question, qi) => {
+      // Wording comes from the page language; which option is right comes from the English data.
+      const words = quizText(quizId, qi, question);
       const fieldset = document.createElement('fieldset');
       const legend = document.createElement('legend');
-      legend.textContent = `${qi + 1}. ${question.q}`;
+      legend.textContent = `${qi + 1}. ${words.q}`;
       fieldset.append(legend);
 
-      question.options.forEach((option, oi) => {
+      words.options.forEach((option, oi) => {
         const label = document.createElement('label');
         const input = document.createElement('input');
         input.type = 'radio';
@@ -36,7 +39,7 @@ export function initQuizzes() {
 
       const why = document.createElement('p');
       why.className = 'quiz-why';
-      why.textContent = question.why;
+      why.textContent = words.why;
       why.hidden = true;
       fieldset.append(why);
 
@@ -45,7 +48,7 @@ export function initQuizzes() {
 
     const submit = document.createElement('button');
     submit.className = 'btn primary';
-    submit.textContent = 'Check answers';
+    submit.textContent = t('quiz.check');
     form.append(submit);
 
     form.addEventListener('submit', (event) => {
@@ -72,15 +75,13 @@ export function initQuizzes() {
       recordQuizResult(quizId, correct, total, passed);
 
       const next = $('.pager-next', form.closest('.view'));
-      $('#quiz-dialog-title').textContent = passed ? '🎉 Module complete!' : '🤔 Not quite yet';
-      $('#quiz-dialog-text').textContent = passed
-        ? `You scored ${correct} / ${total}. This module is marked as complete — on to the next one!`
-        : `You scored ${correct} / ${total}. Review the highlighted answers and explanations, then try again.`;
+      $('#quiz-dialog-title').textContent = passed ? t('quiz.passTitle') : t('quiz.failTitle');
+      $('#quiz-dialog-text').textContent = t(passed ? 'quiz.passText' : 'quiz.failText', { correct, total });
       nextLink.hidden = !(passed && next);
       $('.dialog-actions button', dialog).classList.toggle('primary', nextLink.hidden);
       if (next) {
         nextLink.href = next.getAttribute('href');
-        nextLink.textContent = `Next: ${$('.pager-title', next).textContent} →`;
+        nextLink.textContent = t('quiz.next', { title: $('.pager-title', next).textContent });
       }
       dialog.showModal();
     });

@@ -92,6 +92,21 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* Hide the page while a non-English language file loads (set by the inline script in <head>). */
+  html[data-i18n-pending] body {
+    visibility: hidden;
+  }
+
+  /* Pick the right CJK glyph variants and a readable line height. */
+  :lang(zh) body {
+    font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Segoe UI", sans-serif;
+    line-height: 1.8;
+  }
+  :lang(ja) body {
+    font-family: system-ui, -apple-system, "Hiragino Sans", "Yu Gothic UI", "Noto Sans CJK JP", "Segoe UI", sans-serif;
+    line-height: 1.8;
+  }
+
   h1, h2, h3 {
     line-height: 1.25;
     text-wrap: balance;
@@ -614,6 +629,17 @@
   textarea {
     resize: vertical;
   }
+
+  .lang-select {
+    inline-size: auto;
+    margin: 0;
+    padding: 0.35em 0.6em;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
 
   .field-hint {
     display: block;

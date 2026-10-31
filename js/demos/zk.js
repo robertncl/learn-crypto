@@ -1,8 +1,9 @@
-import { $, $$, el, svgEl } from '../core/dom.js';
+import { $, $$, el, fmt, num, svgEl } from '../core/dom.js';
+import { t } from '../core/i18n.js';
 import { bytesToHex, utf8 } from '../lib/bytes.js';
 import { sha256 } from '../lib/sha256.js';
 
-const fmtOdds = (p) => (p >= 0.01 ? `${+(p * 100).toPrecision(3)}%` : p >= 1e-6 ? `1 in ${Math.round(1 / p).toLocaleString()}` : `1 in ${(1 / p).toExponential(1)}`);
+const fmtOdds = (p) => (p >= 0.01 ? `${num(p * 100, { maximumSignificantDigits: 3 })}%` : p >= 1e-6 ? t('num.oneIn', { v: fmt(Math.round(1 / p)) }) : t('num.oneIn', { v: num(1 / p, { notation: 'scientific', maximumFractionDigits: 1 }) }));
 const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
 const sup = (n) => [...String(n)].map((d) => SUP[d]).join('');
 
@@ -29,16 +30,16 @@ export function initCaveDemo() {
       return svgEl('path', { d: PATHS[side], class: cls.join(' ') });
     };
     svg.replaceChildren(
-      svgEl('title', {}, 'A ring-shaped cave: the entrance splits into paths A and B, which meet at a magic door at the far end.'),
+      svgEl('title', {}, t('zk.cave.title')),
       svgEl('path', { d: 'M110,174 L110,132', class: `cave-path${last ? ' is-in' : ''}` }),
       pathEl('A'),
       pathEl('B'),
       svgEl('rect', { x: 103, y: 17, width: 14, height: 18, rx: 2, class: `cave-door${last?.door ? ' is-open' : ''}` }),
-      svgEl('text', { x: 110, y: 11, 'text-anchor': 'middle', class: 'cave-label' }, last?.door ? 'door opened' : 'magic door'),
+      svgEl('text', { x: 110, y: 11, 'text-anchor': 'middle', class: 'cave-label' }, t(last?.door ? 'zk.cave.doorOpen' : 'zk.cave.door')),
       svgEl('text', { x: 30, y: 84, 'text-anchor': 'middle', class: 'cave-label is-big' }, 'A'),
       svgEl('text', { x: 190, y: 84, 'text-anchor': 'middle', class: 'cave-label is-big' }, 'B'),
-      svgEl('text', { x: 110, y: 192, 'text-anchor': 'middle', class: 'cave-label' }, 'Victor waits at the entrance'),
-      last && svgEl('text', { x: 110, y: 84, 'text-anchor': 'middle', class: 'cave-label is-call' }, `Victor calls “${last.call}!”`),
+      svgEl('text', { x: 110, y: 192, 'text-anchor': 'middle', class: 'cave-label' }, t('zk.cave.waits')),
+      last && svgEl('text', { x: 110, y: 84, 'text-anchor': 'middle', class: 'cave-label is-call' }, t('zk.cave.calls', { call: last.call })),
     );
   }
 
@@ -51,8 +52,7 @@ export function initCaveDemo() {
     rounds.push(round);
     caught = !ok;
     log.prepend(el('li', { className: ok ? 'log-ok' : 'log-bad' },
-      `Round ${round.n}: went in by ${went}, Victor called ${call} → `,
-      ok ? `came out of ${call}${round.door ? ' (through the door)' : ''} ✓` : `stuck — she can only come back out of ${went} ✗`));
+      t(!ok ? 'zk.cave.logStuck' : round.door ? 'zk.cave.logDoor' : 'zk.cave.logOk', { n: round.n, went, call })));
     draw(round);
     return ok;
   }
@@ -61,10 +61,10 @@ export function initCaveDemo() {
     const passed = rounds.filter((r) => r.ok).length;
     if (caught) {
       verdict.className = 'verdict bad';
-      verdict.textContent = `✗ Caught in round ${rounds.length}: without the word, Peggy couldn’t come out where Victor called. Proof rejected.`;
+      verdict.textContent = t('zk.cave.caught', { n: rounds.length });
     } else {
       verdict.className = 'verdict ok';
-      verdict.textContent = `✓ ${passed} round${passed === 1 ? '' : 's'} passed. A bluffer would survive all of them with probability (1/2)${sup(passed)} = ${fmtOdds(0.5 ** passed)}.`;
+      verdict.textContent = t('zk.cave.passed', { n: passed, odds: `(1/2)${sup(passed)} = ${fmtOdds(0.5 ** passed)}` });
     }
   }
 
@@ -101,6 +101,9 @@ const COLOURS = [
   { name: 'aqua', css: 'var(--series-3)' },
 ];
 
+/* Colour names are the commitment's hash input (language-independent); what the reader sees is translated. */
+const colourName = (index) => t(`zk.colour.${COLOURS[index].name}`);
+
 const shuffle = (arr) => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -121,7 +124,7 @@ export function initColoringDemo() {
   let caught = false;
 
   const edgeLabel = ([a, b]) => `${a + 1}–${b + 1}`;
-  edgeSelect.replaceChildren(...EDGES.map((e, i) => el('option', { value: String(i), textContent: `line ${edgeLabel(e)}` })));
+  edgeSelect.replaceChildren(...EDGES.map((e, i) => el('option', { value: String(i), textContent: t('zk.col.line', { edge: edgeLabel(e) }) })));
 
   const base = () => ($('input[name="zk-mode"]:checked').value === 'honest' ? VALID : BLUFF);
   const commitment = (colour, salt) => bytesToHex(sha256(utf8(`${COLOURS[colour].name}|${salt}`)));
@@ -143,10 +146,9 @@ export function initColoringDemo() {
     const ok = hashesOk && differ;
     if (ok) passed++;
     else caught = true;
-    const desc = (n) => `node ${n + 1} = ${COLOURS[round.colours[n]].name}`;
+    const desc = (n) => t('zk.col.desc', { n: n + 1, colour: colourName(round.colours[n]) });
     revealList.prepend(el('li', { className: ok ? 'log-ok' : 'log-bad' },
-      `Round ${passed + (ok ? 0 : 1)} · line ${edgeLabel(EDGES[edgeIndex])}: ${desc(a)}, ${desc(b)} — hashes match ✓, `,
-      differ ? 'different colours ✓' : 'SAME colour ✗'));
+      t(differ ? 'zk.col.logOk' : 'zk.col.logBad', { r: passed + (ok ? 0 : 1), edge: edgeLabel(EDGES[edgeIndex]), a: desc(a), b: desc(b) })));
     return ok;
   }
 
@@ -171,7 +173,7 @@ export function initColoringDemo() {
         }),
         svgEl('text', { x: n.x, y: n.y + 2.4, 'text-anchor': 'middle', class: `zk-node-num${revealed ? ` on-${COLOURS[round.colours[i]].name}` : ''}` }, String(i + 1)),
         svgEl('text', { x: n.x + (n.x > 50 ? 9 : n.x < 50 ? -9 : 0), y: n.y + (n.x === 50 ? (n.y < 50 ? -9 : 12) : 2), 'text-anchor': n.x > 50 ? 'start' : n.x < 50 ? 'end' : 'middle', class: 'zk-commit' },
-          !round ? '' : revealed ? COLOURS[round.colours[i]].name : `🔒${round.commits[i].slice(0, 6)}`));
+          !round ? '' : revealed ? colourName(round.colours[i]) : `🔒${round.commits[i].slice(0, 6)}`));
     });
     svg.replaceChildren(...edges, ...nodes);
     $$('.zk-edge-group', svg).forEach((g) => g.addEventListener('click', () => {
@@ -187,16 +189,16 @@ export function initColoringDemo() {
     $('#zk-odds').textContent = fmtOdds((11 / 12) ** passed);
     if (caught) {
       verdict.className = 'verdict bad';
-      verdict.textContent = `✗ Caught! Both ends of line ${edgeLabel(EDGES[round.edge])} are ${COLOURS[round.colours[EDGES[round.edge][0]]].name}. Peggy’s colouring is invalid — proof rejected.`;
+      verdict.textContent = t('zk.col.caught', { edge: edgeLabel(EDGES[round.edge]), colour: colourName(round.colours[EDGES[round.edge][0]]) });
     } else if (!round) {
       verdict.className = 'verdict neutral';
-      verdict.textContent = 'Start a round: Peggy shuffles her colours and publishes seven sealed commitments.';
+      verdict.textContent = t('zk.col.start');
     } else if (!round.opened) {
       verdict.className = 'verdict neutral';
-      verdict.textContent = 'Seven commitments published. Pick any line — Peggy must open both of its ends.';
+      verdict.textContent = t('zk.col.committed');
     } else {
       verdict.className = 'verdict ok';
-      verdict.textContent = `✓ Round passed. Victor’s confidence grows: a bluffer survives ${passed} round${passed === 1 ? '' : 's'} with probability at most (11/12)${sup(passed)} = ${fmtOdds((11 / 12) ** passed)}.`;
+      verdict.textContent = t('zk.col.passed', { n: passed, passed, odds: `(11/12)${sup(passed)} = ${fmtOdds((11 / 12) ** passed)}` });
     }
   }
 

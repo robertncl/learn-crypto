@@ -1,11 +1,11 @@
 import { $, $$, el } from './dom.js';
+import { t } from './i18n.js';
 
 /* ============================== Router ============================== */
 
 /* The sidebar is the single source of truth for the course order. */
 const NAV_LINKS = () => $$('#site-nav a[data-route]');
 const ROUTES = NAV_LINKS().map((a) => a.dataset.route);
-const SITE_TITLE = document.title;
 
 function linkTitle(a) {
   const num = $('.num', a)?.textContent;
@@ -28,7 +28,7 @@ function renderRoute({ moveFocus = false } = {}) {
     else a.removeAttribute('aria-current');
   });
   const heading = $(`#${id} h1`);
-  document.title = id === 'home' ? SITE_TITLE : `${heading.textContent} · ChainLab`;
+  document.title = id === 'home' ? t('site.title') : t('site.pageTitle', { title: heading.textContent });
   window.scrollTo(0, 0);
   // Like a page load, put screen-reader and keyboard focus at the top of the new view.
   if (moveFocus) heading.focus({ preventScroll: true });
@@ -43,9 +43,9 @@ function buildPagers() {
     const prev = links[i - 1];
     const next = links[i + 1];
     const item = (link, dir) => link && el('a', { className: `pager-${dir}`, href: link.getAttribute('href') },
-      el('span', { className: 'pager-dir', textContent: dir === 'prev' ? '← Previous' : 'Next →' }),
+      el('span', { className: 'pager-dir', textContent: dir === 'prev' ? t('pager.prev') : t('pager.next') }),
       el('span', { className: 'pager-title', textContent: linkTitle(link) }));
-    view.append(el('nav', { className: 'pager', 'aria-label': 'Previous and next module' },
+    view.append(el('nav', { className: 'pager', 'aria-label': t('pager.label') },
       item(prev, 'prev'), item(next, 'next')));
   });
 }
