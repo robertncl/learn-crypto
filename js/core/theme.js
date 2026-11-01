@@ -1,5 +1,6 @@
 import { $, el } from './dom.js';
 import { readString, writeString } from './storage.js';
+import { t } from './i18n.js';
 
 /* ============================== Theme ============================== */
 
@@ -26,9 +27,9 @@ export function initTheme() {
     const next = rendered() === 'dark' ? 'light' : 'dark';
     btn.replaceChildren(
       el('span', { 'aria-hidden': 'true', textContent: next === 'dark' ? '🌙' : '☀️' }),
-      el('span', { className: 'theme-word', textContent: next === 'dark' ? ' Dark' : ' Light' }),
+      el('span', { className: 'theme-word', textContent: ` ${t(next === 'dark' ? 'theme.dark' : 'theme.light')}` }),
     );
-    btn.setAttribute('aria-label', `Switch to ${next} theme`);
+    btn.setAttribute('aria-label', t('theme.switchTo', { theme: t(next === 'dark' ? 'theme.dark' : 'theme.light') }));
   };
 
   btn.addEventListener('click', () => {

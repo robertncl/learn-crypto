@@ -1,4 +1,5 @@
-import { $, el, fmt, fmtCompact } from '../core/dom.js';
+import { $, el, fmt, fmtCompact, num } from '../core/dom.js';
+import { t as tr } from '../core/i18n.js';
 import { createChart } from '../core/chart.js';
 import { bytesToHex } from '../lib/bytes.js';
 import { exactAttackProbability, satoshiAttackProbability, simulateAttack } from '../lib/chain-math.js';
@@ -24,23 +25,23 @@ export function initStakeDemo() {
 
     validators.forEach((v) => {
       $(`#stake-out-${v.id}`).textContent = slashed.has(v.id)
-        ? 'slashed — stake burned, ejected'
-        : `${stakeOf(v)} coins (${Math.round((stakeOf(v) / totalStake) * 100)}%)`;
+        ? tr('stake.slashed')
+        : tr('stake.coins', { coins: stakeOf(v), pct: Math.round((stakeOf(v) / totalStake) * 100) });
       $(`#stake-${v.id}`).disabled = slashed.has(v.id);
       $(`#val-${v.id}`).classList.toggle('slashed', slashed.has(v.id));
       const won = wins.get(v.id);
       const share = picks ? Math.round((won / picks) * 100) : 0;
       $(`#win-fill-${v.id}`).style.inlineSize = `${share}%`;
       $(`#win-text-${v.id}`).textContent = picks
-        ? `won ${won} of ${picks} blocks (${share}%)`
-        : 'no rounds yet';
+        ? tr('stake.won', { n: picks, won, picks, share })
+        : tr('stake.noRounds');
       $(`#val-${v.id}`).classList.toggle('winner', v.id === winnerId);
     });
 
     summary.textContent = slashed.size
-      ? `✂️ Ben was slashed for signing two conflicting blocks. He can no longer be chosen; ${picks} block${picks === 1 ? '' : 's'} proposed so far.`
+      ? tr('stake.summarySlashed', { n: picks, picks })
       : picks
-        ? `${picks} block${picks > 1 ? 's' : ''} proposed so far — compare each win share to the stake share.`
+        ? tr('stake.summary', { n: picks, picks })
         : '';
   }
 
@@ -141,17 +142,17 @@ export function initFeeMarketDemo() {
 
     const meta = document.createElement('span');
     meta.className = 'tx-meta';
-    meta.textContent = `${t.fee.toLocaleString()} sat · ${t.size} vB`;
+    meta.textContent = tr('fm.meta', { fee: fmt(t.fee), size: t.size });
 
     const r = document.createElement('span');
     r.className = 'tx-rate';
-    r.append(`${rate(t).toFixed(0)}`, Object.assign(document.createElement('small'), { textContent: 'sat/vB' }));
+    r.append(`${fmt(rate(t), 0)}`, Object.assign(document.createElement('small'), { textContent: tr('fm.rateUnit') }));
 
     // The visible text stays the start of the accessible name (so voice control can target it);
     // the action hint is extra, screen-reader-only text.
     const hint = document.createElement('span');
     hint.className = 'visually-hidden';
-    hint.textContent = placement.get(t.id) === 'block' ? ' — in your block; activate to remove' : ' — in the mempool; activate to add';
+    hint.textContent = tr(placement.get(t.id) === 'block' ? 'fm.inBlock' : 'fm.inPool');
 
     btn.append(id, meta, r, hint);
     btn.addEventListener('click', () => {
@@ -177,7 +178,7 @@ export function initFeeMarketDemo() {
     const t = txById(id);
     if (usedSpace() + t.size > BLOCK_LIMIT) {
       flashTooBig(id);
-      verdict.textContent = `⛔ ${id} (${t.size} vB) doesn’t fit — only ${(BLOCK_LIMIT - usedSpace()).toLocaleString()} vB left in the block.`;
+      verdict.textContent = tr('fm.noFit', { id, size: t.size, left: fmt(BLOCK_LIMIT - usedSpace()) });
       return false;
     }
     placement.set(id, 'block');
@@ -200,8 +201,8 @@ export function initFeeMarketDemo() {
     if (mine === 0) { verdict.textContent = ''; return; }
     const best = bestFees();
     verdict.textContent = mine >= best
-      ? `🏆 ${mine.toLocaleString()} sat — that’s the fee-maximizing block. No selection of these transactions pays more.`
-      : `${mine.toLocaleString()} sat collected. A miner optimizing fee rate earns ${best.toLocaleString()} sat — swap a bulky transaction for a higher-rate one.`;
+      ? tr('fm.best', { mine: fmt(mine) })
+      : tr('fm.short', { mine: fmt(mine), best: fmt(best) });
   }
 
   function render() {
@@ -214,10 +215,10 @@ export function initFeeMarketDemo() {
     capFill.style.inlineSize = `${(used / BLOCK_LIMIT) * 100}%`;
     capFill.classList.toggle('full', used >= BLOCK_LIMIT);
 
-    $('#fm-pool-sub').textContent = `${poolTxs.length} waiting`;
-    $('#fm-space').textContent = `${used.toLocaleString()} / ${BLOCK_LIMIT.toLocaleString()} vB`;
+    $('#fm-pool-sub').textContent = tr('fm.waiting', { n: poolTxs.length });
+    $('#fm-space').textContent = tr('fm.space', { used: fmt(used), limit: fmt(BLOCK_LIMIT) });
     $('#fm-count').textContent = String(blockTxs.length);
-    $('#fm-fees').textContent = `${totalFees().toLocaleString()} sat`;
+    $('#fm-fees').textContent = tr('fm.fees', { v: fmt(totalFees()) });
   }
 
   /* Pointer-based drag — one path for mouse, pen and touch, because native HTML5
@@ -316,7 +317,7 @@ export function initFeeMarketDemo() {
       if (t.size <= space) { placement.set(t.id, 'block'); space -= t.size; }
     }
     render();
-    verdict.textContent = `🤖 The miner took the highest fee-rate transactions that fit: ${totalFees().toLocaleString()} sat in ${usedSpace().toLocaleString()} vB. That’s the strategy real miners use.`;
+    verdict.textContent = tr('fm.miner', { fees: fmt(totalFees()), space: fmt(usedSpace()) });
   });
 
   $('#fm-clear').addEventListener('click', () => {
@@ -353,7 +354,7 @@ export function initUtxoDemo() {
   let lastTx = null;
   let fresh = new Set(); // coins created by the latest transaction
 
-  const btc = (sats) => `${(sats / SATS).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 8 })} BTC`;
+  const btc = (sats) => tr('unit.btc', { v: num(sats / SATS, { minimumFractionDigits: 2, maximumFractionDigits: 8 }) });
   const newTxid = () => {
     const h = bytesToHex(crypto.getRandomValues(new Uint8Array(3)));
     return `${h.slice(0, 4)}…${h.slice(4)}`;
@@ -368,28 +369,28 @@ export function initUtxoDemo() {
     const pay = Math.round(Number(payInput.value) * SATS);
     const rate = Math.max(1, Number(rateInput.value) || 1);
     const tx = { inputs, inTotal, pay, change: 0, fee: 0, ok: false, warn: false, message: '' };
-    if (!inputs.length) { tx.message = 'Tick at least one coin to spend.'; return tx; }
-    if (!(pay > 0)) { tx.message = '✗ The payment must be more than zero.'; return tx; }
+    if (!inputs.length) { tx.message = tr('utxo.tick'); return tx; }
+    if (!(pay > 0)) { tx.message = tr('utxo.zero'); return tx; }
 
     if (changeBox.checked) {
       tx.vsize = vsizeFor(inputs.length, 2);
       tx.fee = rate * tx.vsize;
       tx.change = inTotal - pay - tx.fee;
       if (tx.change < 0) {
-        tx.message = `✗ Not enough: the inputs hold ${btc(inTotal)}, but the payment plus a ${fmt(tx.fee)}-sat fee needs ${btc(pay + tx.fee)}. Tick more coins.`;
+        tx.message = tr('utxo.notEnoughFee', { inTotal: btc(inTotal), fee: fmt(tx.fee), needed: btc(pay + tx.fee) });
         return tx;
       }
       if (tx.change < DUST) {
         tx.fee += tx.change; // a dust-sized change output isn't worth creating
         tx.change = 0;
         tx.vsize = vsizeFor(inputs.length, 1);
-        tx.note = ` The change would be below the ${DUST}-sat dust limit, so it is added to the fee.`;
+        tx.note = tr('utxo.dustNote', { dust: DUST });
       }
     } else {
       tx.vsize = vsizeFor(inputs.length, 1);
       tx.fee = inTotal - pay;
       if (tx.fee < 0) {
-        tx.message = `✗ Not enough: the inputs hold ${btc(inTotal)}, less than the ${btc(pay)} payment. Tick more coins.`;
+        tx.message = tr('utxo.notEnoughPay', { inTotal: btc(inTotal), pay: btc(pay) });
         return tx;
       }
     }
@@ -397,21 +398,30 @@ export function initUtxoDemo() {
     const normalFee = rate * tx.vsize;
     tx.warn = tx.fee > normalFee * 10;
     tx.message = tx.warn
-      ? `⚠️ Valid, but look at the fee: with no change output, the whole leftover — ${btc(tx.fee)} — goes to the miner. That’s ${fmt(tx.fee / normalFee)}× a normal fee.`
-      : `✓ Valid: ${inputs.length} coin${inputs.length > 1 ? 's' : ''} in (${btc(inTotal)}) = ${btc(pay)} to Bob${tx.change ? ` + ${btc(tx.change)} change` : ''} + a ${fmt(tx.fee)}-sat fee (${(tx.fee / tx.vsize).toFixed(1)} sat/vB).${tx.note ?? ''}`;
+      ? tr('utxo.hugeFee', { fee: btc(tx.fee), ratio: fmt(tx.fee / normalFee) })
+      : tr(tx.change ? 'utxo.validChange' : 'utxo.valid', {
+        n: inputs.length,
+        count: inputs.length,
+        inTotal: btc(inTotal),
+        pay: btc(pay),
+        change: tx.change ? btc(tx.change) : '',
+        fee: fmt(tx.fee),
+        rate: fmt(tx.fee / tx.vsize, 1),
+        note: tx.note ?? '',
+      });
     return tx;
   }
 
   function renderPreview(tx) {
     const row = (label, amount, cls = '') => el('li', { className: cls }, el('span', { textContent: label }), el('strong', { textContent: amount }));
     preview.replaceChildren(
-      el('ul', { className: 'tx-ins', 'aria-label': 'Inputs' },
-        ...(tx.inputs.length ? tx.inputs.map((u) => row(u.id, btc(u.sats))) : [row('no inputs yet', '–')])),
+      el('ul', { className: 'tx-ins', 'aria-label': tr('utxo.ariaIn') },
+        ...(tx.inputs.length ? tx.inputs.map((u) => row(u.id, btc(u.sats))) : [row(tr('utxo.noInputs'), '–')])),
       el('span', { className: 'tx-arrow', 'aria-hidden': 'true', textContent: '→' }),
-      el('ul', { className: 'tx-outs', 'aria-label': 'Outputs' },
+      el('ul', { className: 'tx-outs', 'aria-label': tr('utxo.ariaOut') },
         row('Bob', btc(Math.max(0, tx.pay))),
-        tx.change > 0 ? row('Alice (change)', btc(tx.change)) : null,
-        row('Fee → miner', tx.ok ? btc(tx.fee) : '–', tx.warn ? 'is-warn' : 'is-fee')),
+        tx.change > 0 ? row(tr('utxo.rowChange'), btc(tx.change)) : null,
+        row(tr('utxo.rowFee'), tx.ok ? btc(tx.fee) : '–', tx.warn ? 'is-warn' : 'is-fee')),
     );
   }
 
@@ -419,7 +429,7 @@ export function initUtxoDemo() {
     const mine = aliceCoins();
     const balance = mine.reduce((sum, u) => sum + u.sats, 0);
     list.replaceChildren(
-      el('p', { className: 'stat-line', textContent: `Balance (sum of her coins): ${btc(balance)}` }),
+      el('p', { className: 'stat-line', textContent: tr('utxo.balance', { v: btc(balance) }) }),
       ...mine.map((u) => {
         const box = el('input', { type: 'checkbox', value: u.id, checked: selected.has(u.id) });
         box.addEventListener('change', () => {
@@ -474,13 +484,13 @@ export function initUtxoDemo() {
     selected = new Set();
     render();
     verdict.className = 'verdict ok';
-    verdict.textContent = `✅ Confirmed in tx ${txid}: ${spent.length} coin${spent.length > 1 ? 's' : ''} destroyed, ${outputs.length} created, ${btc(tx.fee)} to the miner. The spent coins are gone from the UTXO set.`;
+    verdict.textContent = tr('utxo.confirmed', { n: spent.length, txid, spent: spent.length, created: outputs.length, fee: btc(tx.fee) });
     replayBtn.disabled = false;
   });
 
   replayBtn.addEventListener('click', () => {
     verdict.className = 'verdict bad';
-    verdict.textContent = `✗ Rejected by every node: coin ${lastTx.spent[0]} was already spent in tx ${lastTx.txid}. It no longer exists in the UTXO set, so there is nothing left to spend — no double-spend.`;
+    verdict.textContent = tr('utxo.rejected', { coin: lastTx.spent[0], txid: lastTx.txid });
   });
 
   $('#utxo-reset').addEventListener('click', () => {
@@ -502,10 +512,10 @@ export function initUtxoDemo() {
 /* ============================== Module 6: confirmations race ============================== */
 
 const fmtProb = (p) => (p >= 0.9995 ? '≈ 100%'
-  : p >= 0.1 ? `${(p * 100).toFixed(0)}%`
-    : p >= 0.01 ? `${(p * 100).toFixed(1)}%`
-      : p >= 1e-4 ? `${(p * 100).toFixed(3)}%`
-        : p > 0 ? `1 in ${fmtCompact(1 / p)}` : '0');
+  : p >= 0.1 ? `${fmt(p * 100, 0)}%`
+    : p >= 0.01 ? `${fmt(p * 100, 1)}%`
+      : p >= 1e-4 ? `${fmt(p * 100, 3)}%`
+        : p > 0 ? tr('num.oneIn', { v: fmtCompact(1 / p) }) : '0');
 
 export function initRaceDemo() {
   const FLOOR = 1e-8; // the log axis stops here
@@ -527,29 +537,29 @@ export function initRaceDemo() {
     const exact = exactAttackProbability(q, z);
     const satoshi = satoshiAttackProbability(q, z);
     const needed = confirmationsNeeded(q);
-    const hours = (n) => (n * 10 >= 120 ? `~${fmt(n / 6)} hours` : `~${n * 10} minutes`);
+    const hours = (n) => (n * 10 >= 120 ? tr('race.hours', { n: n / 6, v: fmt(n / 6) }) : tr('race.minutes', { n: n * 10, v: n * 10 }));
 
     $('#race-q-out').textContent = `${qInput.value}%`;
-    $('#race-z-out').textContent = z === 0 ? '0 (accept it unconfirmed)' : `${z} (${hours(z)} on Bitcoin)`;
-    qInput.setAttribute('aria-valuetext', `${qInput.value}% of hashpower; attacker success ${fmtProb(exact)}`);
-    zInput.setAttribute('aria-valuetext', `${z} confirmations; attacker success ${fmtProb(exact)}`);
+    $('#race-z-out').textContent = z === 0 ? tr('race.z0') : tr('race.zN', { z, time: hours(z) });
+    qInput.setAttribute('aria-valuetext', tr('race.qValue', { q: qInput.value, p: fmtProb(exact) }));
+    zInput.setAttribute('aria-valuetext', tr('race.zValue', { n: z, z, p: fmtProb(exact) }));
     $('#race-exact').textContent = fmtProb(exact);
     $('#race-satoshi').textContent = fmtProb(satoshi);
-    $('#race-needed').textContent = needed === null ? 'never — majority wins' : `${needed} block${needed === 1 ? '' : 's'} (${hours(needed)})`;
+    $('#race-needed').textContent = needed === null ? tr('race.never') : tr('race.blocks', { n: needed, needed, time: hours(needed) });
     verdict.className = 'verdict';
     verdict.textContent = '';
 
     const clip = (p) => (p >= FLOOR ? p : NaN);
     const config = {
-      title: `Chance a ${qInput.value}% attacker reverses a payment, by confirmations`,
+      title: tr('race.chart.title', { q: qInput.value }),
       xs: zs,
       series: [
-        { label: 'exact', values: zs.map((n) => clip(exactAttackProbability(q, n))), color: 'var(--series-1)', type: 'line', markers: true },
-        { label: 'Satoshi’s estimate', values: zs.map((n) => clip(satoshiAttackProbability(q, n))), color: 'var(--series-2)', type: 'line', dashed: true },
+        { label: tr('race.exact'), values: zs.map((n) => clip(exactAttackProbability(q, n))), color: 'var(--series-1)', type: 'line', markers: true },
+        { label: tr('race.satoshi'), values: zs.map((n) => clip(satoshiAttackProbability(q, n))), color: 'var(--series-2)', type: 'line', dashed: true },
       ],
-      y: { log: true, min: FLOOR, max: 1, ticks: [1, 1e-2, 1e-4, 1e-6, 1e-8], format: (v) => (v >= 1e-4 ? `${+(v * 100).toPrecision(2)}%` : `1 in ${fmtCompact(1 / v)}`) },
-      x: { label: 'confirmations', format: (v) => `${v}`, tooltipFormat: (v) => `${v} confirmation${v === 1 ? '' : 's'}` },
-      refs: [{ y: 0.001, label: '0.1% risk' }],
+      y: { log: true, min: FLOOR, max: 1, ticks: [1, 1e-2, 1e-4, 1e-6, 1e-8], format: (v) => (v >= 1e-4 ? `${num(v * 100, { maximumSignificantDigits: 2 })}%` : tr('num.oneIn', { v: fmtCompact(1 / v) })) },
+      x: { label: tr('race.axis'), format: (v) => `${v}`, tooltipFormat: (v) => tr('race.tip', { n: v }) },
+      refs: [{ y: 0.001, label: tr('race.ref') }],
       points: exact >= FLOOR ? [{ index: z, y: exact, label: fmtProb(exact), color: 'var(--series-1)' }] : [],
       tooltipFormat: (v) => fmtProb(v),
       height: 210,
@@ -566,7 +576,7 @@ export function initRaceDemo() {
     for (let i = 0; i < runs; i++) if (simulateAttack(q, z)) wins++;
     const exact = exactAttackProbability(q, z);
     verdict.className = 'verdict neutral';
-    verdict.textContent = `🏁 Played ${fmt(runs)} races block by block: the attacker won ${fmt(wins)} (${fmtProb(wins / runs)}). The exact model predicts ${fmtProb(exact)}${exact * runs < 3 ? ' — too rare to show up reliably in 10,000 tries' : ''}.`;
+    verdict.textContent = tr(exact * runs < 3 ? 'race.simRare' : 'race.sim', { runs: fmt(runs), wins: fmt(wins), pct: fmtProb(wins / runs), exact: fmtProb(exact) });
   });
 
   [qInput, zInput].forEach((i) => i.addEventListener('input', update));

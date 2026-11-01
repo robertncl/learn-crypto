@@ -1,4 +1,5 @@
-import { $, fmt, fmtCompact, fmtDuration, yieldToMain } from '../core/dom.js';
+import { $, fmt, fmtCompact, fmtDuration, num, yieldToMain } from '../core/dom.js';
+import { t } from '../core/i18n.js';
 import { createChart } from '../core/chart.js';
 import { sha256 } from '../lib/sha256.js';
 import { bytesToHex, utf8 } from '../lib/bytes.js';
@@ -37,11 +38,11 @@ export function initMiningSim() {
   let blockNo = 0;
 
   const expectedTries = (zeros) => 16 ** zeros;
-  const luckWord = (ratio) => (ratio < 0.5 ? 'lucky!' : ratio > 2 ? 'unlucky' : 'about average');
+  const luckWord = (ratio) => t(ratio < 0.5 ? 'mine.luck.lucky' : ratio > 2 ? 'mine.luck.unlucky' : 'mine.luck.avg');
 
   const updateDiffLabel = () => {
     const d = Number(diffInput.value);
-    const text = `${d} leading zero${d > 1 ? 's' : ''} (~${fmt(expectedTries(d))} tries on average)`;
+    const text = t('mine.diffLabel', { n: d, tries: fmt(expectedTries(d)) });
     diffLabel.textContent = text;
     diffInput.setAttribute('aria-valuetext', text);
   };
@@ -58,8 +59,8 @@ export function initMiningSim() {
 
   const showStats = (tries, secs, digest) => {
     attemptsOut.textContent = fmt(tries);
-    timeOut.textContent = `${secs.toFixed(1)} s`;
-    rateOut.textContent = secs > 0.05 ? `${fmt(tries / secs)} hashes/s` : '–';
+    timeOut.textContent = t('unit.s', { v: fmt(secs, 1) });
+    rateOut.textContent = secs > 0.05 ? t('mine.rate', { v: fmt(tries / secs) }) : '–';
     hashOut.textContent = bytesToHex(digest);
   };
 
@@ -92,19 +93,19 @@ export function initMiningSim() {
     history.push({ block: ++blockNo, zeros, tries });
     if (history.length > 20) history.shift();
     const ratio = tries / expectedTries(zeros);
-    luckOut.textContent = `${ratio.toFixed(2)}× expected — ${luckWord(ratio)}`;
+    luckOut.textContent = t('mine.luck', { ratio: fmt(ratio, 2), word: luckWord(ratio) });
     chartHost.hidden = false;
     const ratios = history.map((h) => h.tries / expectedTries(h.zeros));
     const config = {
-      title: 'Work needed for each block you mined, relative to the average',
+      title: t('mine.chart.title'),
       xs: history.map((h) => h.block),
-      series: [{ label: 'work needed (× the average)', values: ratios, color: 'var(--series-1)', type: 'bar' }],
-      refs: [{ y: 1, label: 'average' }],
-      y: { min: 0, max: Math.max(2, ...ratios) * 1.1, format: (v) => `${Number(v.toFixed(2))}×` },
+      series: [{ label: t('mine.chart.series'), values: ratios, color: 'var(--series-1)', type: 'bar' }],
+      refs: [{ y: 1, label: t('mine.chart.avg') }],
+      y: { min: 0, max: Math.max(2, ...ratios) * 1.1, format: (v) => `${num(v, { maximumFractionDigits: 2 })}×` },
       x: {
-        label: 'block',
+        label: t('mine.chart.x'),
         format: (v) => `#${v}`,
-        tooltipFormat: (v, i) => `Block #${v} · ${history[i].zeros} zeros · ${fmt(history[i].tries)} tries`,
+        tooltipFormat: (v, i) => t('mine.chart.tip', { n: history[i].tries, block: v, zeros: history[i].zeros, v: fmt(history[i].tries) }),
       },
       height: 180,
     };
@@ -117,7 +118,7 @@ export function initMiningSim() {
     run = { stop: false };
     setRunning(true);
     statusOut.className = 'verdict neutral';
-    statusOut.textContent = count > 1 ? `⛏️ Mining ${count} blocks…` : '⛏️ Mining…';
+    statusOut.textContent = count > 1 ? t('mine.miningMany', { count }) : t('mine.mining');
     const done = [];
     for (let k = 0; k < count && !run.stop; k++) {
       // Each block is a fresh puzzle: different data, so different winning nonces.
@@ -131,17 +132,22 @@ export function initMiningSim() {
     setRunning(false);
 
     if (!done.length) {
-      statusOut.textContent = stopped ? '⏹️ Stopped before finding a block.' : '😮‍💨 Gave up — try a lower difficulty.';
+      statusOut.textContent = t(stopped ? 'mine.stoppedEarly' : 'mine.gaveUp');
       return;
     }
     statusOut.className = 'verdict ok';
     if (count === 1) {
-      statusOut.textContent = `✅ Block mined! Nonce ${fmt(done[0].nonce)} works — anyone can check it with a single hash.`;
+      statusOut.textContent = t('mine.mined', { nonce: fmt(done[0].nonce) });
     } else {
       const ratios = done.map((r) => r.tries / expectedTries(zeros));
       const avg = ratios.reduce((a, b) => a + b, 0) / ratios.length;
-      statusOut.textContent = `✅ Mined ${done.length} block${done.length > 1 ? 's' : ''}${stopped ? ' before stopping' : ''}. `
-        + `Luckiest needed ${Math.min(...ratios).toFixed(2)}× the average work, unluckiest ${Math.max(...ratios).toFixed(2)}×; overall ${avg.toFixed(2)}×.`;
+      statusOut.textContent = t(stopped ? 'mine.doneStopped' : 'mine.done', {
+        n: done.length,
+        count: done.length,
+        min: fmt(Math.min(...ratios), 2),
+        max: fmt(Math.max(...ratios), 2),
+        avg: fmt(avg, 2),
+      });
     }
   }
 
@@ -167,18 +173,18 @@ export function initSoloOdds() {
     const pYear = 1 - Math.exp(-blocksPerDay * 365.25);
     const btcPerDay = blocksPerDay * SUBSIDY_BTC;
 
-    $('#solo-share').textContent = share >= 0.001 ? `${(share * 100).toFixed(2)}%` : `1 in ${fmtCompact(1 / share)}`;
+    $('#solo-share').textContent = share >= 0.001 ? `${fmt(share * 100, 2)}%` : t('num.oneIn', { v: fmtCompact(1 / share) });
     $('#solo-wait').textContent = fmtDuration((1 / blocksPerDay) * 86400);
-    $('#solo-year').textContent = pYear > 0.9999 ? 'certain'
-      : pYear >= 0.01 ? `${(pYear * 100).toFixed(pYear < 0.1 ? 1 : 0)}%`
-        : pYear >= 1e-6 ? `${(pYear * 100).toPrecision(2)}%` : '≈ 0%';
-    $('#solo-pool').textContent = btcPerDay >= 0.01 ? `${fmt(btcPerDay, 3)} BTC a day`
-      : btcPerDay * 1e8 >= 1 ? `${fmt(btcPerDay * 1e8)} sats a day` : 'less than 1 sat a day';
+    $('#solo-year').textContent = pYear > 0.9999 ? t('solo.certain')
+      : pYear >= 0.01 ? `${fmt(pYear * 100, pYear < 0.1 ? 1 : 0)}%`
+        : pYear >= 1e-6 ? `${num(pYear * 100, { maximumSignificantDigits: 2 })}%` : '≈ 0%';
+    $('#solo-pool').textContent = btcPerDay >= 0.01 ? t('solo.poolBtc', { v: fmt(btcPerDay, 3) })
+      : btcPerDay * 1e8 >= 1 ? t('solo.poolSats', { n: btcPerDay * 1e8, v: fmt(btcPerDay * 1e8) }) : t('solo.poolNone');
     $('#solo-verdict').textContent =
-      blocksPerDay >= 1 ? '🏭 At this scale you find several blocks a day — income is steady even without a pool.'
-      : pYear >= 0.5 ? '🎲 A block a year is likely but lumpy: one good month, then nothing. Big operations still smooth this out.'
-      : pYear >= 0.001 ? '🎟️ Solo, this is a lottery ticket: most likely you never win. A pool pays the same expected amount as a steady trickle.'
-      : '🪨 Solo, you will essentially never find a block — even a pool pays almost nothing. This is why hobby mining moved to ASICs.';
+      blocksPerDay >= 1 ? t('solo.v.farm')
+      : pYear >= 0.5 ? t('solo.v.year')
+      : pYear >= 0.001 ? t('solo.v.lottery')
+      : t('solo.v.never');
   };
 
   rig.addEventListener('change', update);
@@ -203,7 +209,7 @@ export function initRetargetDemo() {
 
   const syncSlider = () => {
     $('#rt-hash-out').textContent = `${slider.value}`;
-    slider.setAttribute('aria-valuetext', `hashpower ${slider.value}, where 100 is the starting level`);
+    slider.setAttribute('aria-valuetext', t('rt.valuetext', { v: slider.value }));
   };
 
   /* One 2,016-block period. 2,016 exponential block times sum to almost exactly
@@ -217,14 +223,14 @@ export function initRetargetDemo() {
     difficulty = next;
   }
 
-  const describe = (p) => `blocks averaged ${p.blockMinutes.toFixed(1)} min and the period took ${p.days.toFixed(1)} days`;
-  const adjustment = (p) => `${p.change >= 0 ? '+' : '−'}${Math.abs(p.change * 100).toFixed(1)}%`;
+  const describe = (p) => t('rt.describe', { min: fmt(p.blockMinutes, 1), days: fmt(p.days, 1) });
+  const adjustment = (p) => `${p.change >= 0 ? '+' : '−'}${fmt(Math.abs(p.change * 100), 1)}%`;
 
   function render(message) {
     const last = periods.at(-1);
     $('#rt-period').textContent = String(last.n);
-    $('#rt-time').textContent = `${last.blockMinutes.toFixed(1)} min`;
-    $('#rt-days').textContent = `${last.days.toFixed(1)} days`;
+    $('#rt-time').textContent = t('rt.min', { v: fmt(last.blockMinutes, 1) });
+    $('#rt-days').textContent = t('rt.days', { v: fmt(last.days, 1) });
     $('#rt-adjust').textContent = adjustment(last);
     // Even at steady state a period wanders ±0.3 min (its own noise plus the last retarget's error),
     // so only flag deviations beyond ~3σ.
@@ -232,28 +238,28 @@ export function initRetargetDemo() {
     const fast = last.blockMinutes < 9;
     verdict.className = `verdict ${slow || fast ? 'warn' : 'ok'}`;
     verdict.textContent = message ?? (slow || fast
-      ? `${slow ? '🐢' : '🐇'} Last period ${describe(last)}. Difficulty adjusts ${adjustment(last)} — run another period to see the rhythm return.`
-      : `✓ On target: ${describe(last)}. Difficulty adjusts ${adjustment(last)}.`);
+      ? t(slow ? 'rt.slow' : 'rt.fast', { desc: describe(last), adj: adjustment(last) })
+      : t('rt.ok', { desc: describe(last), adj: adjustment(last) }));
 
     const xs = periods.map((p) => p.n);
     const timeConfig = {
-      title: 'Average time between blocks in each 2,016-block period',
+      title: t('rt.chart.time.title'),
       xs,
-      series: [{ label: 'average block time', values: periods.map((p) => p.blockMinutes), color: 'var(--series-1)', type: 'bar' }],
-      refs: [{ y: 10, label: '10-minute target' }],
-      y: { min: 0, max: Math.max(22, ...periods.map((p) => p.blockMinutes)) * 1.05, format: (v) => `${Number(v.toFixed(1))} min`, label: 'minutes per block' },
-      x: { label: 'period', format: (v) => `${v}`, tooltipFormat: (v, i) => `Period ${v} · ${periods[i].days.toFixed(1)} days` },
+      series: [{ label: t('rt.chart.time.series'), values: periods.map((p) => p.blockMinutes), color: 'var(--series-1)', type: 'bar' }],
+      refs: [{ y: 10, label: t('rt.chart.time.ref') }],
+      y: { min: 0, max: Math.max(22, ...periods.map((p) => p.blockMinutes)) * 1.05, format: (v) => t('rt.min', { v: num(v, { maximumFractionDigits: 1 }) }), label: t('rt.chart.time.y') },
+      x: { label: t('rt.axis.period'), format: (v) => `${v}`, tooltipFormat: (v, i) => t('rt.chart.time.tip', { n: v, days: fmt(periods[i].days, 1) }) },
       height: 170,
     };
     const diffConfig = {
-      title: 'Difficulty versus hashpower in each period (both start at 100)',
+      title: t('rt.chart.diff.title'),
       xs,
       series: [
-        { label: 'hashpower', values: periods.map((p) => p.hash), color: 'var(--series-2)', type: 'line', markers: true },
-        { label: 'difficulty', values: periods.map((p) => p.difficulty), color: 'var(--series-1)', type: 'line', markers: true },
+        { label: t('rt.chart.diff.hash'), values: periods.map((p) => p.hash), color: 'var(--series-2)', type: 'line', markers: true },
+        { label: t('rt.chart.diff.difficulty'), values: periods.map((p) => p.difficulty), color: 'var(--series-1)', type: 'line', markers: true },
       ],
       y: { min: 0, format: (v) => fmt(v) },
-      x: { label: 'period', format: (v) => `${v}`, tooltipFormat: (v) => `Period ${v}` },
+      x: { label: t('rt.axis.period'), format: (v) => `${v}`, tooltipFormat: (v) => t('rt.period', { n: v }) },
       tooltipFormat: (v) => fmt(v, 1),
       height: 170,
     };
@@ -287,13 +293,13 @@ export function initRetargetDemo() {
     const hit = periods.at(-1);
     step(hash);
     const after = periods.at(-1);
-    render(`${label} Period ${hit.n}: ${describe(hit)}. The retarget moved difficulty ${adjustment(hit)}, so in period ${after.n} ${describe(after)}.`);
+    render(t('rt.shock', { label, hitN: hit.n, hit: describe(hit), adj: adjustment(hit), afterN: after.n, after: describe(after) }));
   }
 
   slider.addEventListener('input', syncSlider);
   $('#rt-step').addEventListener('click', () => { step(Number(slider.value)); render(); });
-  $('#rt-ban').addEventListener('click', () => shock(0.5, '📉 Half the hashpower vanished.'));
-  $('#rt-boom').addEventListener('click', () => shock(2, '📈 Hashpower doubled.'));
+  $('#rt-ban').addEventListener('click', () => shock(0.5, t('rt.banLabel')));
+  $('#rt-boom').addEventListener('click', () => shock(2, t('rt.boomLabel')));
   $('#rt-reset').addEventListener('click', reset);
   reset();
 }
@@ -319,13 +325,13 @@ export function initHalvingDemo() {
     mintedByEra.push(running);
   }
   const chart = createChart($('#supply-chart'), {
-    title: 'Total bitcoin in existence at the end of each halving era',
+    title: t('halv.chart.title'),
     xs: mintedByEra.map((_, era) => endYear(era)),
-    series: [{ label: 'bitcoin minted', values: mintedByEra.map((s) => s / SATS_PER_BTC / 1e6), color: 'var(--series-1)', type: 'area' }],
-    refs: [{ y: 21, label: '21 million cap' }],
-    y: { min: 0, max: 22, ticks: [0, 5, 10, 15, 20], format: (v) => `${v}M` },
-    x: { label: 'year', format: (v) => `${v}`, tickIndexes: [0, 4, 9, 14, 19, 24, 29, 33] },
-    tooltipFormat: (v) => `${v.toLocaleString(undefined, { maximumFractionDigits: 6 })} million BTC`,
+    series: [{ label: t('halv.chart.series'), values: mintedByEra.map((s) => s / SATS_PER_BTC / 1e6), color: 'var(--series-1)', type: 'area' }],
+    refs: [{ y: 21, label: t('halv.chart.cap') }],
+    y: { min: 0, max: 22, ticks: [0, 5, 10, 15, 20], format: (v) => t('halv.axisM', { v }) },
+    x: { label: t('halv.chart.x'), format: (v) => `${v}`, tickIndexes: [0, 4, 9, 14, 19, 24, 29, 33] },
+    tooltipFormat: (v) => t('halv.tip', { v: num(v, { maximumFractionDigits: 6 }) }),
     height: 190,
   });
 
@@ -336,25 +342,25 @@ export function initHalvingDemo() {
     const pct = (mintedSats / CAP_SATS) * 100;
     const yearFrom = era === 0 ? 2009 : 2008 + era * 4;
     const rewardText = reward === 0
-      ? '0 — fees only'
+      ? t('halv.rewardZero')
       : reward < SATS_PER_BTC / 100
-        ? `${reward.toLocaleString()} sat${reward > 1 ? 's' : ''}`
-        : `${(reward / SATS_PER_BTC).toLocaleString(undefined, { maximumFractionDigits: 8 })} BTC`;
-    const pctText = `${pct.toFixed(pct > 99.99 ? 7 : pct > 99.9 ? 4 : 1)}%`;
+        ? t('halv.rewardSats', { n: reward, v: fmt(reward) })
+        : t('unit.btc', { v: num(reward / SATS_PER_BTC, { maximumFractionDigits: 8 }) });
+    const pctText = `${fmt(pct, pct > 99.99 ? 7 : pct > 99.9 ? 4 : 1)}%`;
 
-    $('#halving-era-out').textContent = era === 0 ? 'era 0 (genesis — no halvings yet)' : `era ${era} (after halving #${era})`;
+    $('#halving-era-out').textContent = era === 0 ? t('halv.era0') : t('halv.eraN', { n: era });
     $('#halving-years').textContent = `${yearFrom}–${endYear(era)}`;
     $('#halving-reward').textContent = rewardText;
-    $('#halving-minted').textContent = `${(mintedSats / SATS_PER_BTC).toLocaleString(undefined, { maximumFractionDigits: 4 })} BTC`;
+    $('#halving-minted').textContent = t('unit.btc', { v: num(mintedSats / SATS_PER_BTC, { maximumFractionDigits: 4 }) });
     $('#halving-pct').textContent = pctText;
-    eraInput.setAttribute('aria-valuetext', `era ${era}, ${yearFrom} to ${endYear(era)}: ${rewardText} per block, ${pctText} of all bitcoin minted`);
-    chart.update({ points: [{ index: era, y: mintedSats / SATS_PER_BTC / 1e6, label: `${pctText} by ${endYear(era)}`, color: 'var(--series-1)' }] });
+    eraInput.setAttribute('aria-valuetext', t('halv.valuetext', { era, from: yearFrom, to: endYear(era), reward: rewardText, pct: pctText }));
+    chart.update({ points: [{ index: era, y: mintedSats / SATS_PER_BTC / 1e6, label: t('halv.point', { pct: pctText, year: endYear(era) }), color: 'var(--series-1)' }] });
 
     $('#halving-note').textContent =
-      era === 0 ? 'Every block mints 50 BTC: half of all bitcoin that will ever exist is created in this first era.'
-      : era === 4 ? 'The April 2024 halving — the era we are in now: 3.125 BTC per block.'
-      : reward === 1 ? 'The last era with a subsidy: each block mints exactly 1 satoshi.'
-      : reward === 0 ? 'The subsidy rounds to zero around 2140. From here on, security must be paid for entirely by transaction fees.'
+      era === 0 ? t('halv.note0')
+      : era === 4 ? t('halv.note4')
+      : reward === 1 ? t('halv.noteLast')
+      : reward === 0 ? t('halv.noteZero')
       : '';
   };
 

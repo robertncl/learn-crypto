@@ -1,4 +1,5 @@
 import { $, $$, el, enc, prefersReducedMotion, sha256Hex, sleep, svgEl } from '../core/dom.js';
+import { t, tNodes } from '../core/i18n.js';
 import { bigIntToHex, bytesToBigInt, bytesToHex, randomBigIntBelow, utf8 } from '../lib/bytes.js';
 import { sha256 } from '../lib/sha256.js';
 import { N, encodePoint, getPublicKey, recoverFromNonceReuse, rfc6979Nonce, sign } from '../lib/secp256k1.js';
@@ -39,7 +40,7 @@ export function initKeysDemo() {
     sigWrap.hidden = true;
     verdict.hidden = true;
     signature = null;
-    generateBtn.textContent = '🔑 Generate a new wallet';
+    generateBtn.textContent = t('keys.generateNew');
   });
 
   signBtn.addEventListener('click', async () => {
@@ -56,9 +57,7 @@ export function initKeysDemo() {
     );
     verdict.hidden = false;
     verdict.className = `verdict ${ok ? 'ok' : 'bad'}`;
-    verdict.textContent = ok
-      ? '✅ Valid — this exact message was approved by the wallet’s private key.'
-      : '❌ Invalid — the message no longer matches the signature. It was changed after signing (or signed by someone else).';
+    verdict.textContent = t(ok ? 'keys.valid' : 'keys.invalid');
   });
 }
 
@@ -135,13 +134,19 @@ export function initCurveDemo() {
 
     $('#curve-k-out').textContent = String(k);
     $('#curve-pub').textContent = `(${pub.x}, ${pub.y})`;
-    slider.setAttribute('aria-valuetext', `k = ${k}, public key (${pub.x}, ${pub.y})`);
+    slider.setAttribute('aria-valuetext', t('curve.valuetext', { k, x: pub.x, y: pub.y }));
     const bits = k.toString(2);
     const doublings = bits.length - 1;
     const additions = [...bits].filter((b) => b === '1').length - 1;
     $('#curve-steps').textContent = k === 1
-      ? 'k = 1: the public key is G itself.'
-      : `${k} = ${bits} in binary → ${doublings} doubling${doublings === 1 ? '' : 's'} + ${additions} addition${additions === 1 ? '' : 's'}, instead of ${k - 1} single hops.`;
+      ? t('curve.k1')
+      : t('curve.steps', {
+        k,
+        bits,
+        doublings: t('curve.doublings', { n: doublings }),
+        additions: t('curve.additions', { n: additions }),
+        hops: t('curve.hops', { n: k - 1 }),
+      });
   }
 
   $('#curve-hide').addEventListener('click', () => {
@@ -150,7 +155,7 @@ export function initCurveDemo() {
     const target = multiples[secret];
     crackBtn.disabled = false;
     verdict.className = 'verdict neutral';
-    verdict.textContent = `🎯 A secret key now hides behind the ringed point (${target.x}, ${target.y}). That point is public — can you find k? Drag the slider, or brute-force it.`;
+    verdict.textContent = t('curve.hidden', { x: target.x, y: target.y });
     render();
   });
 
@@ -173,7 +178,7 @@ export function initCurveDemo() {
     render();
     cracking = false;
     verdict.className = 'verdict ok';
-    verdict.textContent = `✓ Found it: k = ${m}, after trying ${m} keys. On a ${ORDER}-point curve that’s instant. secp256k1 has about 1.16 × 10⁷⁷ points: at a billion billion tries per second, the same search would take ~10⁵¹ years.`;
+    verdict.textContent = t('curve.found', { n: m, m, order: ORDER });
     secret = null;
   });
 
@@ -197,15 +202,14 @@ export function initAddressDemo() {
   function show(privateKey) {
     const a = addressesForKey(privateKey);
     pipeline.replaceChildren(
-      step('1 · Private key — 256 random bits. Keep it secret.', value(bigIntToHex(privateKey), 'is-secret')),
-      step('2 · Public key = k × G on secp256k1 — a point (x, y). Safe to share.',
+      step(t('addr.step1'), value(bigIntToHex(privateKey), 'is-secret')),
+      step(t('addr.step2'),
         value(`x = ${bigIntToHex(a.publicKey.x)}`), value(`y = ${bigIntToHex(a.publicKey.y)}`),
-        el('span', { className: 'stat-line', textContent: `Compressed form: ${a.publicKey.y & 1n ? '03' : '02'} (y is ${a.publicKey.y & 1n ? 'odd' : 'even'}) + x` })),
-      step('3a · Ethereum: Keccak-256(x ‖ y), keep the last 20 bytes, add the EIP-55 mixed-case checksum',
-        value(a.ethereum, 'is-address')),
-      step('3b · Bitcoin: HASH160 = RIPEMD-160(SHA-256(compressed key))', value(bytesToHex(a.hash160)),
-        el('span', { className: 'stat-line', textContent: 'Native SegWit (Bech32, bc1q…):' }), value(a.p2wpkh, 'is-address'),
-        el('span', { className: 'stat-line', textContent: 'Legacy (Base58Check, 1…):' }), value(a.p2pkh, 'is-address')),
+        el('span', { className: 'stat-line', textContent: t(a.publicKey.y & 1n ? 'addr.compressedOdd' : 'addr.compressedEven') })),
+      step(t('addr.step3a'), value(a.ethereum, 'is-address')),
+      step(t('addr.step3b'), value(bytesToHex(a.hash160)),
+        el('span', { className: 'stat-line', textContent: t('addr.segwit') }), value(a.p2wpkh, 'is-address'),
+        el('span', { className: 'stat-line', textContent: t('addr.legacy') }), value(a.p2pkh, 'is-address')),
     );
     $('#addr-warning').hidden = privateKey !== 1n;
     checkInput.value = a.ethereum;
@@ -219,18 +223,18 @@ export function initAddressDemo() {
     if (/^0x/i.test(text)) {
       const result = checkEip55(text);
       ok = result === 'valid' ? true : result === 'invalid' ? false : null;
-      message = result === 'valid' ? '✓ Valid Ethereum address: the pattern of capital letters matches its Keccak-256 checksum.'
-        : result === 'invalid' ? (/^0x[0-9a-fA-F]{40}$/.test(text) ? '✗ The capitalization doesn’t match the EIP-55 checksum — a wallet would refuse to send.' : '✗ Not a well-formed Ethereum address (40 hex characters after 0x).')
-        : '⚠️ Valid hex, but all in one case: it carries no checksum, so a typo would go unnoticed.';
+      message = result === 'valid' ? t('addr.ethValid')
+        : result === 'invalid' ? t(/^0x[0-9a-fA-F]{40}$/.test(text) ? 'addr.ethBadCase' : 'addr.ethMalformed')
+        : t('addr.ethUnchecked');
     } else if (/^bc1/i.test(text)) {
       ok = segwitDecode(text) !== null;
-      message = ok ? '✓ Valid Bech32 address: its 6-character checksum holds.' : '✗ Bech32 checksum fails — a wallet would refuse to send.';
+      message = t(ok ? 'addr.bechValid' : 'addr.bechBad');
     } else if (/^[13]/.test(text)) {
       const decoded = (() => { try { return base58CheckDecode(text); } catch { return null; } })();
       ok = decoded !== null;
-      message = ok ? '✓ Valid Base58Check address: the 4-byte checksum (from SHA-256d) holds.' : '✗ Base58Check checksum fails — a wallet would refuse to send.';
+      message = t(ok ? 'addr.b58Valid' : 'addr.b58Bad');
     } else {
-      message = text ? 'Unrecognized format — try an address starting with 0x, bc1 or 1.' : '';
+      message = text ? t('addr.unknown') : '';
     }
     checkVerdict.className = `verdict ${ok === true ? 'ok' : ok === false ? 'bad' : 'warn'}`;
     if (!text) checkVerdict.className = 'verdict';
@@ -263,11 +267,11 @@ export function initSeedDemo() {
     test: `${'test '.repeat(11)}junk`,
   };
   const PATHS = [
-    { chain: 'Ethereum', path: "m/44'/60'/0'/0/0", format: (a) => a.ethereum },
-    { chain: 'Ethereum', path: "m/44'/60'/0'/0/1", format: (a) => a.ethereum },
-    { chain: 'Ethereum', path: "m/44'/60'/0'/0/2", format: (a) => a.ethereum },
-    { chain: 'Bitcoin', path: "m/84'/0'/0'/0/0", format: (a) => a.p2wpkh },
-    { chain: 'Bitcoin', path: "m/84'/0'/0'/0/1", format: (a) => a.p2wpkh },
+    { chain: 'seed.chain.eth', path: "m/44'/60'/0'/0/0", format: (a) => a.ethereum },
+    { chain: 'seed.chain.eth', path: "m/44'/60'/0'/0/1", format: (a) => a.ethereum },
+    { chain: 'seed.chain.eth', path: "m/44'/60'/0'/0/2", format: (a) => a.ethereum },
+    { chain: 'seed.chain.btc', path: "m/84'/0'/0'/0/0", format: (a) => a.p2wpkh },
+    { chain: 'seed.chain.btc', path: "m/84'/0'/0'/0/1", format: (a) => a.p2wpkh },
   ];
   const list = $('#seed-words');
   const verdict = $('#seed-verdict');
@@ -289,7 +293,7 @@ export function initSeedDemo() {
         el('span', { className: 'seed-word', textContent: w }),
         el('code', { className: 'seed-bits' },
           last ? b.slice(0, 7) : b,
-          last ? el('mark', { className: 'checksum', title: 'checksum bits', textContent: b.slice(7) }) : null));
+          last ? el('mark', { className: 'checksum', title: t('seed.checksumBits'), textContent: b.slice(7) }) : null));
     }));
   }
 
@@ -299,28 +303,26 @@ export function initSeedDemo() {
     fixBtn.hidden = !typo;
     if (!result.ok) {
       verdict.className = 'verdict bad';
-      verdict.textContent = `✗ Checksum fails: the last word should end in bits ${result.expected}, not ${result.actual}. A wallet refuses this phrase instead of opening the wrong wallet.`;
-      tbody.replaceChildren(el('tr', {}, el('td', { colSpan: 3, textContent: 'No addresses — a wallet would stop at the checksum.' })));
+      verdict.textContent = t('seed.badChecksum', { expected: result.expected, actual: result.actual });
+      tbody.replaceChildren(el('tr', {}, el('td', { colSpan: 3, textContent: t('seed.noAddresses') })));
       progressOut.textContent = '';
       return;
     }
     verdict.className = `verdict ${typo ? 'warn' : 'ok'}`;
-    verdict.textContent = typo
-      ? '⚠️ The checksum still passes — by luck. Four checksum bits catch only 15 of 16 errors, so this mistyped phrase opens a different, empty wallet. Compare the addresses.'
-      : '✓ Checksum OK: the last 4 bits equal the first 4 bits of SHA-256 of the 128 entropy bits.';
-    progressOut.textContent = 'Deriving keys…';
+    verdict.textContent = t(typo ? 'seed.luckyTypo' : 'seed.checksumOk');
+    progressOut.textContent = t('seed.deriving');
     const seed = await mnemonicToSeed(words.join(' '), passInput.value);
     const rows = [];
     for (const { chain, path, format } of PATHS) {
       const node = await derivePath(seed, path);
       rows.push(el('tr', {},
-        el('td', { textContent: chain }),
+        el('td', { textContent: t(chain) }),
         el('td', {}, el('code', { textContent: path })),
         el('td', {}, el('code', { className: 'hash-inline', textContent: format(addressesForKey(node.privateKey)) }))));
     }
     if (run !== derivation) return; // a newer phrase or passphrase arrived meanwhile
     tbody.replaceChildren(...rows);
-    progressOut.textContent = `Seed (PBKDF2-HMAC-SHA512): ${bytesToHex(seed).slice(0, 32)}… — ${passInput.value ? 'with your passphrase' : 'no passphrase'}.`;
+    progressOut.textContent = t(passInput.value ? 'seed.infoPass' : 'seed.infoNoPass', { seed: bytesToHex(seed).slice(0, 32) });
   }
 
   function load(newWords) {
@@ -372,7 +374,7 @@ export function initNonceDemo() {
     const h = bigIntToHex(n);
     return `${h.slice(0, 10)}…${h.slice(-6)}`;
   };
-  $('#nonce-victim').textContent = `Victim’s public key (on-chain for all to see): ${bytesToHex(encodePoint(victimPub)).slice(0, 18)}… — the private key is hidden.`;
+  $('#nonce-victim').textContent = t('nonce.victim', { key: bytesToHex(encodePoint(victimPub)).slice(0, 18) });
 
   $('#nonce-sign').addEventListener('click', () => {
     const mode = $('input[name="nonce-mode"]:checked').value;
@@ -384,11 +386,11 @@ export function initNonceDemo() {
     signed = { z1: bytesToBigInt(z1), z2: bytesToBigInt(z2), sig1: sign(z1, victim, k1), sig2: sign(z2, victim, k2) };
     const sameR = signed.sig1.r === signed.sig2.r;
     const card = (n, sig) => el('div', { className: 'sig-card' },
-      el('p', { className: 'pipeline-title', textContent: `Signature ${n}` }),
+      el('p', { className: 'pipeline-title', textContent: t('nonce.signature', { n }) }),
       el('p', {}, el('span', { className: sameR ? 'same-r' : '' }, `r = ${short(sig.r)}`)),
       el('p', {}, `s = ${short(sig.s)}`));
     sigsOut.replaceChildren(card(1, signed.sig1), card(2, signed.sig2),
-      el('p', { className: `stat-line ${sameR ? 'same-r-note' : ''}`, textContent: sameR ? '⚠️ Both signatures share the same r — so they used the same k.' : 'Different r values: different nonces.' }));
+      el('p', { className: `stat-line ${sameR ? 'same-r-note' : ''}`, textContent: t(sameR ? 'nonce.sameR' : 'nonce.diffR') }));
     stepsOut.replaceChildren();
     verdict.className = 'verdict';
     verdict.textContent = '';
@@ -398,28 +400,26 @@ export function initNonceDemo() {
   attackBtn.addEventListener('click', () => {
     const { z1, z2, sig1, sig2 } = signed;
     if (sig1.r !== sig2.r) {
-      stepsOut.replaceChildren(el('li', { textContent: 'Each signature equation has its own unknown nonce: two equations, three unknowns (k₁, k₂ and the key d).' }));
+      stepsOut.replaceChildren(el('li', { textContent: t('nonce.freshSteps') }));
       verdict.className = 'verdict ok';
-      verdict.textContent = '✓ The attack goes nowhere: with a fresh nonce per signature, the algebra can’t isolate the private key.';
+      verdict.textContent = t('nonce.freshVerdict');
       return;
     }
     if (sig1.s === sig2.s) {
-      stepsOut.replaceChildren(el('li', { textContent: 'Same message, same nonce → the two signatures are identical. The attacker learns nothing new.' }));
+      stepsOut.replaceChildren(el('li', { textContent: t('nonce.sameSteps') }));
       verdict.className = 'verdict ok';
-      verdict.textContent = '✓ Nothing to exploit: identical signatures over identical messages leak nothing. Try two different messages.';
+      verdict.textContent = t('nonce.sameVerdict');
       return;
     }
     const { k, d } = recoverFromNonceReuse(z1, sig1, z2, sig2);
     const check = getPublicKey(d);
     const ok = check.x === victimPub.x && check.y === victimPub.y;
     stepsOut.replaceChildren(
-      el('li', {}, 'Subtract the two equations sᵢ = k⁻¹(zᵢ + r·d): the d terms cancel. ', el('code', { className: 'hash-inline', textContent: `k = (z₁ − z₂) / (s₁ − s₂) mod n = ${short(k)}` })),
-      el('li', {}, 'Put k back into the first equation and solve for d: ', el('code', { className: 'hash-inline', textContent: `d = (s₁·k − z₁) / r mod n = ${short(d)}` })),
-      el('li', {}, 'Check: d × G ', el('strong', { textContent: ok ? 'equals the victim’s public key.' : 'does not match.' })),
+      el('li', {}, ...tNodes('nonce.step1', { formula: el('code', { className: 'hash-inline', textContent: `k = (z₁ − z₂) / (s₁ − s₂) mod n = ${short(k)}` }) })),
+      el('li', {}, ...tNodes('nonce.step2', { formula: el('code', { className: 'hash-inline', textContent: `d = (s₁·k − z₁) / r mod n = ${short(d)}` }) })),
+      el('li', {}, ...tNodes('nonce.step3', { result: el('strong', { textContent: t(ok ? 'nonce.matches' : 'nonce.noMatch') }) })),
     );
     verdict.className = `verdict ${ok ? 'bad' : 'neutral'}`;
-    verdict.textContent = ok
-      ? `✗ Private key recovered: ${bigIntToHex(d)}. Every coin at the victim’s addresses can now be taken.`
-      : 'Recovery failed.';
+    verdict.textContent = ok ? t('nonce.recovered', { key: bigIntToHex(d) }) : t('nonce.failed');
   });
 }

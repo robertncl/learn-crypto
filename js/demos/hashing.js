@@ -1,4 +1,5 @@
 import { $, el, fmt, sha256Hex, yieldToMain } from '../core/dom.js';
+import { t, tNodes } from '../core/i18n.js';
 import { sha256 } from '../lib/sha256.js';
 import { bytesToHex, utf8 } from '../lib/bytes.js';
 
@@ -16,7 +17,7 @@ export function initHashPlayground() {
     if (current !== token) return;
     output.textContent = hash;
     const n = utf8(input.value).length;
-    sizes.textContent = `Input: ${fmt(n)} byte${n === 1 ? '' : 's'} → output: always 32 bytes (256 bits).`;
+    sizes.textContent = t('hash.sizes', { n, v: fmt(n) });
   };
 
   input.addEventListener('input', update);
@@ -62,8 +63,8 @@ export function initAvalanche() {
       }
     }
     stats.textContent = inputA.value === inputB.value
-      ? 'Identical inputs → identical hashes (0 of 256 bits differ).'
-      : `${bitsDiff} of 256 bits differ (${Math.round((bitsDiff / 256) * 100)}%).`;
+      ? t('hash.ava.same')
+      : t('hash.ava.diff', { bits: bitsDiff, pct: Math.round((bitsDiff / 256) * 100) });
   };
 
   inputA.addEventListener('input', update);
@@ -116,22 +117,24 @@ export function initMerkleDemo() {
 
     const tx = inputs[i].value;
     const order = (mine, theirs, mineLeft) => (mineLeft ? `${mine} ‖ ${theirs}` : `${theirs} ‖ ${mine}`);
+    const code = (text) => el('code', { textContent: text });
     proofList.replaceChildren(
-      el('li', {}, 'Hash the transaction: ', el('code', { textContent: `${NAMES[i]} = SHA-256("${tx}")` }), ' = ',
-        el('code', { textContent: short(leafHash) })),
-      el('li', {}, 'Combine with sibling ', el('strong', { textContent: NAMES[sibling] }), ' (sent in the proof): ',
-        el('code', { textContent: `${NAMES[parent]} = SHA-256(${order(NAMES[i], NAMES[sibling], i % 2 === 0)})` }), ' = ',
-        el('code', { textContent: short(parentHash) })),
-      el('li', {}, 'Combine with sibling ', el('strong', { textContent: NAMES[uncle] }), ' (sent in the proof): ',
-        el('code', { textContent: `root = SHA-256(${order(NAMES[parent], NAMES[uncle], parent === 4)})` }), ' = ',
-        el('code', { textContent: short(rootHash) })),
+      el('li', {}, ...tNodes('hash.proof.leaf', { formula: code(`${NAMES[i]} = SHA-256("${tx}")`), hash: code(short(leafHash)) })),
+      el('li', {}, ...tNodes('hash.proof.sibling', {
+        sibling: el('strong', { textContent: NAMES[sibling] }),
+        formula: code(`${NAMES[parent]} = SHA-256(${order(NAMES[i], NAMES[sibling], i % 2 === 0)})`),
+        hash: code(short(parentHash)),
+      })),
+      el('li', {}, ...tNodes('hash.proof.sibling', {
+        sibling: el('strong', { textContent: NAMES[uncle] }),
+        formula: code(`root = SHA-256(${order(NAMES[parent], NAMES[uncle], parent === 4)})`),
+        hash: code(short(rootHash)),
+      })),
     );
 
     const ok = rootHash === baseline[6];
     proofVerdict.className = `verdict ${ok ? 'ok' : 'bad'}`;
-    proofVerdict.textContent = ok
-      ? `✓ The rebuilt root matches the block header: “${tx}” is in this block — proven with 2 hashes instead of 4 transactions.`
-      : `✗ The rebuilt root doesn’t match the block header. “${tx}” is not what this block committed to.`;
+    proofVerdict.textContent = t(ok ? 'hash.proof.ok' : 'hash.proof.bad', { tx });
 
     nodeEls.forEach((node, n) => {
       node.classList.toggle('proof-target', n === i);
@@ -193,24 +196,25 @@ export function initHuntDemo() {
 
   function renderSettings() {
     const n = bits();
-    $('#hunt-bits-out').textContent = `${n} bits (${n / 4} hex characters)`;
-    bitsInput.setAttribute('aria-valuetext', `${n} bits`);
+    $('#hunt-bits-out').textContent = t('hash.hunt.bits', { n, hex: n / 4 });
+    bitsInput.setAttribute('aria-valuetext', t('hash.hunt.bitsValue', { n }));
     $('#pre-target').textContent = `${bytesToHex(target).slice(0, n / 4)}…`;
     $('#pre-expect').textContent = fmt(expectedPre(n));
     $('#col-expect').textContent = fmt(Math.round(expectedCol(n)));
     if (!running) {
       const tooBig = n > PREIMAGE_MAX_BITS;
       preBtn.disabled = tooBig;
-      $('#pre-skip').textContent = tooBig
-        ? `Skipped: ~${fmt(expectedPre(n))} tries would take ${hashRate ? `about ${fmt(expectedPre(n) / hashRate / 60, 0)} minutes` : 'minutes'} here. Collisions at ${n} bits are still quick →`
-        : '';
+      const minutes = Math.round(expectedPre(n) / hashRate / 60);
+      $('#pre-skip').textContent = !tooBig ? ''
+        : hashRate ? t('hash.hunt.skip', { n: minutes, bits: n, tries: fmt(expectedPre(n)), minutes: fmt(minutes) })
+          : t('hash.hunt.skipUnknown', { bits: n, tries: fmt(expectedPre(n)) });
     }
   }
 
   function setRunning(kind, stopFn) {
     running = stopFn ? { kind, stop: stopFn } : null;
-    preBtn.textContent = running?.kind === 'pre' ? '⏹ Stop' : 'Start hunt';
-    colBtn.textContent = running?.kind === 'col' ? '⏹ Stop' : 'Start hunt';
+    preBtn.textContent = t(running?.kind === 'pre' ? 'hash.hunt.stop' : 'hash.hunt.start');
+    colBtn.textContent = t(running?.kind === 'col' ? 'hash.hunt.stop' : 'hash.hunt.start');
     preBtn.disabled = Boolean(running && running.kind !== 'pre') || (!running && bits() > PREIMAGE_MAX_BITS);
     colBtn.disabled = Boolean(running && running.kind !== 'col');
     bitsInput.disabled = Boolean(running);
@@ -220,9 +224,9 @@ export function initHuntDemo() {
     $('.hunt-log-wrap').hidden = false;
     logBody.prepend(el('tr', {},
       el('td', { textContent: `${n}` }),
-      el('td', { textContent: kind === 'pre' ? '🎯 Preimage' : '🎂 Collision' }),
+      el('td', { textContent: t(kind === 'pre' ? 'hash.hunt.kindPre' : 'hash.hunt.kindCol') }),
       el('td', { textContent: fmt(tries) }),
-      el('td', { textContent: `${fmt(Math.round(expected))} (you needed ${(tries / expected).toFixed(2)}×)` })));
+      el('td', { textContent: t('hash.hunt.logExpected', { expected: fmt(Math.round(expected)), ratio: fmt(tries / expected, 2) }) })));
   }
 
   /* Hash in ~30 ms slices, yielding between them so the page stays responsive. */
@@ -259,23 +263,23 @@ export function initHuntDemo() {
         }
       }
       const secs = (performance.now() - t0) / 1000;
-      progress.textContent = `${fmt(tries)} tries · ${secs.toFixed(1)} s`;
+      progress.textContent = t('hash.hunt.progress', { n: tries, v: fmt(tries), secs: fmt(secs, 1) });
       await yieldToMain();
     }
 
     const secs = (performance.now() - t0) / 1000;
     if (secs > 0.2) hashRate = tries / secs;
     const expected = kind === 'pre' ? expectedPre(n) : expectedCol(n);
-    progress.textContent = `${fmt(tries)} tries in ${secs.toFixed(1)} s`;
+    progress.textContent = t('hash.hunt.progressDone', { n: tries, v: fmt(tries), secs: fmt(secs, 1) });
     setRunning(kind, null);
     if (!found) {
-      out.replaceChildren(el('p', { textContent: `⏹ Stopped after ${fmt(tries)} tries.` }));
+      out.replaceChildren(el('p', { textContent: t('hash.hunt.stopped', { n: tries, v: fmt(tries) }) }));
       renderSettings();
       return;
     }
     const pairs = kind === 'pre' ? [found] : [found.a, found.b];
     out.replaceChildren(
-      el('p', { className: 'hunt-found', textContent: `✓ Found after ${fmt(tries)} tries (${(tries / expected).toFixed(2)}× the expected).` }),
+      el('p', { className: 'hunt-found', textContent: t('hash.hunt.found', { n: tries, v: fmt(tries), ratio: fmt(tries / expected, 2) }) }),
       ...pairs.map((x) => el('p', { className: 'hunt-pair' }, el('code', { textContent: `"${x.input}"` }), ' → ', hashView(x.digest, n))),
     );
     logRun(n, kind, tries, expected);
@@ -310,7 +314,7 @@ export function initCommitDemo() {
   const same = (a, b) => a.every((byte, i) => byte === b[i]);
 
   const renderSalt = () => {
-    saltOut.textContent = useSalt.checked ? `your secret salt: ${salt}` : 'no salt';
+    saltOut.textContent = useSalt.checked ? t('hash.commit.salt', { salt }) : t('hash.commit.noSalt');
   };
 
   $('#commit-seal').addEventListener('click', () => {
@@ -321,21 +325,21 @@ export function initCommitDemo() {
     revealBtn.disabled = false;
     crackBtn.disabled = false;
     verdict.className = 'verdict neutral';
-    verdict.textContent = '🔒 Published. Reveal it, or first change your prediction and then reveal, or let a snoop try to guess it.';
+    verdict.textContent = t('hash.commit.published');
   });
 
   revealBtn.addEventListener('click', () => {
     const ok = same(commit(msg.value, published.salt), published.digest);
     verdict.className = `verdict ${ok ? 'ok' : 'bad'}`;
     verdict.textContent = ok
-      ? `✓ Opened: hashing “${msg.value}”${published.salt ? ' with your salt' : ''} reproduces the commitment, so anyone can check you predicted it in advance.`
-      : `✗ Hashing “${msg.value}” doesn’t reproduce the commitment. Once published, a commitment is binding — you can’t swap your prediction.`;
+      ? t(published.salt ? 'hash.commit.openedSalt' : 'hash.commit.opened', { msg: msg.value })
+      : t('hash.commit.mismatch', { msg: msg.value });
   });
 
   crackBtn.addEventListener('click', async () => {
     crackBtn.disabled = true;
     verdict.className = 'verdict neutral';
-    verdict.textContent = '🕵️ The snoop is hashing guesses…';
+    verdict.textContent = t('hash.commit.snoop');
     const guesses = [...COMMON, ...COMMON.map((w) => w.toLowerCase())];
     for (let i = 0; i <= 99_999; i++) guesses.push(String(i));
     let hit = null;
@@ -347,13 +351,13 @@ export function initCommitDemo() {
     crackBtn.disabled = false;
     if (hit) {
       verdict.className = 'verdict bad';
-      verdict.textContent = `✗ Cracked after ${fmt(hit.tries)} guesses: the prediction was “${hit.g}”. Without a salt, committing to a guessable value hides nothing.`;
+      verdict.textContent = t('hash.commit.cracked', { n: hit.tries, v: fmt(hit.tries), guess: hit.g });
     } else if (published.salt) {
       verdict.className = 'verdict ok';
-      verdict.textContent = `✓ ${fmt(guesses.length)} guesses, no match. Even a snoop who guessed your prediction would also have to guess 128 random salt bits.`;
+      verdict.textContent = t('hash.commit.resisted', { n: guesses.length, v: fmt(guesses.length) });
     } else {
       verdict.className = 'verdict warn';
-      verdict.textContent = `⚠️ None of the snoop’s ${fmt(guesses.length)} guesses matched — this time. Without a salt you’re relying on your text being unguessable; a bigger dictionary might find it.`;
+      verdict.textContent = t('hash.commit.lucky', { n: guesses.length, v: fmt(guesses.length) });
     }
   });
 

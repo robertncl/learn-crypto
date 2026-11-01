@@ -1,6 +1,7 @@
 /* ChainLab — interactive blockchain & cryptocurrency course (entry point) */
 
 import { $, SUBTLE_OK } from './core/dom.js';
+import { initI18n, t } from './core/i18n.js';
 import { initRouter } from './core/router.js';
 import { initTheme } from './core/theme.js';
 import { initQuizzes } from './core/quiz.js';
@@ -19,6 +20,10 @@ import { initAmmDemo, initSandwichDemo, initImpermanentLossDemo, initLendingDemo
 import { initCaveDemo, initColoringDemo } from './demos/zk.js';
 
 /* ============================== Boot ============================== */
+
+// Language first: it translates the page and sets <html lang> before anything reads the text.
+await initI18n();
+document.querySelector('meta[name="description"]')?.setAttribute('content', t('site.description'));
 
 // Site chrome
 initRouter();

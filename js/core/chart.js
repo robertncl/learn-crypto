@@ -1,4 +1,5 @@
 import { el, svgEl } from './dom.js';
+import { t } from './i18n.js';
 
 /* ============================== Charts ==============================
 
@@ -40,7 +41,7 @@ export function createChart(host, initial) {
     className: 'chart-frame',
     tabIndex: 0,
     role: 'group',
-    'aria-label': `${opts.title}. Use the left and right arrow keys to read values.`,
+    'aria-label': t('chart.keys', { title: opts.title }),
   }, svgHost, tip, readout);
   const caption = el('p', { className: 'chart-title', 'aria-hidden': 'true' });
   const legend = el('ul', { className: 'chart-legend' });
@@ -216,7 +217,7 @@ export function createChart(host, initial) {
     tip.style.insetInlineEnd = left ? `${frame.clientWidth - x + 12}px` : 'auto';
     // Announce only keyboard-driven moves; pointer hovering would be a stream of chatter.
     if (announce) {
-      const values = opts.series.map((s) => `${Number.isFinite(s.values[active]) ? fmtY(s.values[active], s) : 'no value'} ${s.label}`);
+      const values = opts.series.map((s) => `${Number.isFinite(s.values[active]) ? fmtY(s.values[active], s) : t('chart.noValue')} ${s.label}`);
       readout.textContent = `${fmtX(opts.xs[active], active)}: ${values.join(', ')}`;
     }
   }
@@ -235,7 +236,7 @@ export function createChart(host, initial) {
     const fmtY = opts.tooltipFormat ?? opts.y?.format ?? ((v) => String(v));
     const wasOpen = table.open;
     table.replaceChildren(
-      el('summary', { textContent: 'Show data table' }),
+      el('summary', { textContent: t('chart.showTable') }),
       el('div', { className: 'table-wrap' }, el('table', {},
         el('thead', {}, el('tr', {},
           el('th', { scope: 'col', textContent: opts.x?.label ?? '' }),
@@ -278,7 +279,7 @@ export function createChart(host, initial) {
     update(changes) {
       opts = { ...opts, ...changes };
       if (active !== null && active >= opts.xs.length) active = null;
-      frame.setAttribute('aria-label', `${opts.title}. Use the left and right arrow keys to read values.`);
+      frame.setAttribute('aria-label', t('chart.keys', { title: opts.title }));
       caption.textContent = opts.title;
       renderLegend();
       renderTable();

@@ -1,5 +1,7 @@
 /* Shared DOM and browser helpers used by every module. */
 
+import { t } from './i18n.js';
+
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
@@ -59,8 +61,13 @@ export function svgEl(tag, attrs = {}, ...children) {
 }
 
 /* Formatting helpers shared by the demos. */
+/* Numbers follow the page language (set on <html lang> before any demo runs). */
+export const locale = () => document.documentElement.lang || undefined;
+
+export const num = (n, options) => Number(n).toLocaleString(locale(), options);
+
 export const fmt = (n, digits = 0) =>
-  Number(n).toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  Number(n).toLocaleString(locale(), { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 const SUPERSCRIPT = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
 
@@ -71,7 +78,7 @@ export function fmtCompact(n) {
     const [mantissa, exponent] = x.toExponential(1).split('e');
     return `${mantissa} × 10${[...String(Number(exponent))].map((c) => SUPERSCRIPT[c]).join('')}`;
   }
-  return x.toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 2 });
+  return x.toLocaleString(locale(), { notation: 'compact', maximumFractionDigits: 2 });
 }
 
 const AGE_OF_UNIVERSE_YEARS = 1.38e10;
@@ -79,13 +86,14 @@ const AGE_OF_UNIVERSE_YEARS = 1.38e10;
 /* Human-scale durations, from seconds up to multiples of the age of the universe. */
 export function fmtDuration(seconds) {
   const years = seconds / (365.25 * 86400);
-  if (seconds < 120) return `${Math.max(1, Math.round(seconds))} seconds`;
-  if (seconds < 7200) return `${Math.round(seconds / 60)} minutes`;
-  if (seconds < 172800) return `${Math.round(seconds / 3600)} hours`;
-  if (years < 2) return `${Math.round(seconds / 86400)} days`;
-  if (years < 1000) return `${years < 10 ? years.toFixed(1) : Math.round(years)} years`;
-  if (years < AGE_OF_UNIVERSE_YEARS) return `${fmtCompact(years)} years`;
-  return `${fmtCompact(years)} years — ${fmtCompact(years / AGE_OF_UNIVERSE_YEARS)}× the age of the universe`;
+  const count = (key, n) => t(key, { n, v: fmt(n) });
+  if (seconds < 120) return count('dur.seconds', Math.max(1, Math.round(seconds)));
+  if (seconds < 7200) return count('dur.minutes', Math.round(seconds / 60));
+  if (seconds < 172800) return count('dur.hours', Math.round(seconds / 3600));
+  if (years < 2) return count('dur.days', Math.round(seconds / 86400));
+  if (years < 1000) return t('dur.years', { n: years, v: years < 10 ? fmt(years, 1) : fmt(Math.round(years)) });
+  if (years < AGE_OF_UNIVERSE_YEARS) return t('dur.years', { n: years, v: fmtCompact(years) });
+  return t('dur.universe', { v: fmtCompact(years), ratio: fmtCompact(years / AGE_OF_UNIVERSE_YEARS) });
 }
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

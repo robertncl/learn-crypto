@@ -1,4 +1,5 @@
-import { $, el, fmt } from '../core/dom.js';
+import { $, el, fmt, num } from '../core/dom.js';
+import { t } from '../core/i18n.js';
 import { createChart } from '../core/chart.js';
 import { bestSandwich, healthFactor, impermanentLoss, liquidationPrice, quote, swapOut } from '../lib/amm.js';
 
@@ -6,9 +7,9 @@ import { bestSandwich, healthFactor, impermanentLoss, liquidationPrice, quote, s
 
 const POOL = { eth: 100, usdc: 300_000 };
 const usd = (n, digits = 0) => `$${fmt(n, digits)}`;
-const signedPct = (x, digits = 1) => `${x < 0 ? '−' : x > 0 ? '+' : ''}${Math.abs(x).toFixed(digits)}%`;
-const usdc = (n) => `${fmt(n, n < 100 ? 2 : 0)} USDC`;
-const ethAmt = (n) => `${n.toLocaleString(undefined, { maximumFractionDigits: n < 1 ? 4 : 3 })} ETH`;
+const signedPct = (x, digits = 1) => `${x < 0 ? '−' : x > 0 ? '+' : ''}${fmt(Math.abs(x), digits)}%`;
+const usdc = (n) => t('unit.usdc', { v: fmt(n, n < 100 ? 2 : 0) });
+const ethAmt = (n) => t('unit.eth', { v: num(n, { maximumFractionDigits: n < 1 ? 4 : 3 }) });
 
 export function initAmmDemo() {
   const dir = $('#amm-dir');
@@ -35,28 +36,28 @@ export function initAmmDemo() {
     const { size, buy, q, after } = preview();
     const spot = pool.usdc / pool.eth;
     $('#amm-amount-out').textContent = buy ? usdc(size) : ethAmt(size);
-    amount.setAttribute('aria-valuetext', `${buy ? usdc(size) : ethAmt(size)} in; ${buy ? ethAmt(q.out) : usdc(q.out)} out`);
+    amount.setAttribute('aria-valuetext', t('amm.inOut', { in: buy ? usdc(size) : ethAmt(size), out: buy ? ethAmt(q.out) : usdc(q.out) }));
     $('#amm-out').textContent = size ? (buy ? ethAmt(q.out) : usdc(q.out)) : '–';
     const avgPrice = buy ? size / q.out : q.out / size;
-    $('#amm-avg').textContent = size ? `${usd(avgPrice)} per ETH` : `${usd(spot)} per ETH (spot)`;
-    $('#amm-impact').textContent = size ? `${(q.priceImpact * 100).toFixed(2)}%` : '–';
-    $('#amm-after').textContent = `${usd(after.usdc / after.eth)} per ETH`;
+    $('#amm-avg').textContent = size ? t('amm.perEth', { price: usd(avgPrice) }) : t('amm.perEthSpot', { price: usd(spot) });
+    $('#amm-impact').textContent = size ? `${fmt(q.priceImpact * 100, 2)}%` : '–';
+    $('#amm-after').textContent = t('amm.perEth', { price: usd(after.usdc / after.eth) });
 
     // The curve x·y = k through the current pool, with the trade as a move along it.
     const k = pool.eth * pool.usdc;
     const xs = [];
     for (let x = 30; x <= 260; x += 5) xs.push(x);
     const config = {
-      title: 'Pool reserves: every trade slides along x · y = k',
+      title: t('amm.chart.title'),
       xs,
-      series: [{ label: 'x · y = k', values: xs.map((x) => k / x / 1000), color: 'var(--series-1)', type: 'line' }],
-      y: { min: 0, max: 1000, ticks: [0, 250, 500, 750, 1000], format: (v) => `${fmt(v)}K`, label: 'USDC in pool' },
-      x: { label: 'ETH in pool', format: (v) => `${v}`, tickIndexes: [0, 4, 14, 24, 34, 44] },
-      tooltipFormat: (v) => `${fmt(v * 1000)} USDC`,
+      series: [{ label: t('amm.chart.series'), values: xs.map((x) => k / x / 1000), color: 'var(--series-1)', type: 'line' }],
+      y: { min: 0, max: 1000, ticks: [0, 250, 500, 750, 1000], format: (v) => t('amm.axisK', { v: fmt(v) }), label: t('amm.axis.y') },
+      x: { label: t('amm.axis.x'), format: (v) => `${v}`, tickIndexes: [0, 4, 14, 24, 34, 44] },
+      tooltipFormat: (v) => t('unit.usdc', { v: fmt(v * 1000) }),
       // Buying ETH moves up-left along the curve, selling moves down-right: label the two ends on opposite sides.
       points: [
-        { x: pool.eth, y: pool.usdc / 1000, label: 'now', color: 'var(--series-1)', place: buy ? 'below-right' : 'above-left' },
-        ...(size ? [{ x: after.eth, y: after.usdc / 1000, label: 'after your trade', color: 'var(--series-2)', place: buy ? 'above-left' : 'below-right' }] : []),
+        { x: pool.eth, y: pool.usdc / 1000, label: t('amm.point.now'), color: 'var(--series-1)', place: buy ? 'below-right' : 'above-left' },
+        ...(size ? [{ x: after.eth, y: after.usdc / 1000, label: t('amm.point.after'), color: 'var(--series-2)', place: buy ? 'above-left' : 'below-right' }] : []),
       ],
       table: false,
       height: 220,
@@ -70,7 +71,7 @@ export function initAmmDemo() {
     if (!size) return;
     pool = after;
     verdict.className = 'verdict ok';
-    verdict.textContent = `✓ Swapped ${buy ? usdc(size) : ethAmt(size)} for ${buy ? ethAmt(q.out) : usdc(q.out)}. The pool now prices ETH at ${usd(pool.usdc / pool.eth)} — until arbitrageurs pull it back toward the market price.`;
+    verdict.textContent = t('amm.swapped', { in: buy ? usdc(size) : ethAmt(size), out: buy ? ethAmt(q.out) : usdc(q.out), price: usd(pool.usdc / pool.eth) });
     render();
   });
   $('#amm-reset').addEventListener('click', () => {
@@ -95,32 +96,32 @@ export function initSandwichDemo() {
 
   function render() {
     const tolerance = 10 ** (Number(slider.value) / 10) / 10_000; // log scale: 0.01% … 10%
-    const pct = `${(tolerance * 100).toFixed(tolerance < 0.001 ? 2 : 1)}%`;
+    const pct = `${fmt(tolerance * 100, tolerance < 0.001 ? 2 : 1)}%`;
     const fair = swapOut(VICTIM_IN, pool.quote, pool.base);
     const minOut = fair * (1 - tolerance);
     const best = bestSandwich(pool, VICTIM_IN, minOut);
     const net = best ? best.profit - BOT_COSTS : -Infinity;
     const attacked = net > 0;
-    $('#sw-slip-out').textContent = `${pct} — accepts at least ${ethAmt(minOut)}`;
+    $('#sw-slip-out').textContent = t('sw.slip', { pct, min: ethAmt(minOut) });
 
     const got = attacked ? best.victimOut : fair;
-    slider.setAttribute('aria-valuetext', `${pct} tolerance; ${attacked ? `bot nets ${usd(net)}` : 'not worth attacking'}`);
+    slider.setAttribute('aria-valuetext', attacked ? t('sw.valuetextAttack', { pct, net: usd(net) }) : t('sw.valuetextSafe', { pct }));
     $('#sw-fair').textContent = ethAmt(fair);
     $('#sw-got').textContent = ethAmt(got);
-    $('#sw-loss').textContent = attacked ? `${ethAmt(fair - got)} ≈ ${usd((fair - got) * spot)}` : 'nothing';
+    $('#sw-loss').textContent = attacked ? t('sw.loss', { eth: ethAmt(fair - got), usd: usd((fair - got) * spot) }) : t('sw.lossNone');
     $('#sw-profit').textContent = attacked
       ? usd(net)
-      : `none — at most ${usd(Math.max(0, best?.profit ?? 0))} before costs, so it doesn’t bother`;
+      : t('sw.profitNone', { max: usd(Math.max(0, best?.profit ?? 0)) });
 
     const step = (n, who, text) => el('li', { className: who },
-      el('strong', { textContent: `${n} · ${who === 'is-bot' ? '🤖 Bot' : '🙂 Trader'}: ` }), text);
+      el('strong', { textContent: t('sw.who', { n, who: t(who === 'is-bot' ? 'sw.bot' : 'sw.trader') }) }), text);
     $('#sw-steps').replaceChildren(...(attacked
       ? [
-        step(1, 'is-bot', `buys ${ethAmt(best.frontOut)} for ${usdc(best.frontIn)}, pushing the price up.`),
-        step(2, 'is-victim', `buys ${ethAmt(best.victimOut)} for ${usdc(VICTIM_IN)} — just above the ${ethAmt(minOut)} minimum.`),
-        step(3, 'is-bot', `sells its ${ethAmt(best.frontOut)} back for ${usdc(best.backOut)}: ${usd(best.profit)} before costs, in seconds.`),
+        step(1, 'is-bot', t('sw.step1', { out: ethAmt(best.frontOut), in: usdc(best.frontIn) })),
+        step(2, 'is-victim', t('sw.step2', { out: ethAmt(best.victimOut), in: usdc(VICTIM_IN), min: ethAmt(minOut) })),
+        step(3, 'is-bot', t('sw.step3', { eth: ethAmt(best.frontOut), out: usdc(best.backOut), profit: usd(best.profit) })),
       ]
-      : [step(1, 'is-victim', `buys ${ethAmt(fair)} for ${usdc(VICTIM_IN)}. The tolerance leaves so little room that a sandwich wouldn’t cover the bot’s costs, so it leaves this swap alone.`)]));
+      : [step(1, 'is-victim', t('sw.safe', { out: ethAmt(fair), in: usdc(VICTIM_IN) }))]));
   }
 
   slider.addEventListener('input', render);
@@ -151,21 +152,21 @@ export function initImpermanentLossDemo() {
     const il = impermanentLoss(r);
 
     $('#il-move-out').textContent = `${usd(price)} (${pctMove(r)})`;
-    slider.setAttribute('aria-valuetext', `ETH at ${usd(price)}, ${pctMove(r)}; impermanent loss ${(il * -100).toFixed(1)}%`);
+    slider.setAttribute('aria-valuetext', t('il.valuetext', { price: usd(price), move: pctMove(r), loss: fmt(il * -100, 1) }));
     $('#il-hold').textContent = usd(hold);
     $('#il-pool').textContent = usd(pool);
-    $('#il-tokens').textContent = `${eth.toFixed(2)} ETH + ${fmt(usdcAmt)} USDC`;
+    $('#il-tokens').textContent = t('il.tokens', { eth: fmt(eth, 2), usdc: fmt(usdcAmt) });
     $('#il-loss').textContent = `${signedPct(il * 100, 2)} (${usd(hold - pool)})`;
 
     const xs = [];
     for (let v = -33; v <= 23; v++) xs.push(v);
     const config = {
-      title: 'Impermanent loss versus how far the price moved',
+      title: t('il.chart.title'),
       xs,
-      series: [{ label: 'impermanent loss', values: xs.map((v) => impermanentLoss(ratioOf(v)) * 100), color: 'var(--series-2)', type: 'area' }],
+      series: [{ label: t('il.chart.series'), values: xs.map((v) => impermanentLoss(ratioOf(v)) * 100), color: 'var(--series-2)', type: 'area' }],
       y: { min: -45, max: 0, ticks: [0, -10, -20, -30, -40], format: (v) => signedPct(v, 0) },
       x: {
-        label: 'ETH price change',
+        label: t('il.axis'),
         format: (v) => pctMove(ratioOf(v)),
         tickIndexes: [3, 13, 23, 33, 43, 53].filter((i) => i < xs.length),
       },
@@ -206,13 +207,13 @@ export function initLendingDemo() {
     const { collateral, debt } = position;
     const value = collateral * p;
     const hf = healthFactor(value, THRESHOLD, debt);
-    $('#ln-borrow-out').textContent = `${usdc(Number(borrow.value))} (${Math.round((Number(borrow.value) / 30_000) * 100)}% of the collateral’s value)`;
+    $('#ln-borrow-out').textContent = t('ln.borrowed', { amount: usdc(Number(borrow.value)), pct: Math.round((Number(borrow.value) / 30_000) * 100) });
     $('#ln-price-out').textContent = usd(p);
-    price.setAttribute('aria-valuetext', `ETH ${usd(p)}; health factor ${Number.isFinite(hf) ? hf.toFixed(2) : 'no debt'}`);
-    $('#ln-coll').textContent = `${collateral.toFixed(3)} ETH = ${usd(value)}`;
+    price.setAttribute('aria-valuetext', t('ln.valuetext', { price: usd(p), hf: Number.isFinite(hf) ? fmt(hf, 2) : t('ln.noDebt') }));
+    $('#ln-coll').textContent = t('ln.coll', { eth: fmt(collateral, 3), usd: usd(value) });
     $('#ln-debt').textContent = usdc(debt);
-    $('#ln-hf').textContent = Number.isFinite(hf) ? `${hf < 1 ? '⚠️' : hf < 1.2 ? '⚠️' : '✓'} ${hf.toFixed(2)}` : '∞ (no debt)';
-    $('#ln-liq').textContent = debt > 0 ? usd(liquidationPrice(collateral, THRESHOLD, debt)) : 'never';
+    $('#ln-hf').textContent = Number.isFinite(hf) ? `${hf < 1.2 ? '⚠️' : '✓'} ${fmt(hf, 2)}` : t('ln.hfNone');
+    $('#ln-liq').textContent = debt > 0 ? usd(liquidationPrice(collateral, THRESHOLD, debt)) : t('ln.never');
     liqBtn.disabled = !(hf < 1);
 
     if (liquidated) {
@@ -220,16 +221,16 @@ export function initLendingDemo() {
       verdict.textContent = liquidated;
     } else if (!(debt > 0)) {
       verdict.className = 'verdict neutral';
-      verdict.textContent = 'No loan, no risk — drag “You borrowed” to take one.';
+      verdict.textContent = t('ln.v.none');
     } else if (hf < 1) {
       verdict.className = 'verdict bad';
-      verdict.textContent = `✗ Health factor ${hf.toFixed(2)}: the loan is under-collateralized and anyone may now liquidate it.`;
+      verdict.textContent = t('ln.v.bad', { hf: fmt(hf, 2) });
     } else if (hf < 1.2) {
       verdict.className = 'verdict warn';
-      verdict.textContent = `⚠️ Health factor ${hf.toFixed(2)}: a ${Math.round((1 - 1 / hf) * 100)}% fall in ETH triggers liquidation.`;
+      verdict.textContent = t('ln.v.warn', { hf: fmt(hf, 2), pct: Math.round((1 - 1 / hf) * 100) });
     } else {
       verdict.className = 'verdict ok';
-      verdict.textContent = `✓ Healthy (${hf.toFixed(2)}). ETH can fall ${Math.round((1 - 1 / hf) * 100)}% before you can be liquidated.`;
+      verdict.textContent = t('ln.v.ok', { hf: fmt(hf, 2), pct: Math.round((1 - 1 / hf) * 100) });
     }
   }
 
@@ -239,8 +240,7 @@ export function initLendingDemo() {
     const seized = Math.min(position.collateral, (repay * (1 + BONUS)) / p);
     position = { collateral: position.collateral - seized, debt: position.debt - repay };
     const bonusEth = seized - repay / p;
-    liquidated = `⚡ A bot repaid ${usdc(repay)} of your debt and took ${seized.toFixed(3)} ETH (${usd(seized * p)}) of your collateral. `
-      + `${bonusEth.toFixed(3)} ETH of that — ${usd(bonusEth * p)} — is the 5% bonus: pure profit for the bot, paid by you.`;
+    liquidated = t('ln.liquidated', { repay: usdc(repay), seized: fmt(seized, 3), seizedUsd: usd(seized * p), bonus: fmt(bonusEth, 3), bonusUsd: usd(bonusEth * p) });
     render();
   });
   borrow.addEventListener('input', () => { reset(); render(); });

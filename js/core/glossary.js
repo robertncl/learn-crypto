@@ -1,11 +1,16 @@
 import { $, $$ } from './dom.js';
+import { lang, t } from './i18n.js';
 
 /* ============================== Glossary filter ============================== */
 
 export function initGlossary() {
   const input = $('#glossary-filter');
   const count = $('#glossary-count');
-  const entries = $$('.glossary details');
+  const list = $('.glossary');
+  // Terms were written in English order; list them alphabetically in the page language.
+  const collator = new Intl.Collator(lang, { numeric: true, sensitivity: 'base' });
+  const entries = $$('.glossary details').sort((a, b) => collator.compare($('summary', a).textContent.trim(), $('summary', b).textContent.trim()));
+  list.append(...entries);
   let announceId = 0;
 
   const update = () => {
@@ -23,8 +28,8 @@ export function initGlossary() {
     clearTimeout(announceId);
     announceId = setTimeout(() => {
       count.textContent = !query ? ''
-        : shown ? `${shown} of ${entries.length} terms match “${input.value.trim()}”.`
-          : `No terms match “${input.value.trim()}”.`;
+        : shown ? t('glossary.some', { shown, total: entries.length, query: input.value.trim() })
+          : t('glossary.none', { query: input.value.trim() });
     }, 350);
   };
 
