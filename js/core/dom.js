@@ -49,7 +49,10 @@ export function svgEl(tag, attrs = {}, ...children) {
   const node = document.createElementNS(SVG_NS, tag);
   for (const [key, value] of Object.entries(attrs)) {
     if (value === undefined || value === null || value === false) continue;
-    node.setAttribute(key, String(value));
+    // Styles go through the CSSOM: a style="" attribute would be blocked by a strict
+    // Content-Security-Policy (style-src without 'unsafe-inline'), cssText is not.
+    if (key === 'style') node.style.cssText = String(value);
+    else node.setAttribute(key, String(value));
   }
   node.append(...children.flat().filter((c) => c !== null && c !== undefined && c !== false));
   return node;
