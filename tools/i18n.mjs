@@ -125,6 +125,11 @@ export async function audit(lang, source) {
 
 if (import.meta.main) {
   const [cmd, lang, dir] = process.argv.slice(2);
+  // The language names a file to read and write; only accept the known ones.
+  if (['missing', 'export', 'import'].includes(cmd) && !LANGS.includes(lang)) {
+    console.error(`Unknown language "${lang}". Expected one of: ${LANGS.join(', ')}`);
+    process.exit(1);
+  }
   if (cmd === 'keys') {
     const { html, strings } = computeKeys(readFileSync(HTML, 'utf8'));
     writeFileSync(HTML, html);

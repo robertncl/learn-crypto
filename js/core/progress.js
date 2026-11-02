@@ -8,7 +8,23 @@ const PROGRESS_KEY = 'chainlab-progress';
 /* Every module with a quiz counts toward course progress. */
 const QUIZ_IDS = $$('form[data-quiz]').map((form) => form.dataset.quiz);
 
-export const progress = readJSON(PROGRESS_KEY, {});
+/* Stored data is untrusted (edited by hand, or left by an older version): keep only
+   well-formed entries for known quizzes, in an object with no prototype. */
+function loadProgress() {
+  const stored = readJSON(PROGRESS_KEY, {});
+  const clean = Object.create(null);
+  if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+    for (const id of QUIZ_IDS) {
+      const entry = stored[id];
+      if (entry && typeof entry === 'object' && Number.isFinite(entry.score) && Number.isFinite(entry.total)) {
+        clean[id] = { passed: entry.passed === true, score: entry.score, total: entry.total };
+      }
+    }
+  }
+  return clean;
+}
+
+export const progress = loadProgress();
 
 export function saveProgress() {
   writeJSON(PROGRESS_KEY, progress);
