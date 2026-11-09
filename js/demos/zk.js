@@ -173,7 +173,7 @@ export function initColoringDemo() {
         }),
         svgEl('text', { x: n.x, y: n.y + 2.4, 'text-anchor': 'middle', class: `zk-node-num${revealed ? ` on-${COLOURS[round.colours[i]].name}` : ''}` }, String(i + 1)),
         svgEl('text', { x: n.x + (n.x > 50 ? 9 : n.x < 50 ? -9 : 0), y: n.y + (n.x === 50 ? (n.y < 50 ? -9 : 12) : 2), 'text-anchor': n.x > 50 ? 'start' : n.x < 50 ? 'end' : 'middle', class: 'zk-commit' },
-          !round ? '' : revealed ? colourName(round.colours[i]) : `🔒${round.commits[i].slice(0, 6)}`));
+          !round ? '' : revealed ? colourName(round.colours[i]) : `${round.commits[i].slice(0, 6)}…`));
     });
     svg.replaceChildren(...edges, ...nodes);
     $$('.zk-edge-group', svg).forEach((g) => g.addEventListener('click', () => {

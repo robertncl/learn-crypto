@@ -26,6 +26,7 @@
   <title>ChainLab · Learn blockchain interactively</title>
   <meta name="description" content="An interactive course on blockchain and cryptocurrency: hashing, blocks, mining, wallets, consensus and Ethereum smart contracts — learn by experimenting.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%93%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/acme-tokens.css">
   <link rel="stylesheet" href="css/styles.css">
   <script type="module" src="js/app.js"></script>
 </head>
@@ -33,7 +34,7 @@
   <a class="skip-link" href="#main" data-i18n="h0a4470d6">Skip to content</a>
 
   <header class="site-header">
-    <a class="brand" href="#/home" data-i18n="h8f7778b6">⛓️ <strong>ChainLab</strong></a>
+    <a class="brand" href="#/home" data-i18n="h02df4a8a"><strong>ChainLab</strong></a>
     <div class="header-tools">
       <p class="progress-wrap">
         <span id="progress-label" data-i18n="h07ab88d4">0 / 10 modules</span>
@@ -48,7 +49,7 @@
         <option value="de">Deutsch</option>
         <option value="ja">日本語</option>
       </select>
-      <button type="button" id="theme-toggle" class="btn ghost" aria-label="Switch color theme" data-i18n="hf050dc6e" data-i18n-attr="aria-label:adba6e873">🌗 Auto</button>
+      <button type="button" id="theme-toggle" class="btn ghost" aria-label="Switch color theme" data-i18n="hc614ba7c" data-i18n-attr="aria-label:adba6e873">Auto</button>
     </div>
     <div class="read-progress" id="read-progress" aria-hidden="true"></div>
   </header>
@@ -57,25 +58,25 @@
     <aside class="sidebar">
       <nav id="site-nav" aria-label="Course modules" data-i18n-attr="aria-label:a31646d67">
         <ul>
-          <li><a href="#/home" data-route="home" data-i18n="hffd0a24a">🏠 Home</a></li>
-          <li><a href="#/basics" data-route="basics"><span class="num">1</span> <span data-i18n="h3167b34f">Blockchain basics</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/hashing" data-route="hashing"><span class="num">2</span> <span data-i18n="h53e49a69">Hashing</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/blocks" data-route="blocks"><span class="num">3</span> <span data-i18n="h61c33853">Blocks &amp; the chain</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/mining" data-route="mining"><span class="num">4</span> <span data-i18n="h8634ebd8">Mining &amp; proof of work</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/keys" data-route="keys"><span class="num">5</span> <span data-i18n="hfd692fdd">Keys, wallets &amp; signatures</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/consensus" data-route="consensus"><span class="num">6</span> <span data-i18n="hfca4f062">Transactions &amp; consensus</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/ethereum" data-route="ethereum"><span class="num">7</span> <span data-i18n="h08b1bc2b">Ethereum &amp; smart contracts</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/nft" data-route="nft"><span class="num">8</span> <span data-i18n="h8ad9e9eb">NFTs &amp; digital ownership</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/defi" data-route="defi"><span class="num">9</span> <span data-i18n="hbed4a30e">DeFi: exchanges &amp; loans</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/zk" data-route="zk"><span class="num">10</span> <span data-i18n="h214d0d5c">Zero-knowledge proofs</span> <span class="done-mark" hidden>✓</span></a></li>
-          <li><a href="#/glossary" data-route="glossary" data-i18n="h69eb50d2">📖 Glossary</a></li>
+          <li><a href="#/home" data-route="home" data-i18n="h70f8bb9a">Home</a></li>
+          <li><a href="#/basics" data-route="basics"><span class="num">1</span> <span data-i18n="h3167b34f">Blockchain basics</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/hashing" data-route="hashing"><span class="num">2</span> <span data-i18n="h53e49a69">Hashing</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/blocks" data-route="blocks"><span class="num">3</span> <span data-i18n="h61c33853">Blocks &amp; the chain</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/mining" data-route="mining"><span class="num">4</span> <span data-i18n="h8634ebd8">Mining &amp; proof of work</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/keys" data-route="keys"><span class="num">5</span> <span data-i18n="hfd692fdd">Keys, wallets &amp; signatures</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/consensus" data-route="consensus"><span class="num">6</span> <span data-i18n="hfca4f062">Transactions &amp; consensus</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/ethereum" data-route="ethereum"><span class="num">7</span> <span data-i18n="h08b1bc2b">Ethereum &amp; smart contracts</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/nft" data-route="nft"><span class="num">8</span> <span data-i18n="h8ad9e9eb">NFTs &amp; digital ownership</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/defi" data-route="defi"><span class="num">9</span> <span data-i18n="hbed4a30e">DeFi: exchanges &amp; loans</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/zk" data-route="zk"><span class="num">10</span> <span data-i18n="h214d0d5c">Zero-knowledge proofs</span> <span class="done-mark" hidden></span></a></li>
+          <li><a href="#/glossary" data-route="glossary" data-i18n="h7427cf69">Glossary</a></li>
         </ul>
       </nav>
     </aside>
 
     <main id="main">
-      <p id="crypto-warning" class="banner warn" hidden data-i18n="hb298a07a">
-        ⚠️ A few demos (the SHA-256 playground, the Merkle tree, the toy blockchain, signing and seed phrases) need the
+      <p id="crypto-warning" class="banner warn" hidden data-i18n="hc4d931a6">
+        A few demos (the SHA-256 playground, the Merkle tree, the toy blockchain, signing and seed phrases) need the
         Web Crypto API, which requires a secure context. Serve this folder over <code>localhost</code> (for example
         <code>python3 -m http.server</code>) and reload.
       </p>
@@ -98,62 +99,62 @@
           <article class="module-card" data-module="basics">
             <h3 data-i18n="h296e3916"><a href="#/basics">1 · Blockchain basics</a></h3>
             <p data-i18n="h53b0ced1">Corrupt nodes until the lie wins, learn why votes need weight, and test whether a project needs a blockchain at all.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="hashing">
             <h3 data-i18n="hb142666c"><a href="#/hashing">2 · Hashing</a></h3>
             <p data-i18n="he513b900">SHA-256 live, the avalanche effect bit by bit, Merkle proofs, a collision hunt and sealed-envelope commitments.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="blocks">
             <h3 data-i18n="hf4e4cc5b"><a href="#/blocks">3 · Blocks &amp; the chain</a></h3>
             <p data-i18n="he6a357ae">Break a toy chain, then hash Bitcoin’s genesis block yourself and re-mine Satoshi’s nonce.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="mining">
             <h3 data-i18n="ha8a97657"><a href="#/mining">4 · Mining &amp; proof of work</a></h3>
             <p data-i18n="h7105d1b0">Mine blocks and measure your luck, see why pools exist, shock the difficulty thermostat and walk the supply curve.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="keys">
             <h3 data-i18n="h01e5dec1"><a href="#/keys">5 · Keys, wallets &amp; signatures</a></h3>
             <p data-i18n="hdb6c7b5b">Hop along an elliptic curve, derive real Bitcoin and Ethereum addresses from a seed phrase, and steal a key from a reused nonce.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="consensus">
             <h3 data-i18n="h5be9e368"><a href="#/consensus">6 · Transactions &amp; consensus</a></h3>
             <p data-i18n="h7dce5c34">Spend UTXOs and make change, fill a block by fee rate, race a double-spender and slash a cheating validator.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="ethereum">
             <h3 data-i18n="h311dafc4"><a href="#/ethereum">7 · Ethereum &amp; smart contracts</a></h3>
             <p data-i18n="h8b06c551">Encode a contract call, step through EVM bytecode, watch the EIP-1559 base fee move and drain a vault by reentrancy.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="nft">
             <h3 data-i18n="hb1226257"><a href="#/nft">8 · NFTs &amp; digital ownership</a></h3>
             <p data-i18n="he64222e2">Mint and trade tokens, break an NFT’s link, and sell through a marketplace — then fall for a drainer scam.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="defi">
             <h3 data-i18n="h25b57471"><a href="#/defi">9 · DeFi: exchanges &amp; loans</a></h3>
             <p data-i18n="had55c3a4">Trade against a liquidity pool, get sandwiched by a bot, measure impermanent loss and get liquidated.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
           <article class="module-card" data-module="zk">
             <h3 data-i18n="h3923d8e8"><a href="#/zk">10 · Zero-knowledge proofs</a></h3>
             <p data-i18n="h69a3fee2">Catch a bluffer in the magic cave, then verify a real zero-knowledge proof built from hash commitments.</p>
-            <p class="card-status" hidden data-i18n="h3173213e">Completed ✓</p>
+            <p class="card-status" hidden data-i18n="h1798b3ba">Completed</p>
           </article>
         </div>
 
         <h2 data-i18n="h1dd6a17c">How it works</h2>
         <ul class="feature-list">
-          <li data-i18n="h99f8d546">🧪 <strong>Real cryptography</strong> — the demos run genuine SHA-256, ECDSA on secp256k1, Keccak-256, RIPEMD-160 and the BIP-39/32 wallet standards. They reproduce published test vectors, from Bitcoin’s genesis block hash to the accounts developer tools derive from a test phrase.</li>
-          <li data-i18n="hbbd22c7f">📈 <strong>Simulations you can steer</strong> — difficulty retargeting, double-spend races, the EIP-1559 fee market and AMM pools, each with charts you can hover, read by keyboard or open as a data table.</li>
-          <li data-i18n="h3d572e43">🔬 <strong>Deep dives</strong> — optional expandable sections go from intuition to protocol detail: length-extension attacks, version rolling, Schnorr, flash loans, trusted setups and more.</li>
-          <li data-i18n="h1f5ee269">✅ <strong>Quizzes</strong> — each module ends with a short check; score 70% or more to mark it complete, and your best score is remembered.</li>
-          <li data-i18n="he327d0fb">💾 <strong>Progress saved locally</strong> — your progress lives in your browser only.</li>
+          <li data-i18n="h76e0edbf"><strong>Real cryptography</strong> — the demos run genuine SHA-256, ECDSA on secp256k1, Keccak-256, RIPEMD-160 and the BIP-39/32 wallet standards. They reproduce published test vectors, from Bitcoin’s genesis block hash to the accounts developer tools derive from a test phrase.</li>
+          <li data-i18n="h15064c6b"><strong>Simulations you can steer</strong> — difficulty retargeting, double-spend races, the EIP-1559 fee market and AMM pools, each with charts you can hover, read by keyboard or open as a data table.</li>
+          <li data-i18n="hbed5d205"><strong>Deep dives</strong> — optional expandable sections go from intuition to protocol detail: length-extension attacks, version rolling, Schnorr, flash loans, trusted setups and more.</li>
+          <li data-i18n="hf9f6f891"><strong>Quizzes</strong> — each module ends with a short check; score 70% or more to mark it complete, and your best score is remembered.</li>
+          <li data-i18n="hb5729d18"><strong>Progress saved locally</strong> — your progress lives in your browser only.</li>
         </ul>
       </section>
 
@@ -225,10 +226,10 @@
             three questions yourself.
           </p>
           <p class="demo-actions" role="group" aria-label="Example scenarios" data-i18n-attr="aria-label:a65ba30b3">
-            <button type="button" class="btn" data-scenario="bakery" aria-pressed="false" data-i18n="h9ff74e3a">🧁 A bakery’s stock list</button>
-            <button type="button" class="btn" data-scenario="game" aria-pressed="false" data-i18n="hd8590134">🎮 A game’s leaderboard</button>
-            <button type="button" class="btn" data-scenario="banks" aria-pressed="false" data-i18n="h53942295">🏦 Payments between rival banks</button>
-            <button type="button" class="btn" data-scenario="money" aria-pressed="false" data-i18n="ha5459e13">🌍 Money no one can freeze</button>
+            <button type="button" class="btn" data-scenario="bakery" aria-pressed="false" data-i18n="hcc270bfe">A bakery’s stock list</button>
+            <button type="button" class="btn" data-scenario="game" aria-pressed="false" data-i18n="h4a5e19a5">A game’s leaderboard</button>
+            <button type="button" class="btn" data-scenario="banks" aria-pressed="false" data-i18n="h284b1a4e">Payments between rival banks</button>
+            <button type="button" class="btn" data-scenario="money" aria-pressed="false" data-i18n="haac1f944">Money no one can freeze</button>
           </p>
           <fieldset class="checklist" id="need-questions">
             <legend data-i18n="h517f9122">The three-question test</legend>
@@ -474,7 +475,7 @@
           </p>
           <div class="hunts">
             <section class="hunt" aria-labelledby="pre-title">
-              <h3 id="pre-title" data-i18n="hf07b3780">🎯 Preimage hunt</h3>
+              <h3 id="pre-title" data-i18n="h2712c1fe">Preimage hunt</h3>
               <p data-i18n="h8b30cf89">Find an input whose hash starts with the same bits as <code>SHA-256("ChainLab")</code>.</p>
               <p class="hunt-target"><span data-i18n="h652ac2cb">Target:</span> <code id="pre-target"></code></p>
               <p class="demo-actions"><button type="button" class="btn primary" id="pre-run" data-i18n="h743cc440">Start hunt</button></p>
@@ -484,7 +485,7 @@
               <div class="hunt-result" id="pre-result" role="status"></div>
             </section>
             <section class="hunt" aria-labelledby="col-title">
-              <h3 id="col-title" data-i18n="h846690f4">🎂 Collision hunt</h3>
+              <h3 id="col-title" data-i18n="h3b4848f0">Collision hunt</h3>
               <p data-i18n="hafeeba71">Find <em>any two</em> different inputs whose hashes share those first bits.</p>
               <p class="hunt-target" data-i18n="hc7c74803">Target: any match at all</p>
               <p class="demo-actions"><button type="button" class="btn primary" id="col-run" data-i18n="h743cc440">Start hunt</button></p>
@@ -529,13 +530,13 @@
             </p>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="commit-seal" data-i18n="habdd6f4d">🔒 Publish commitment</button>
+            <button type="button" class="btn primary" id="commit-seal" data-i18n="h55ff2b89">Publish commitment</button>
           </p>
           <p class="hash-label" data-i18n="he9cab0b8">Public commitment = SHA-256(prediction ‖ salt)</p>
           <output class="hash-box" id="commit-hash">nothing published yet</output>
           <p class="demo-actions">
-            <button type="button" class="btn" id="commit-reveal" disabled data-i18n="hd71ab681">📬 Reveal &amp; verify</button>
-            <button type="button" class="btn" id="commit-crack" disabled data-i18n="h462394d1">🕵️ Let a snoop guess it</button>
+            <button type="button" class="btn" id="commit-reveal" disabled data-i18n="h830234f3">Reveal &amp; verify</button>
+            <button type="button" class="btn" id="commit-crack" disabled data-i18n="h2976af28">Let a snoop guess it</button>
           </p>
           <p class="verdict" id="commit-verdict" role="status"></p>
           <p class="demo-note" data-i18n="hd792f6ec">
@@ -693,7 +694,7 @@
           <ol class="hash-steps" id="hdr-steps"></ol>
           <p class="verdict" id="hdr-verdict" role="status"></p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="hdr-search" data-i18n="hf970a4d3">⛏️ Re-mine it</button>
+            <button type="button" class="btn primary" id="hdr-search" data-i18n="hea2b91f0">Re-mine it</button>
             <button type="button" class="btn ghost" id="hdr-restore" data-i18n="h9d218c2e">Restore the real nonce</button>
           </p>
           <p class="stat-line" id="hdr-search-status"></p>
@@ -815,8 +816,8 @@
             </p>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="mine-start" data-i18n="ha4b6664e">⛏️ Mine one block</button>
-            <button type="button" class="btn" id="mine-repeat" data-i18n="hdd9036b5">🎲 Mine 10 in a row</button>
+            <button type="button" class="btn primary" id="mine-start" data-i18n="he8fceaaf">Mine one block</button>
+            <button type="button" class="btn" id="mine-repeat" data-i18n="h4561feec">Mine 10 in a row</button>
             <button type="button" class="btn" id="mine-stop" disabled data-i18n="h9e253470">Stop</button>
           </p>
           <p class="verdict neutral" id="mine-status" role="status" data-i18n="hb1916680">Idle — press a button to start.</p>
@@ -899,9 +900,9 @@
             <input type="range" id="rt-hash" min="10" max="400" step="5" value="100">
           </p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="rt-step" data-i18n="had62d434">▶ Run one period</button>
-            <button type="button" class="btn" id="rt-ban" data-i18n="h7e948f77">📉 Replay mid-2021: half the miners switch off</button>
-            <button type="button" class="btn" id="rt-boom" data-i18n="hac76c601">📈 New chips: hashpower doubles</button>
+            <button type="button" class="btn primary" id="rt-step" data-i18n="hc7b6eb25">Run one period</button>
+            <button type="button" class="btn" id="rt-ban" data-i18n="hb22d418c">Replay mid-2021: half the miners switch off</button>
+            <button type="button" class="btn" id="rt-boom" data-i18n="hceab6530">New chips: hashpower doubles</button>
             <button type="button" class="btn ghost" id="rt-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <div class="stat-grid">
@@ -1050,7 +1051,7 @@
         <div class="demo-card">
           <h2 data-i18n="h4823c0a6">Try it: sign and verify a transaction</h2>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="keys-generate" data-i18n="h77452063">🔑 Generate wallet</button>
+            <button type="button" class="btn primary" id="keys-generate" data-i18n="h603e37eb">Generate wallet</button>
           </p>
           <div id="keys-wallet" hidden>
             <p class="hash-label" data-i18n="hc85b9e1c">Your address:</p>
@@ -1063,17 +1064,17 @@
             <textarea id="keys-message" rows="2" spellcheck="false">I, Alice, pay Bob 5 coins.</textarea>
           </p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="keys-sign" disabled data-i18n="hf92cb7e3">✍️ Sign message</button>
-            <button type="button" class="btn" id="keys-verify" disabled data-i18n="h3082f343">🔍 Verify signature</button>
+            <button type="button" class="btn primary" id="keys-sign" disabled data-i18n="hca51a069">Sign message</button>
+            <button type="button" class="btn" id="keys-verify" disabled data-i18n="h0390a8f7">Verify signature</button>
           </p>
           <div id="keys-sig-wrap" hidden>
             <p class="hash-label" data-i18n="h671048db">Signature:</p>
             <output class="hash-box small copyable" id="keys-signature"></output>
           </div>
           <p class="verdict" id="keys-verdict" role="status" aria-live="polite" hidden></p>
-          <p class="demo-note" data-i18n="h1e066964">
-            <strong>The lesson:</strong> sign the message, verify it (✅), then change even one character of the
-            message and verify again (❌). A signature locks a key to an <em>exact</em> message — this is how the
+          <p class="demo-note" data-i18n="h685376f5">
+            <strong>The lesson:</strong> sign the message, verify it, then change even one character of the
+            message and verify again. A signature locks a key to an <em>exact</em> message — this is how the
             network knows a transaction is genuine and unmodified.
           </p>
         </div>
@@ -1104,8 +1105,8 @@
                 <dt data-i18n="h0a41e986">Fast way to compute it</dt><dd id="curve-steps">–</dd>
               </dl>
               <p class="demo-actions">
-                <button type="button" class="btn" id="curve-hide" data-i18n="h040a9c50">🎯 Hide a random key</button>
-                <button type="button" class="btn primary" id="curve-crack" disabled data-i18n="hc7e1a2e6">🔨 Brute-force it</button>
+                <button type="button" class="btn" id="curve-hide" data-i18n="h736c3660">Hide a random key</button>
+                <button type="button" class="btn primary" id="curve-crack" disabled data-i18n="hea107880">Brute-force it</button>
               </p>
               <p class="verdict" id="curve-verdict" role="status"></p>
             </div>
@@ -1129,12 +1130,12 @@
         <div class="demo-card">
           <h2 data-i18n="hf9c76288">Try it: one private key, two blockchains</h2>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="addr-random" data-i18n="h7e8343bd">🎲 New random private key</button>
+            <button type="button" class="btn primary" id="addr-random" data-i18n="h5ec95661">New random private key</button>
             <button type="button" class="btn" id="addr-one" data-i18n="h83bf3be5">Use private key = 1</button>
           </p>
           <ol class="pipeline" id="addr-pipeline"></ol>
-          <p class="verdict warn" id="addr-warning" hidden data-i18n="h2a26f2bb">
-            ⚠️ Private key 1 is the first number anyone would try. Its addresses are public knowledge, and bots sweep any
+          <p class="verdict warn" id="addr-warning" hidden data-i18n="h9539a43f">
+            Private key 1 is the first number anyone would try. Its addresses are public knowledge, and bots sweep any
             coins sent to them within seconds. A key is only as secret as it is random — the downfall of “brain wallets”
             made from memorable phrases.
           </p>
@@ -1144,7 +1145,7 @@
             <input type="text" id="addr-check" spellcheck="false" autocomplete="off">
           </p>
           <p class="demo-actions">
-            <button type="button" class="btn" id="addr-typo" data-i18n="heeb2ada0">✏️ Introduce a random typo</button>
+            <button type="button" class="btn" id="addr-typo" data-i18n="h7ba6c933">Introduce a random typo</button>
           </p>
           <p class="verdict" id="addr-check-verdict" role="status"></p>
           <p class="demo-note" data-i18n="h386e2497">
@@ -1165,19 +1166,19 @@
 
         <div class="demo-card">
           <h2 data-i18n="h3f31aedc">Try it: from 128 random bits to a wallet full of addresses</h2>
-          <p class="banner warn" data-i18n="h2576f446">
-            ⚠️ Never type a real seed phrase into any website — including this one. Anyone who sees your words owns your
+          <p class="banner warn" data-i18n="hc3ad14ad">
+            Never type a real seed phrase into any website — including this one. Anyone who sees your words owns your
             coins. This demo only generates throwaway phrases and loads well-known public test phrases.
           </p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="seed-new" data-i18n="he56cdb37">🎲 Generate a new phrase</button>
+            <button type="button" class="btn primary" id="seed-new" data-i18n="hc4d96e35">Generate a new phrase</button>
             <button type="button" class="btn" data-test-phrase="abandon" data-i18n="h39a70f87">Test phrase: “abandon … about”</button>
             <button type="button" class="btn" data-test-phrase="test" data-i18n="hf56b046e">Test phrase: “test … junk”</button>
           </p>
           <p class="hash-label" data-i18n="hb1387651">128 random bits + 4 checksum bits = 12 groups of 11 bits → 12 words</p>
           <ol class="seed-words" id="seed-words"></ol>
           <p class="demo-actions">
-            <button type="button" class="btn" id="seed-typo" data-i18n="h33fa63ad">✏️ Make a transcription error</button>
+            <button type="button" class="btn" id="seed-typo" data-i18n="had9bdc47">Make a transcription error</button>
             <button type="button" class="btn ghost" id="seed-fix" hidden data-i18n="h80d78b40">Undo the error</button>
           </p>
           <p class="verdict" id="seed-verdict" role="status"></p>
@@ -1226,8 +1227,8 @@
             <label><input type="radio" name="nonce-mode" value="reuse"> <span data-i18n="hba4b69f3">The same</span> <var data-i18n="h13fbd79c">k</var> <span data-i18n="h97bbac29">twice (the PS3 bug)</span></label>
           </fieldset>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="nonce-sign" data-i18n="hfea7b6f2">✍️ Sign both messages</button>
-            <button type="button" class="btn" id="nonce-attack" disabled data-i18n="h28d3eeda">🕵️ Attack: solve for the private key</button>
+            <button type="button" class="btn primary" id="nonce-sign" data-i18n="h3193fb66">Sign both messages</button>
+            <button type="button" class="btn" id="nonce-attack" disabled data-i18n="hb8529a56">Attack: solve for the private key</button>
           </p>
           <div class="sig-pair" id="nonce-sigs"></div>
           <ol class="hash-steps" id="nonce-steps"></ol>
@@ -1351,7 +1352,7 @@
             <fieldset class="utxo-inputs">
               <legend data-i18n="h1c1a67b6">Alice’s coins — tick the ones to spend</legend>
               <div id="utxo-list"></div>
-              <p class="demo-actions"><button type="button" class="btn ghost" id="utxo-auto" data-i18n="h4b40415f">🤖 Let the wallet choose</button></p>
+              <p class="demo-actions"><button type="button" class="btn ghost" id="utxo-auto" data-i18n="h5bba2dfa">Let the wallet choose</button></p>
             </fieldset>
             <div class="utxo-outputs">
               <p><label for="utxo-pay" data-i18n="h45385ae1">Pay Bob (BTC)</label><input type="number" id="utxo-pay" value="0.25" min="0.0001" step="0.01"></p>
@@ -1366,8 +1367,8 @@
           <div class="tx-preview" id="utxo-tx" aria-live="off"></div>
           <p class="verdict" id="utxo-verdict" role="status"></p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="utxo-send" data-i18n="h4840f320">📡 Broadcast &amp; confirm</button>
-            <button type="button" class="btn" id="utxo-replay" disabled data-i18n="hdf8923b0">🔁 Try to spend those coins again</button>
+            <button type="button" class="btn primary" id="utxo-send" data-i18n="h60b7d27e">Broadcast &amp; confirm</button>
+            <button type="button" class="btn" id="utxo-replay" disabled data-i18n="h3460631b">Try to spend those coins again</button>
             <button type="button" class="btn ghost" id="utxo-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <div class="table-wrap">
@@ -1393,11 +1394,11 @@
           </p>
           <div class="feemarket" id="feemarket-demo">
             <div class="fee-col">
-              <h3 class="fee-col-title"><span data-i18n="h4052ee3c">📥 Mempool</span> <span class="fee-col-sub" id="fm-pool-sub"></span></h3>
+              <h3 class="fee-col-title"><span data-i18n="hb82803be">Mempool</span> <span class="fee-col-sub" id="fm-pool-sub"></span></h3>
               <ul class="tx-pool" id="fm-pool" aria-label="Pending transactions waiting in the mempool" data-i18n-attr="aria-label:a8a69f27f"></ul>
             </div>
             <div class="fee-col">
-              <h3 class="fee-col-title"><span data-i18n="h731a0443">🧱 Your block</span> <span class="fee-col-sub" data-i18n="hd02b5f59">max 1,000 vB</span></h3>
+              <h3 class="fee-col-title"><span data-i18n="h75f7befe">Your block</span> <span class="fee-col-sub" data-i18n="hd02b5f59">max 1,000 vB</span></h3>
               <p class="cap-bar"><span class="cap-fill" id="fm-cap-fill"></span></p>
               <ul class="tx-pool is-block" id="fm-block" aria-label="Transactions you added to the block" data-i18n-attr="aria-label:a2d3977f2"></ul>
             </div>
@@ -1408,7 +1409,7 @@
             <p><span class="stat-label" data-i18n="hde12fdb4">Fees collected</span><span id="fm-fees" data-i18n="ha49694cd">0 sat</span></p>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="fm-mine" data-i18n="h43fd628e">🤖 Let the miner fill it</button>
+            <button type="button" class="btn primary" id="fm-mine" data-i18n="h85b58dee">Let the miner fill it</button>
             <button type="button" class="btn ghost" id="fm-clear" data-i18n="h23f6a42f">Clear block</button>
           </p>
           <p class="stat" id="fm-verdict" role="status" aria-live="polite"></p>
@@ -1447,7 +1448,7 @@
           </div>
           <div class="chart" id="race-chart"></div>
           <p class="demo-actions">
-            <button type="button" class="btn" id="race-sim" data-i18n="h607c0fb3">🏁 Simulate 10,000 attacks</button>
+            <button type="button" class="btn" id="race-sim" data-i18n="hacd433b8">Simulate 10,000 attacks</button>
           </p>
           <p class="verdict" id="race-verdict" role="status"></p>
           <p class="demo-note" data-i18n="h18bcbe6f">
@@ -1479,28 +1480,28 @@
           <p data-i18n="he2f3ad43">In proof of stake, your odds of being chosen to propose the next block are proportional to your stake. Adjust the stakes and run the selection.</p>
           <div class="validators" id="stake-demo">
             <div class="validator" id="val-v1">
-              <p><label for="stake-v1"><span data-i18n="h9ac3baba">🦊 Ava — stake:</span> <output id="stake-out-v1"></output></label></p>
+              <p><label for="stake-v1"><span data-i18n="hcb5a0ff4">Ava — stake:</span> <output id="stake-out-v1"></output></label></p>
               <input type="range" id="stake-v1" min="1" max="100" value="60">
               <p class="win-bar"><span class="win-fill" id="win-fill-v1"></span></p>
               <p class="win-text" id="win-text-v1" data-i18n="ha22c41b9">no rounds yet</p>
             </div>
             <div class="validator" id="val-v2">
-              <p><label for="stake-v2"><span data-i18n="h8efc52b9">🐢 Ben — stake:</span> <output id="stake-out-v2"></output></label></p>
+              <p><label for="stake-v2"><span data-i18n="h71c7c60a">Ben — stake:</span> <output id="stake-out-v2"></output></label></p>
               <input type="range" id="stake-v2" min="1" max="100" value="30">
               <p class="win-bar"><span class="win-fill" id="win-fill-v2"></span></p>
               <p class="win-text" id="win-text-v2" data-i18n="ha22c41b9">no rounds yet</p>
             </div>
             <div class="validator" id="val-v3">
-              <p><label for="stake-v3"><span data-i18n="h6d9497d7">🦉 Cara — stake:</span> <output id="stake-out-v3"></output></label></p>
+              <p><label for="stake-v3"><span data-i18n="h32dde5e4">Cara — stake:</span> <output id="stake-out-v3"></output></label></p>
               <input type="range" id="stake-v3" min="1" max="100" value="10">
               <p class="win-bar"><span class="win-fill" id="win-fill-v3"></span></p>
               <p class="win-text" id="win-text-v3" data-i18n="ha22c41b9">no rounds yet</p>
             </div>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="stake-pick" data-i18n="h71dfb71c">🎲 Select next validator</button>
+            <button type="button" class="btn primary" id="stake-pick" data-i18n="h95b8aa2a">Select next validator</button>
             <button type="button" class="btn" id="stake-run" data-i18n="h13ae90d5">Run 100 rounds</button>
-            <button type="button" class="btn" id="stake-slash" data-i18n="h8fa66387">😈 Ben signs two conflicting blocks</button>
+            <button type="button" class="btn" id="stake-slash" data-i18n="h99536224">Ben signs two conflicting blocks</button>
             <button type="button" class="btn ghost" id="stake-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <p class="stat" id="stake-summary" role="status" aria-live="polite"></p>
@@ -1674,25 +1675,25 @@
   }
 }</pre>
           <div class="stat-grid" role="status" aria-live="polite">
-            <p><span class="stat-label" data-i18n="h15eae117">🦊 Alice</span><span id="eth-bal-alice">–</span></p>
-            <p><span class="stat-label" data-i18n="h93304fe8">🐢 Bob</span><span id="eth-bal-bob">–</span></p>
-            <p><span class="stat-label" data-i18n="hf5b7a5e7">🦉 Carol</span><span id="eth-bal-carol">–</span></p>
+            <p><span class="stat-label" data-i18n="h35318264">Alice</span><span id="eth-bal-alice">–</span></p>
+            <p><span class="stat-label" data-i18n="hda6645f6">Bob</span><span id="eth-bal-bob">–</span></p>
+            <p><span class="stat-label" data-i18n="h6f90f101">Carol</span><span id="eth-bal-carol">–</span></p>
           </div>
           <div class="duo">
             <p>
               <label for="eth-caller" data-i18n="h557ef794">Call as (msg.sender)</label>
               <select id="eth-caller">
-                <option value="alice" data-i18n="h15eae117">🦊 Alice</option>
-                <option value="bob" data-i18n="h93304fe8">🐢 Bob</option>
-                <option value="carol" data-i18n="hf5b7a5e7">🦉 Carol</option>
+                <option value="alice" data-i18n="h35318264">Alice</option>
+                <option value="bob" data-i18n="hda6645f6">Bob</option>
+                <option value="carol" data-i18n="h6f90f101">Carol</option>
               </select>
             </p>
             <p>
               <label for="eth-recipient" data-i18n="hb98cc23a">Send to</label>
               <select id="eth-recipient">
-                <option value="alice" data-i18n="h15eae117">🦊 Alice</option>
-                <option value="bob" selected data-i18n="h93304fe8">🐢 Bob</option>
-                <option value="carol" data-i18n="hf5b7a5e7">🦉 Carol</option>
+                <option value="alice" data-i18n="h35318264">Alice</option>
+                <option value="bob" selected data-i18n="hda6645f6">Bob</option>
+                <option value="carol" data-i18n="h6f90f101">Carol</option>
               </select>
             </p>
             <p>
@@ -1701,7 +1702,7 @@
             </p>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="eth-call" data-i18n="h6f67d003">📞 Call transfer()</button>
+            <button type="button" class="btn primary" id="eth-call" data-i18n="h41d18442">Call transfer()</button>
             <button type="button" class="btn ghost" id="eth-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <p class="hash-label" data-i18n="h65127ddb">Transaction log:</p>
@@ -1802,8 +1803,8 @@
             </div>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="evm-step" data-i18n="h71bcb7e8">⏭ Step</button>
-            <button type="button" class="btn" id="evm-run" data-i18n="hcdd664f4">▶ Run to the end</button>
+            <button type="button" class="btn primary" id="evm-step" data-i18n="hdc416e10">Step</button>
+            <button type="button" class="btn" id="evm-run" data-i18n="h45d2e173">Run to the end</button>
             <button type="button" class="btn ghost" id="evm-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <p class="verdict" id="evm-verdict" role="status"></p>
@@ -1834,9 +1835,9 @@
             <input type="range" id="bf-demand" min="0" max="100" value="50">
           </p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="bf-step" data-i18n="h0211fb5c">▶ Produce one block</button>
-            <button type="button" class="btn" id="bf-ten" data-i18n="had8924bf">⏩ Ten blocks</button>
-            <button type="button" class="btn" id="bf-frenzy" data-i18n="h41e290f1">🖼️ NFT-launch frenzy: 10 full blocks</button>
+            <button type="button" class="btn primary" id="bf-step" data-i18n="h0a2114d2">Produce one block</button>
+            <button type="button" class="btn" id="bf-ten" data-i18n="h761783c8">Ten blocks</button>
+            <button type="button" class="btn" id="bf-frenzy" data-i18n="h7b427c0a">NFT-launch frenzy: 10 full blocks</button>
             <button type="button" class="btn ghost" id="bf-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <div class="stat-grid">
@@ -1928,8 +1929,8 @@
           <ol class="call-stack" id="re-stack"></ol>
           <p class="re-narration" id="re-narration"></p>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="re-step" data-i18n="h71bcb7e8">⏭ Step</button>
-            <button type="button" class="btn" id="re-run" data-i18n="hc810bd90">▶ Run the attack</button>
+            <button type="button" class="btn primary" id="re-step" data-i18n="hdc416e10">Step</button>
+            <button type="button" class="btn" id="re-run" data-i18n="hacd551a5">Run the attack</button>
             <button type="button" class="btn ghost" id="re-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <p class="verdict" id="re-verdict" role="status"></p>
@@ -2087,8 +2088,8 @@
             <div class="nft-card cid-wallet" id="cid-wallet" aria-live="polite"></div>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn" id="cid-swap" data-i18n="h9400fcf1">🎨 The host swaps the picture</button>
-            <button type="button" class="btn" id="cid-down" data-i18n="hcb64fe0d">🔌 The host shuts down</button>
+            <button type="button" class="btn" id="cid-swap" data-i18n="ha02d13d3">The host swaps the picture</button>
+            <button type="button" class="btn" id="cid-down" data-i18n="hfe9894e0">The host shuts down</button>
             <label class="check-inline-label" id="cid-pin-row"><input type="checkbox" id="cid-pin" checked> <span data-i18n="h44dfd803">Another node also pins the file</span></label>
             <button type="button" class="btn ghost" id="cid-reset" data-i18n="h44c57abd">Reset</button>
           </p>
@@ -2121,9 +2122,9 @@
             <p>
               <label for="nft-caller" data-i18n="h557ef794">Call as (msg.sender)</label>
               <select id="nft-caller">
-                <option value="alice" data-i18n="h15eae117">🦊 Alice</option>
-                <option value="bob" data-i18n="h93304fe8">🐢 Bob</option>
-                <option value="carol" data-i18n="hf5b7a5e7">🦉 Carol</option>
+                <option value="alice" data-i18n="h35318264">Alice</option>
+                <option value="bob" data-i18n="hda6645f6">Bob</option>
+                <option value="carol" data-i18n="h6f90f101">Carol</option>
               </select>
             </p>
             <p>
@@ -2133,15 +2134,15 @@
             <p>
               <label for="nft-recipient" data-i18n="h3e66b878">Transfer to</label>
               <select id="nft-recipient">
-                <option value="alice" data-i18n="h15eae117">🦊 Alice</option>
-                <option value="bob" selected data-i18n="h93304fe8">🐢 Bob</option>
-                <option value="carol" data-i18n="hf5b7a5e7">🦉 Carol</option>
+                <option value="alice" data-i18n="h35318264">Alice</option>
+                <option value="bob" selected data-i18n="hda6645f6">Bob</option>
+                <option value="carol" data-i18n="h6f90f101">Carol</option>
               </select>
             </p>
           </div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="nft-transfer" data-i18n="h2f5c8450">📤 Call transferFrom()</button>
-            <button type="button" class="btn" id="nft-mint" data-i18n="ha06eaa38">🪙 Mint a new token</button>
+            <button type="button" class="btn primary" id="nft-transfer" data-i18n="h26d1ae60">Call transferFrom()</button>
+            <button type="button" class="btn" id="nft-mint" data-i18n="h670888d9">Mint a new token</button>
             <button type="button" class="btn ghost" id="nft-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <p class="hash-label" data-i18n="h65127ddb">Transaction log:</p>
@@ -2175,20 +2176,20 @@
           <p data-i18n="h58bd11fa">Alice owns two NFTs made by the artist Ada. Bob wants to buy one.</p>
           <div class="market-tokens" id="mkt-tokens"></div>
           <div class="stat-grid">
-            <p><span class="stat-label" data-i18n="h15eae117">🦊 Alice</span><span id="mkt-alice">–</span></p>
-            <p><span class="stat-label" data-i18n="h93304fe8">🐢 Bob</span><span id="mkt-bob">–</span></p>
-            <p><span class="stat-label" data-i18n="hf8d3019e">🎨 Ada (artist)</span><span id="mkt-ada">–</span></p>
+            <p><span class="stat-label" data-i18n="h35318264">Alice</span><span id="mkt-alice">–</span></p>
+            <p><span class="stat-label" data-i18n="hda6645f6">Bob</span><span id="mkt-bob">–</span></p>
+            <p><span class="stat-label" data-i18n="h94c58cc7">Ada (artist)</span><span id="mkt-ada">–</span></p>
             <p><span class="stat-label" data-i18n="h846ed9d9">Alice’s approvals</span><span id="mkt-approvals">–</span></p>
           </div>
           <p class="check-inline"><label><input type="checkbox" id="mkt-royalty" checked> <span data-i18n="ha2b91444">This marketplace pays the artist’s 5% royalty</span></label></p>
           <p class="demo-actions">
-            <button type="button" class="btn" id="mkt-list" data-i18n="h46960342">🏷️ Alice lists #1 for 5 ETH</button>
-            <button type="button" class="btn" id="mkt-approve" data-i18n="h5b9925cf">✅ Alice approves the marketplace</button>
-            <button type="button" class="btn primary" id="mkt-buy" data-i18n="ha9672cab">🛒 Bob buys #1</button>
+            <button type="button" class="btn" id="mkt-list" data-i18n="h72edff68">Alice lists #1 for 5 ETH</button>
+            <button type="button" class="btn" id="mkt-approve" data-i18n="h98ef556e">Alice approves the marketplace</button>
+            <button type="button" class="btn primary" id="mkt-buy" data-i18n="h96d2a9ac">Bob buys #1</button>
           </p>
           <p class="demo-actions">
-            <button type="button" class="btn" id="mkt-phish" data-i18n="h61009bab">😈 Alice clicks “free mint” on a scam site</button>
-            <button type="button" class="btn" id="mkt-revoke" data-i18n="h97562f30">🧹 Revoke all approvals</button>
+            <button type="button" class="btn" id="mkt-phish" data-i18n="h0a8f609a">Alice clicks “free mint” on a scam site</button>
+            <button type="button" class="btn" id="mkt-revoke" data-i18n="hcfcff358">Revoke all approvals</button>
             <button type="button" class="btn ghost" id="mkt-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <p class="hash-label" data-i18n="h65127ddb">Transaction log:</p>
@@ -2302,7 +2303,7 @@
           </div>
           <div class="chart" id="amm-chart"></div>
           <p class="demo-actions">
-            <button type="button" class="btn primary" id="amm-swap" data-i18n="h3251797a">🔄 Execute the swap</button>
+            <button type="button" class="btn primary" id="amm-swap" data-i18n="hd0e5c005">Execute the swap</button>
             <button type="button" class="btn ghost" id="amm-reset" data-i18n="hbdc60d71">Reset the pool</button>
           </p>
           <p class="verdict" id="amm-verdict" role="status"></p>
@@ -2408,7 +2409,7 @@
           </div>
           <p class="verdict" id="ln-verdict" role="status"></p>
           <p class="demo-actions">
-            <button type="button" class="btn" id="ln-liquidate" disabled data-i18n="hd6af958c">⚡ A liquidation bot steps in</button>
+            <button type="button" class="btn" id="ln-liquidate" disabled data-i18n="h6fd07f47">A liquidation bot steps in</button>
             <button type="button" class="btn ghost" id="ln-reset" data-i18n="h44c57abd">Reset</button>
           </p>
           <p class="demo-note" data-i18n="h27cca42d">
@@ -2510,7 +2511,7 @@
             <div>
               <p class="check-inline"><label><input type="checkbox" id="cave-knows" checked> <span data-i18n="hcd7a76c7">Peggy really knows the secret word</span></label></p>
               <p class="demo-actions">
-                <button type="button" class="btn primary" id="cave-round" data-i18n="he3345b2e">🔦 Run one round</button>
+                <button type="button" class="btn primary" id="cave-round" data-i18n="h15248362">Run one round</button>
                 <button type="button" class="btn" id="cave-ten" data-i18n="hc4621c0e">Run 10 rounds</button>
                 <button type="button" class="btn ghost" id="cave-reset" data-i18n="h44c57abd">Reset</button>
               </p>
@@ -2550,15 +2551,15 @@
             <div class="zk-side">
               <p class="stat-line" id="zk-graph-caption" data-i18n="h7de7e433">Seven nodes, twelve lines. Locked nodes show only Peggy’s commitment hash.</p>
               <p class="demo-actions">
-                <button type="button" class="btn primary" id="zk-commit" data-i18n="h546a36ab">🔒 New round: Peggy commits</button>
+                <button type="button" class="btn primary" id="zk-commit" data-i18n="ha4920be2">New round: Peggy commits</button>
               </p>
               <p>
                 <label for="zk-edge" data-i18n="h14e4ce8f">Victor challenges the line</label>
                 <select id="zk-edge"></select>
               </p>
               <p class="demo-actions">
-                <button type="button" class="btn" id="zk-challenge" disabled data-i18n="h6746ac22">🔍 Open that line</button>
-                <button type="button" class="btn" id="zk-auto" data-i18n="h52761252">⏩ Run 25 random rounds</button>
+                <button type="button" class="btn" id="zk-challenge" disabled data-i18n="h579c4183">Open that line</button>
+                <button type="button" class="btn" id="zk-auto" data-i18n="h15cc49e0">Run 25 random rounds</button>
                 <button type="button" class="btn ghost" id="zk-reset" data-i18n="h44c57abd">Reset</button>
               </p>
             </div>
@@ -2731,7 +2732,7 @@
       </section>
 
       <footer class="site-footer">
-        <p data-i18n="haf05dbcf">⛓️ ChainLab — built for learning. Simulations only: no wallets, no real coins, not financial advice.</p>
+        <p data-i18n="h3a678dfe">ChainLab — built for learning. Simulations only: no wallets, no real coins, not financial advice.</p>
       </footer>
     </main>
   </div>
