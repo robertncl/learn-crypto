@@ -212,7 +212,7 @@ export function initLendingDemo() {
     price.setAttribute('aria-valuetext', t('ln.valuetext', { price: usd(p), hf: Number.isFinite(hf) ? fmt(hf, 2) : t('ln.noDebt') }));
     $('#ln-coll').textContent = t('ln.coll', { eth: fmt(collateral, 3), usd: usd(value) });
     $('#ln-debt').textContent = usdc(debt);
-    $('#ln-hf').textContent = Number.isFinite(hf) ? `${hf < 1.2 ? '⚠️' : '✓'} ${fmt(hf, 2)}` : t('ln.hfNone');
+    $('#ln-hf').textContent = Number.isFinite(hf) ? fmt(hf, 2) : t('ln.hfNone');
     $('#ln-liq').textContent = debt > 0 ? usd(liquidationPrice(collateral, THRESHOLD, debt)) : t('ln.never');
     liqBtn.disabled = !(hf < 1);
 

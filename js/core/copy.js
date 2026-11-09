@@ -3,6 +3,13 @@ import { t } from './i18n.js';
 
 /* ============================== Copy-to-clipboard buttons ============================== */
 
+const icon = (name) => {
+  const span = document.createElement('span');
+  span.className = `icon icon-${name}`;
+  span.setAttribute('aria-hidden', 'true');
+  return span;
+};
+
 export function initCopyButtons() {
   if (!navigator.clipboard) return;
 
@@ -16,7 +23,7 @@ export function initCopyButtons() {
     btn.className = 'copy-btn';
     btn.title = t('copy.label');
     btn.setAttribute('aria-label', t('copy.label'));
-    btn.textContent = '⧉';
+    btn.replaceChildren(icon('copy'));
     wrap.append(box, btn);
 
     let resetId = 0;
@@ -25,11 +32,11 @@ export function initCopyButtons() {
       if (!text || text === '–') return;
       try {
         await navigator.clipboard.writeText(text);
-        btn.textContent = '✓';
+        btn.replaceChildren(icon('check'));
         btn.classList.add('copied');
         clearTimeout(resetId);
         resetId = setTimeout(() => {
-          btn.textContent = '⧉';
+          btn.replaceChildren(icon('copy'));
           btn.classList.remove('copied');
         }, 1200);
       } catch {

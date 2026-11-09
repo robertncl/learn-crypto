@@ -21,6 +21,7 @@ async function contentSecurityPolicy() {
     "default-src 'none'",
     `script-src 'self' ${hashes.join(" ")}`.trim(),
     "style-src 'self'",
+    "font-src 'self' data:",
     "img-src 'self' data:",
     "connect-src 'self'",
     "base-uri 'none'",

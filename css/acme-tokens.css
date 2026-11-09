@@ -1,0 +1,70 @@
+/* ACME Design System tokens (v5) — the primitives and semantic colours from the
+   system's tokens.css, plus its self-hosted Inter and JetBrains Mono.
+   The system's text-style utility classes (.body, .code, …) are left out so they
+   can't collide with ChainLab's own class names. styles.css maps its
+   --color-* tokens onto these. */
+:root {
+  --acme-gray-0: #FFFFFF;
+  --acme-gray-50: #F8F9FA;
+  --acme-gray-100: #F1F3F5;
+  --acme-gray-200: #E2E5E9;
+  --acme-gray-300: #C8CDD3;
+  --acme-gray-400: #838A94;
+  --acme-gray-500: #676E78;
+  --acme-gray-600: #525961;
+  --acme-gray-700: #3C424A;
+  --acme-gray-800: #272C32;
+  --acme-gray-900: #15181D;
+  --acme-gray-950: #0B0D10;
+  --acme-red-50: #FFF0EE;
+  --acme-red-100: #FFDEDB;
+  --acme-red-200: #FFBDB6;
+  --acme-red-300: #FB8D82;
+  --acme-red-400: #F2594D;
+  --acme-red-500: #E43227;
+  --acme-red-600: #C91C15;
+  --acme-red-700: #A91515;
+  --acme-red-800: #881415;
+  --acme-red-900: #641212;
+  --acme-blue-50: #EEF4FF;
+  --acme-blue-100: #DCE7FF;
+  --acme-blue-200: #BCD0FB;
+  --acme-blue-300: #86ACFA;
+  --acme-blue-500: #2F6BE4;
+  --acme-blue-600: #1F57C9;
+  --acme-blue-700: #1A47A6;
+  --acme-blue-800: #163A85;
+  --acme-green-50: #EBF7F0;
+  --acme-green-200: #B5E2C6;
+  --acme-green-600: #17784D;
+  --acme-green-700: #11643F;
+  --acme-green-800: #0D5034;
+  --acme-amber-50: #FEF6E6;
+  --acme-amber-200: #F6D8A0;
+  --acme-amber-600: #A05A06;
+  --acme-amber-700: #834808;
+  --acme-amber-800: #6A3A0B;
+
+  --acme-shadow-sm: 0 1px 2px #1018280D;
+  --acme-shadow-md: 0 4px 12px -2px #10182814;
+  --acme-shadow-lg: 0 16px 40px -8px #1018282E;
+
+  --acme-radius-sm: 4px;
+  --acme-radius-md: 6px;
+  --acme-radius-lg: 10px;
+  --acme-radius-xl: 12px;
+  --acme-radius-full: 999px;
+
+  --acme-font-sans: "Inter", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --acme-font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  --acme-tracking-tight: -0.02em;
+  --acme-tracking-snug: -0.011em;
+  --acme-tracking-caps: 0.06em;
+}
+
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }

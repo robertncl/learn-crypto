@@ -26,7 +26,7 @@ export function initTheme() {
     meta.content = stored() ?? 'light dark';
     const next = rendered() === 'dark' ? 'light' : 'dark';
     btn.replaceChildren(
-      el('span', { 'aria-hidden': 'true', textContent: next === 'dark' ? '🌙' : '☀️' }),
+      el('span', { 'aria-hidden': 'true', className: `icon icon-${next === 'dark' ? 'moon' : 'sun'}` }),
       el('span', { className: 'theme-word', textContent: ` ${t(next === 'dark' ? 'theme.dark' : 'theme.light')}` }),
     );
     btn.setAttribute('aria-label', t('theme.switchTo', { theme: t(next === 'dark' ? 'theme.dark' : 'theme.light') }));

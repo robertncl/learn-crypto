@@ -7,18 +7,18 @@ import { cidV1Raw } from '../lib/encoding.js';
 /* ============================== Module 8: NFT (ERC-721) demo ============================== */
 
 export function initNftDemo() {
-  const ACCOUNTS = { alice: '🦊 Alice', bob: '🐢 Bob', carol: '🦉 Carol' };
+  const ACCOUNTS = { alice: 'Alice', bob: 'Bob', carol: 'Carol' };
   /* Pool the demo draws from when minting fresh tokens. */
   const CRITTERS = [
-    { art: '🐉', name: 'Draco' }, { art: '🦄', name: 'Sparkle' }, { art: '🐙', name: 'Inky' },
-    { art: '🦖', name: 'Rexie' }, { art: '🐳', name: 'Bloo' }, { art: '🦋', name: 'Flit' },
-    { art: '🦁', name: 'Mane' }, { art: '🐝', name: 'Buzz' }, { art: '🦓', name: 'Stripes' },
-    { art: '🦦', name: 'Otto' }, { art: '🐧', name: 'Waddle' }, { art: '🦚', name: 'Plume' },
+    { art: 'D', name: 'Draco' }, { art: 'S', name: 'Sparkle' }, { art: 'I', name: 'Inky' },
+    { art: 'R', name: 'Rexie' }, { art: 'B', name: 'Bloo' }, { art: 'F', name: 'Flit' },
+    { art: 'M', name: 'Mane' }, { art: 'B', name: 'Buzz' }, { art: 'S', name: 'Stripes' },
+    { art: 'O', name: 'Otto' }, { art: 'W', name: 'Waddle' }, { art: 'P', name: 'Plume' },
   ];
   const INITIAL = [
-    { id: 1, art: '🐉', name: 'Draco', owner: 'alice' },
-    { id: 2, art: '🦄', name: 'Sparkle', owner: 'bob' },
-    { id: 3, art: '🐙', name: 'Inky', owner: 'carol' },
+    { id: 1, art: 'D', name: 'Draco', owner: 'alice' },
+    { id: 2, art: 'S', name: 'Sparkle', owner: 'bob' },
+    { id: 3, art: 'I', name: 'Inky', owner: 'carol' },
   ];
 
   let tokens = INITIAL.map((t) => ({ ...t }));
@@ -36,7 +36,7 @@ export function initNftDemo() {
     tokenSelect.replaceChildren(...tokens.map((t) => {
       const opt = document.createElement('option');
       opt.value = String(t.id);
-      opt.textContent = `#${t.id} ${t.art} ${t.name}`;
+      opt.textContent = `#${t.id} ${t.name}`;
       return opt;
     }));
     if (tokens.some((t) => String(t.id) === prev)) tokenSelect.value = prev;
@@ -66,7 +66,7 @@ export function initNftDemo() {
 
       const uri = document.createElement('p');
       uri.className = 'nft-uri';
-      uri.textContent = `🔗 ipfs://…/${t.id}.json`;
+      uri.textContent = `ipfs://…/${t.id}.json`;
       uri.title = tr('nft.uriTitle');
 
       card.append(art, name, idTag, ownerTag, uri);
@@ -138,8 +138,8 @@ export function initNftDemo() {
 /* ============================== Module 8: where the picture lives ============================== */
 
 export function initLinkRotDemo() {
-  const ORIGINAL = { name: 'Inky', description: 'Critter #7 — a very good octopus', image: '🐙' };
-  const SWAPPED = { name: 'Rock', description: 'Critter #7', image: '🪨' };
+  const ORIGINAL = { name: 'Inky', description: 'Critter #7 — a very good octopus', image: 'I' };
+  const SWAPPED = { name: 'Rock', description: 'Critter #7', image: 'R' };
   const json = (m) => JSON.stringify(m, null, 2);
   const cidOf = (m) => cidV1Raw(sha256(utf8(json(m))));
   const ORIGINAL_CID = cidOf(ORIGINAL);
@@ -157,7 +157,7 @@ export function initLinkRotDemo() {
     return meta
       ? [el('p', { className: 'nft-art', textContent: meta.image }), el('p', { className: 'nft-name', textContent: meta.name }),
         el('p', { className: 'nft-id', textContent: tr('nft.token', { id: 7 }) }), el('p', { className: 'nft-uri', textContent: note })]
-      : [el('p', { className: 'nft-art', textContent: '⬜' }), el('p', { className: 'nft-name', textContent: tr('cid.unavailable') }),
+      : [el('p', { className: 'nft-art', textContent: '?' }), el('p', { className: 'nft-name', textContent: tr('cid.unavailable') }),
         el('p', { className: 'nft-id', textContent: tr('nft.token', { id: 7 }) }), el('p', { className: 'nft-uri', textContent: note })];
   }
 
@@ -221,7 +221,7 @@ export function initLinkRotDemo() {
 export function initMarketplaceDemo() {
   const PRICE = 5;
   const ROYALTY = 0.05;
-  const NAMES = { Alice: '🦊 Alice', Bob: '🐢 Bob', Mallory: '😈 Mallory' };
+  const NAMES = { Alice: 'Alice', Bob: 'Bob', Mallory: 'Mallory' };
   const log = $('#mkt-log');
   let tokens;
   let eth;
@@ -304,7 +304,7 @@ export function initMarketplaceDemo() {
   });
 
   function reset() {
-    tokens = [{ id: 1, art: '🐉', name: 'Draco', owner: 'Alice' }, { id: 2, art: '🦄', name: 'Sparkle', owner: 'Alice' }];
+    tokens = [{ id: 1, art: 'D', name: 'Draco', owner: 'Alice' }, { id: 2, art: 'S', name: 'Sparkle', owner: 'Alice' }];
     eth = { Alice: 0, Bob: 10, Ada: 0 };
     approvals = new Set();
     listed = false;
